@@ -8,4 +8,5 @@ _artifacts
 _oldContracts
 _pendingContracts
 _ganache-cli-db
+hardhat.config.ts
 .idea
