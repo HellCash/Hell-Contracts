@@ -1,0 +1,1 @@
+remixd -s E:\Github\HellDefi\hardhat --remix-ide https://remix.ethereum.org

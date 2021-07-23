@@ -1,0 +1,1 @@
+npx hardhat run --network testnet scripts/deployHell.js

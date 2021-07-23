@@ -1,0 +1,96 @@
+// SPDX-License-Identifier: BUSL-1.1
+pragma solidity ^0.8.6;
+import "@openzeppelin/contracts-upgradeable/token/ERC20/ERC20Upgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
+import "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
+
+contract Hell is Initializable, ERC20Upgradeable, UUPSUpgradeable, OwnableUpgradeable {
+    address public _hellVaultAddress;
+    uint public _burnFee;
+    uint public _burntTokens;
+    mapping(address => bool) private excludedFromBurnFees;
+
+    function initialize() initializer public {
+        __ERC20_init("Hell", "HELL");
+        __Ownable_init();
+        __UUPSUpgradeable_init();
+        _mint(msg.sender, 666 * 10 ** decimals());
+        _burnFee = 4;
+        _burntTokens = 0;
+    }
+    ////////////////////////////////////////////////////////////////////
+    // Public Functions                                             ////
+    ////////////////////////////////////////////////////////////////////
+    function transfer(address recipient, uint amount) public override returns (bool) {
+        (uint recipientReceives, ) =  _burnFees(msg.sender, recipient, amount);
+        // Proceed with the transfer.
+        return super.transfer(recipient, recipientReceives);
+    }
+
+    function transferFrom(address sender, address recipient, uint256 amount) public override returns (bool) {
+        (uint recipientReceives, ) =  _burnFees(sender, recipient, amount);
+        return super.transferFrom(sender, recipient, recipientReceives);
+    }
+
+    function calculateBurnFees(uint amount, address recipient) public view returns (uint) {
+        // If msg.sender or Recipient are Excluded from fees.
+        if (excludedFromBurnFees[msg.sender] || excludedFromBurnFees[recipient]) {
+            return 0;
+        } else {
+            return uint(_burnFee) * (amount / 100);
+        }
+    }
+    ////////////////////////////////////////////////////////////////////
+    // Internal                                                     ////
+    ////////////////////////////////////////////////////////////////////
+    function _burnFees(address sender, address recipient, uint amount) internal returns (uint recipientReceives, uint amountBurned) {
+        require(recipient != address(0), "Cannot transfer to the zero address");
+        require(balanceOf(sender) >= amount, "Not enough balance");
+        amountBurned = calculateBurnFees(amount, recipient);
+        if (amountBurned > 0) {
+            // Subtract Burn fees
+            amount -= amountBurned;
+            _burntTokens += amountBurned;
+            // Burn Fees
+            _burn(msg.sender, amountBurned);
+        }
+        return (amount, amountBurned);
+    }
+    ////////////////////////////////////////////////////////////////////
+    // Only Owner                                                   ////
+    ////////////////////////////////////////////////////////////////////
+    function _authorizeUpgrade(address) internal override onlyOwner {}
+
+    function _setHellVaultAddress(address newHellVaultAddress) external onlyOwner {
+        require(newHellVaultAddress != address (0), "The Hell Vault address cannot be the zero address");
+        _hellVaultAddress = newHellVaultAddress;
+        emit HellVaultAddressUpdated(newHellVaultAddress);
+    }
+
+    function _setExcludedFromBurnList(address excludedAddress, bool isExcluded) external onlyOwner {
+        require(excludedAddress != address(0), "Cannot exclude the zero address");
+        excludedFromBurnFees[excludedAddress] = isExcluded;
+        emit ExcludedFromBurnList(excludedAddress, isExcluded);
+    }
+    ////////////////////////////////////////////////////////////////////
+    // Hell Vault Only                                              ////
+    ////////////////////////////////////////////////////////////////////
+    modifier onlyHellVault {
+        require(msg.sender == _hellVaultAddress, "Only the Hell Vault might trigger this function");
+        _;
+    }
+
+    function mintVaultRewards(uint amount) external onlyHellVault {
+        require(amount > 0, "The amount cannot be 0");
+        _mint(_hellVaultAddress, amount);
+        emit HellVaultMint(block.number, amount);
+    }
+    ////////////////////////////////////////////////////////////////////
+    // Events                                                       ////
+    ////////////////////////////////////////////////////////////////////
+    event HellVaultMint(uint indexed blockNumber, uint amount);
+    event HellVaultAddressUpdated(address newHellVaultAddress);
+    event ExcludedFromBurnList(address excludedAddress, bool isExcluded);
+
+}

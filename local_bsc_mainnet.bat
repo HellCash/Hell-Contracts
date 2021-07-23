@@ -1,0 +1,1 @@
+npx hardhat node --fork https://bsc-dataseed1.binance.org/
