@@ -2,10 +2,10 @@
 pragma solidity ^0.8.6;
 
 library HellishBlocks {
-    function lowerThan(uint blockNumber, uint higherBlock) internal view returns (bool) {
+    function lowerThan(uint blockNumber, uint higherBlock) internal pure returns (bool) {
         return blockNumber < higherBlock;
     }
-    function higherThan(uint blockNumber, uint lowerBlock) internal view returns (bool) {
+    function higherThan(uint blockNumber, uint lowerBlock) internal pure returns (bool) {
         return blockNumber > lowerBlock;
     }
     function elapsedOrEqualToCurrentBlock(uint blockNumber) internal view returns (bool) {
