@@ -7,7 +7,6 @@ import {GreedStarterHelpers} from "../../helpers/GreedStarterHelpers";
 import {EtherUtils} from "../../utils/ether-utils";
 import contractAddresses from "../../scripts/contractAddresses.json";
 import {ContractTestHelpers} from "../../helpers/ContractTestHelpers";
-import exp from "constants";
 
 describe('[Greed Starter] function invest', async () => {
     let masterSigner: any;
@@ -85,6 +84,16 @@ describe('[Greed Starter] function invest', async () => {
     it('Should fail if there aren\'t enough tokens available to perform the purchase', async() => {
         // IP6
         throw "Not implemented";
+    });
+
+    it('Should fail if the user already purchased the maximum amount available per wallet', async() => {
+        // Expect to be reverted with IP6
+        throw "Not Implemented";
+    });
+
+    it('Should fail if the user tries to buy less than the specified minimum amount', async() => {
+        // Expect to be reverted with IP7
+        throw "Not Implemented";
     });
 
     it('Should perform an investment', async() => {

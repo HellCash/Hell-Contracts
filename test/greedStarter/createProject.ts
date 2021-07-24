@@ -85,6 +85,11 @@ describe('[Greed Starter] function createProject', async () => {
         )).to.be.revertedWith("CP4"); // Starting block lower than current block
     });
 
+    it('Should fail if the minimumPurchase or maximumPurchase are equal to 0 or if minimumPurchase > maximumPurchase', async() => {
+        // Expect to be reverted with CP5
+        throw "Not Implemented";
+    });
+
     it('Should fail if the user hasn\'t enough balance', async () => {
         const hellContract: Contract = await HellTestHelpers.getHellContract(guest1Signer);
         const greedStarterContract: Contract = await GreedStarterHelpers.getGreedStarterContract(guest1Signer);
@@ -161,5 +166,4 @@ describe('[Greed Starter] function createProject', async () => {
         );
         await expect(await greedStarterContract._totalProjects()).to.be.equal(totalProjects.add(1));
     });
-
 });

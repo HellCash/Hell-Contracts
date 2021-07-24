@@ -28,14 +28,14 @@ contract GreedStarter is Initializable, UUPSUpgradeable, OwnableUpgradeable, Ree
         uint id;
         address payable tokenAddress;
         address payable paidWith;
-
         uint startingBlock;
         uint endsAtBlock;
         uint pricePerToken;
         uint totalTokens;
         uint totalSold;
+        uint minimumPurchase;
+        uint maximumPurchase;
         address createdBy;
-        uint createdAt;
         bool fundsOrRewardsWithdrawnByCreator;
     }
 
@@ -45,17 +45,21 @@ contract GreedStarter is Initializable, UUPSUpgradeable, OwnableUpgradeable, Ree
         uint totalTokens,
         uint startingBlock,
         uint endsAtBlock,
-        uint pricePerToken
+        uint pricePerToken,
+        uint minimumPurchase,
+        uint maximumPurchase
     ) external nonReentrant {
-        // Cannot create a project of the network currency
+        // CP1: Cannot create a project of the network currency
         require(tokenAddress != address(0), "CP1");
-        // Cannot create a project and sell it for the same currency
+        // CP2: Cannot create a project and sell it for the same currency
         require(tokenAddress != paidWith, "CP2");
-        // The minimum length should be of least 5000 blocks
+        // CP3: The minimum length should be of least 5000 blocks
         require(block.number.lowerThan(endsAtBlock) && endsAtBlock - block.number >= 5000, "CP3");
-        // The startingBlock should be higher than the current block and lower than the end block
+        // CP4: The startingBlock should be higher than the current block and lower than the end block
         require(startingBlock.notElapsedOrEqualToCurrentBlock() && startingBlock.lowerThan(endsAtBlock), "CP4");
-        // Validates for enough: balance, allowance and if the GreedStarter Contract received the expected amount
+        // CP5: The minimumPurchase and maximumPurchase must be higher than 0, The minimumPurchase should be lower than the maximumPurchase
+        require(0 < minimumPurchase && 0 < maximumPurchase && minimumPurchase < maximumPurchase, "CP5");
+        // safeDepositAsset: Validates for enough: balance, allowance and if the GreedStarter Contract received the expected amount
         payable(address(this)).safeDepositAsset(tokenAddress, totalTokens);
 
         Project memory project;
@@ -71,15 +75,15 @@ contract GreedStarter is Initializable, UUPSUpgradeable, OwnableUpgradeable, Ree
         project.pricePerToken = pricePerToken;
 
         project.createdBy = msg.sender;
-        project.createdAt = block.number;
+
+        project.minimumPurchase = minimumPurchase;
+        project.maximumPurchase = maximumPurchase;
 
         _projects[_totalProjects] = project;
 
         emit ProjectCreated(project.id, project.tokenAddress, project.paidWith, project.totalTokens, project.startingBlock, project.endsAtBlock, project.pricePerToken);
      }
 
-    // TODO: ADD MINIMUM PURCHASE LIMIT
-    // TODO: ADD A MAXIMUM PURCHASE LIMIT
      function invest(uint projectId, uint amountToPay) external nonReentrant {
          Project storage project = _projects[projectId];
          // IP1: This project doesn't exists
@@ -156,10 +160,9 @@ contract GreedStarter is Initializable, UUPSUpgradeable, OwnableUpgradeable, Ree
         _trustedProjects[_totalTrustedProjects] = projectId;
     }
 
-    event ProjectCreated(uint projectId, address payable tokenAddress, address payable paidWith, uint totalAvailable, uint startingBlock, uint endsAtBlock, uint pricePerToken);
-
-    event InvestedInProject(uint projectId, address user, uint amountPaid, uint amountRewarded, uint totalPaid, uint totalRewarded);
-    event CreatorWithdrawnFunds(uint projectId, address creatorAddress, uint amountCollected, uint amountRecovered);
-    event RewardsClaimed(uint projectId, address user, uint amountClaimed);
+    event ProjectCreated(uint indexed projectId, address payable tokenAddress, address payable paidWith, uint totalAvailable, uint startingBlock, uint endsAtBlock, uint pricePerToken);
+    event InvestedInProject(uint indexed projectId, address user, uint amountPaid, uint amountRewarded, uint totalPaid, uint totalRewarded);
+    event CreatorWithdrawnFunds(uint indexed projectId, address creatorAddress, uint amountCollected, uint amountRecovered);
+    event RewardsClaimed(uint indexed projectId, address user, uint amountClaimed);
     event TreasuryAddressAndFeesUpdated(address indexed treasuryAddress, uint16 newFee);
 }
