@@ -10,3 +10,4 @@ _pendingContracts
 _ganache-cli-db
 hardhat.config.ts
 .idea
+artifacts
