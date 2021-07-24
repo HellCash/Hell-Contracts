@@ -5,7 +5,7 @@ import {RewardCalculationMode} from "../models/reward-calculation-mode.enum";
 import {ClaimMode} from "../models/claim-mode.enum";
 import {ethers} from "hardhat";
 import contractAddresses from "../scripts/contractAddresses.json";
-import hellVaultSol from "E:/Github/HellDefi/dApp/src/artifacts/contracts/HellVault.sol/HellVault.json";
+import hellVaultSol from "../artifacts/contracts/HellVault.sol/HellVault.json";
 import {HellTestHelpers} from "./HellTestHelpers";
 
 export class HellVaultTestHelpers {

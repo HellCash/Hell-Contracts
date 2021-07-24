@@ -1,8 +1,8 @@
 import {Contract, Signer} from "ethers";
 import {ethers} from "hardhat";
 import contractAddresses from "../scripts/contractAddresses.json";
-import auctionHouseSol from "../../artifacts/contracts/AuctionHouse.sol/AuctionHouse.json";
-import auctionHouseIndexerSol from "../../artifacts/contracts/AuctionHouseIndexer.sol/AuctionHouseIndexer.json";
+import auctionHouseSol from "../artifacts/contracts/AuctionHouse.sol/AuctionHouse.json";
+import auctionHouseIndexerSol from "../artifacts/contracts/AuctionHouseIndexer.sol/AuctionHouseIndexer.json";
 import {Auction} from "../models/auction";
 import {parseEther} from "ethers/lib/utils";
 

@@ -1,6 +1,6 @@
 import {ethers} from "hardhat";
 import {Signer} from "ethers";
-import greedStarter from "../../dApp/src/artifacts/contracts/GreedStarter.sol/GreedStarter.json";
+import greedStarter from "../artifacts/contracts/GreedStarter.sol/GreedStarter.json";
 import contractAddresses from "../scripts/contractAddresses.json";
 
 export class GreedStarterHelpers {

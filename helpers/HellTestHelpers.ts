@@ -1,7 +1,7 @@
 import {Console} from "../utils/console";
 import {utils as Utils} from "ethers/lib/ethers";
 import {BigNumber, Contract, Signer} from "ethers";
-import hellSol from "E:/Github/HellDefi/dApp/src/artifacts/contracts/Hell.sol/Hell.json";
+import hellSol from "../artifacts/contracts/Hell.sol/Hell.json";
 import contractAddresses from "../scripts/contractAddresses.json";
 import {ethers} from "hardhat";
 
