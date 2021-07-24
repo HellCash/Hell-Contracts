@@ -11,3 +11,5 @@ _ganache-cli-db
 hardhat.config.ts
 .idea
 artifacts
+scripts/contractAddresses.json
+.openzeppelin
