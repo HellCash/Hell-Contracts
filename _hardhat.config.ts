@@ -9,7 +9,6 @@ export default {
   defaultNetwork: "localhost",
   networks: {
     localhost: {
-      forking: "https://bsc-dataseed.binance.org",
       url: "http://127.0.0.1:8545",
       gas: "auto",
       gasPrice: 20000000000,
@@ -17,14 +16,14 @@ export default {
       allowUnlimitedContractSize: true,
       accounts: [],
     },
-    testnet: {
+    bsc_testnet: {
       url: "https://data-seed-prebsc-1-s1.binance.org:8545",
       chainId: 97,
       gasPrice: 20000000000,
       gasLimit: 100000000,
-      accounts: ["e0948280928e4abfa1fc38a872496bab0ab48a51fb7077b12c455819dec64e0b"],
+      accounts: [],
     },
-    mainnet: {
+    bsc_mainnet: {
       url: "https://bsc-dataseed.binance.org/",
       chainId: 56,
       gasPrice: 20000000000,
@@ -40,7 +39,7 @@ export default {
     sources: "./contracts",
     tests: "./test",
     cache: "./cache",
-    artifacts: "./../artifacts"
+    artifacts: "./artifacts"
   },
   mocha: {
     timeout: 300000
