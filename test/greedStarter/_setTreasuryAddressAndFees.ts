@@ -1,9 +1,9 @@
-import {AuctionTestHelpers} from "../../helpers/AuctionTestHelpers";
 import {ethers} from "hardhat";
 import {expect} from "chai";
 import {Contract} from "ethers";
+import {GreedStarterHelpers} from "../../helpers/GreedStarterHelpers";
 
-describe('[Greed Starter] function _setTreasuryAddressAndFees', async () => {
+describe('[Greed Starter] function _setTreasuryAddressAndFees', async() => {
 
     let masterSigner: any;
     let guest1Signer: any;
@@ -17,12 +17,12 @@ describe('[Greed Starter] function _setTreasuryAddressAndFees', async () => {
     });
 
     it('Should fail if not called by the owner', async() => {
-        const auctionHouseContract: Contract = await AuctionTestHelpers.getAuctionContract(guest1Signer);
-        await expect(auctionHouseContract._setTreasuryAddressAndFees(guest1Signer.address, 400)).to.be.revertedWith("Ownable: caller is not the owner");
+        const greedStarterContract: Contract = await GreedStarterHelpers.getGreedStarterContract(guest1Signer);
+        await expect(greedStarterContract._setTreasuryAddressAndFees(guest1Signer.address, 400)).to.be.revertedWith("Ownable: caller is not the owner");
     });
 
     it('Should update the treasury address and his fees', async () => {
-        const auctionHouseContract: Contract = await AuctionTestHelpers.getAuctionContract(masterSigner);
-        await expect(auctionHouseContract._setTreasuryAddressAndFees(treasurySigner.address, 400)).to.emit(auctionHouseContract, "TreasuryAddressAndFeesUpdated").withArgs(treasurySigner.address, 400);
+        const greedStarterContract: Contract = await GreedStarterHelpers.getGreedStarterContract(masterSigner);
+        await expect(greedStarterContract._setTreasuryAddressAndFees(treasurySigner.address, 400)).to.emit(greedStarterContract, "TreasuryAddressAndFeesUpdated").withArgs(treasurySigner.address, 400);
     });
 });
