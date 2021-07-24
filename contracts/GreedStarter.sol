@@ -111,7 +111,7 @@ contract GreedStarter is Initializable, UUPSUpgradeable, OwnableUpgradeable, Ree
     function claimFunds(uint projectId) external nonReentrant {
         Project storage project = _projects[projectId];
         // WR1: "This project is still in progress"
-        require(HellishBlocks.elapsed(project.endsAtBlock) || (project.totalSold == project.totalTokens) , "WR1");
+        require(project.endsAtBlock.elapsed(), "WR1");
 
         uint rewardedAmount;
         if(msg.sender == project.createdBy) {
