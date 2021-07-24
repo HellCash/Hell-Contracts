@@ -153,14 +153,24 @@ contract GreedStarter is Initializable, UUPSUpgradeable, OwnableUpgradeable, Ree
     }
 
     function _setProjectAsTrusted(uint projectId) public onlyOwner {
-        Project storage project = _projects[projectId];
         // ST: This project doesn't exists
-        require(project.id != 0, "ST");
+        require(_projects[projectId].id != 0, "ST");
         _totalTrustedProjects += 1;
         _trustedProjects[_totalTrustedProjects] = projectId;
+        emit ProjectMarkedAsTrusted(projectId);
+    }
+
+    function _removeFromTrustedProjects(uint projectIndex) public onlyOwner {
+        uint projectId = _trustedProjects[projectIndex];
+        // RT: This project doesn't exists
+        require(projectId != 0, "RT");
+        _trustedProjects[projectIndex] = 0;
+        emit ProjectRemovedFromTrustedProjects(projectId, projectIndex);
     }
 
     event ProjectCreated(uint indexed projectId, address payable tokenAddress, address payable paidWith, uint totalAvailable, uint startingBlock, uint endsAtBlock, uint pricePerToken);
+    event ProjectMarkedAsTrusted(uint indexed projectId);
+    event ProjectRemovedFromTrustedProjects(uint indexed projectId, uint indexed projectIndex);
     event InvestedInProject(uint indexed projectId, address user, uint amountPaid, uint amountRewarded, uint totalPaid, uint totalRewarded);
     event CreatorWithdrawnFunds(uint indexed projectId, address creatorAddress, uint amountCollected, uint amountRecovered);
     event RewardsClaimed(uint indexed projectId, address user, uint amountClaimed);
