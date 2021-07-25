@@ -30,7 +30,15 @@ describe('[Greed Starter] function createProject', async () => {
             currentBlock + 25, // Starting block
             currentBlock + 5000, // Ending block
             parseEther("0.02"), // Price per token
+            parseEther("2"), // Minimum purchase
+            parseEther("10") // Maximum Purchase
         )).to.be.revertedWith("CP1"); // Cannot create a project of the network currency
+    });
+
+    it('Should fail if the minimum or maximum purchase are set to 0', async() => {
+        const greedStarterContract: Contract = await GreedStarterHelpers.getGreedStarterContract(guest1Signer);
+        // await (expect);
+        throw "Not implemented";
     });
 
     it('Should fail if the tokenAddress and paidWith address are the same', async () => {
@@ -43,6 +51,8 @@ describe('[Greed Starter] function createProject', async () => {
             currentBlock + 25, // Starting block
             currentBlock + 5000, // Ending block
             parseEther("0.02"), // Price per token
+            parseEther("5"), // Minimum purchase
+            parseEther("10") // Maximum Purchase
         )).to.be.revertedWith("CP2"); // Cannot create a project and sell it for the same currency
     });
 
@@ -56,6 +66,8 @@ describe('[Greed Starter] function createProject', async () => {
             currentBlock + 25, // Starting block
             currentBlock + 2500, // Ending block  <--- REVERT
             parseEther("0.02"), // Price per token
+            parseEther("5"), // Minimum purchase
+            parseEther("10") // Maximum Purchase
         )).to.be.revertedWith("CP3"); // The minimum length should be of least 5000 blocks
     });
 
@@ -69,6 +81,8 @@ describe('[Greed Starter] function createProject', async () => {
             currentBlock + 12000, // Starting block  <--- REVERT
             currentBlock + 10000, // Ending block
             parseEther("0.02"), // Price per token
+            parseEther("5"), // Minimum purchase
+            parseEther("10") // Maximum Purchase
         )).to.be.revertedWith("CP4"); // The startingBlock should be higher than the current block and lower than the end block
     });
 
@@ -82,6 +96,8 @@ describe('[Greed Starter] function createProject', async () => {
             currentBlock - 1, // Starting block  <--- REVERT
             currentBlock + 10000, // Ending block
             parseEther("0.02"), // Price per token
+            parseEther("5"), // Minimum purchase
+            parseEther("10") // Maximum Purchase
         )).to.be.revertedWith("CP4"); // Starting block lower than current block
     });
 
@@ -103,6 +119,8 @@ describe('[Greed Starter] function createProject', async () => {
             currentBlock + 25, // Starting block
             currentBlock + 5500, // Ending block
             parseEther("0.02"), // Price per token
+            parseEther("5"), // Minimum purchase
+            parseEther("10") // Maximum Purchase
         )).to.be.revertedWith("DA2"); // DA2: Not enough Balance
     });
 
@@ -120,6 +138,8 @@ describe('[Greed Starter] function createProject', async () => {
             currentBlock + 25, // Starting block
             currentBlock + 5500, // Ending block
             parseEther("0.02"), // Price per token
+            parseEther("5"), // Minimum purchase
+            parseEther("10") // Maximum Purchase
         )).to.be.revertedWith("DA3"); // DA3: Not enough allowance
     });
 
@@ -137,6 +157,8 @@ describe('[Greed Starter] function createProject', async () => {
             currentBlock + 25, // Starting block
             currentBlock + 5500, // Ending block
             parseEther("0.002"), // Price per token
+            parseEther("5"), // Minimum purchase
+            parseEther("10") // Maximum Purchase
         )).to.be.revertedWith("DA4"); // DA4: You didn't send enough funds for this operation
     });
 
@@ -155,6 +177,8 @@ describe('[Greed Starter] function createProject', async () => {
             currentBlock + 25, // Starting block
             currentBlock + 5500, // Ending block
             parseEther("20"), // Price per token
+            parseEther("5"), // Minimum purchase
+            parseEther("10") // Maximum Purchase
         )).to.emit(greedStarterContract,"ProjectCreated").withArgs(
             totalProjects.add(1),
             hellContract.address, // Token address

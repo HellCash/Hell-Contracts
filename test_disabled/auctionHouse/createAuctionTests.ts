@@ -79,9 +79,7 @@ describe("[Auction House] function createAuction", () => {
             parseEther("10"), // Buyout price
             await ethers.provider.getBlockNumber() + 3500, {
                 value: parseEther("19.5")
-            }),
-            'You didn\'t send enough funds for this operation')
-            .to.be.revertedWith('DA1');
+            })).to.be.revertedWith('DA1');
     });
 
     it('ERC20: Creating an Auction without enough allowance should fail', async () => {
