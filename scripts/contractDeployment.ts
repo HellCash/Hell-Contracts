@@ -3,12 +3,13 @@ import {writeFileSync} from "fs";
 import {resolve} from "path";
 import {Console} from "../utils/console";
 import {deployAuctionHouse} from "./deployments/deployAuctionHouse";
-import {deployHell} from "./deployments/hellDeployment";
-import {deployHellVault} from "./deployments/hellVaultDeployment";
+import {deployHell} from "./deployments/deployHell";
+import {deployHellVault} from "./deployments/deployHellVault";
 import {deployDoublon} from "./deployments/deployDoublon";
 import {deployBDoublon} from "./deployments/deployBDoublon";
 import {deployAuctionHouseIndexer} from "./deployments/deployAuctionHouseIndexer";
 import {deployGreedStarter} from "./deployments/deployGreedStarter";
+import {deployGreedStarterIndexer} from "./deployments/deployGreedStarterIndexer";
 
 export async function deployContracts(): Promise<boolean> {
     Console.logTitle("Deploying Contracts");
@@ -33,6 +34,8 @@ export async function deployContracts(): Promise<boolean> {
     const greedStarterContract = await deployGreedStarter(treasuryAddress);
     console.log('Hell Contract: Exclude Greed Starter from burn list');
     await hellContract._setExcludedFromBurnList(greedStarterContract.address, true);
+    const greedStarterIndexerContract = await deployGreedStarterIndexer(greedStarterContract.address);
+    await greedStarterContract._setIndexer(greedStarterIndexerContract.address);
 
     // Write Deployment Addresses to JSON storage file
     const addressesData = {
@@ -43,6 +46,7 @@ export async function deployContracts(): Promise<boolean> {
         'auctionHouse': auctionContract.address,
         'auctionHouseIndexer': auctionIndexerContract.address,
         'greedStarter': greedStarterContract.address,
+        'greedStarterIndexer': greedStarterIndexerContract.address,
     };
 
     writeFileSync(resolve(__dirname, 'contractAddresses.json'), JSON.stringify(addressesData));

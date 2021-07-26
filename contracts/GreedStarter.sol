@@ -7,19 +7,20 @@ import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol";
 import "./libraries/HellishTransfers.sol";
 import "./libraries/HellishBlocks.sol";
+import "./GreedStarterIndexer.sol";
 
 contract GreedStarter is Initializable, UUPSUpgradeable, OwnableUpgradeable, ReentrancyGuardUpgradeable {
     using HellishTransfers for address;
     using HellishTransfers for address payable;
     using HellishBlocks for uint;
 
+    GreedStarterIndexer private _indexer;
+    address public _indexerAddress;
+
     uint public _totalProjects;
     mapping(uint => Project) public _projects;
     mapping(uint => mapping(address => uint)) public _paidAmount;
     mapping(uint => mapping(address => uint)) public _rewardedAmount;
-
-    uint public _totalTrustedProjects;
-    mapping(uint => uint) public _trustedProjects;
 
     address payable private _hellTreasuryAddress;
     uint16 private _hellTreasuryFee;
@@ -54,7 +55,7 @@ contract GreedStarter is Initializable, UUPSUpgradeable, OwnableUpgradeable, Ree
         // CP2: Cannot create a project and sell it for the same currency
         require(tokenAddress != paidWith, "CP2");
         // CP3: The minimum length should be of least 5000 blocks
-        require(block.number.lowerThan(endsAtBlock) && endsAtBlock - block.number >= 5000, "CP3");
+        require(block.number.lowerThan(endsAtBlock) && endsAtBlock - block.number >= 1000, "CP3");
         // CP4: The startingBlock should be higher than the current block and lower than the end block
         require(startingBlock.notElapsedOrEqualToCurrentBlock() && startingBlock.lowerThan(endsAtBlock), "CP4");
         // CP5: The minimumPurchase and maximumPurchase must be higher than 0, The minimumPurchase should be lower than the maximumPurchase
@@ -80,6 +81,10 @@ contract GreedStarter is Initializable, UUPSUpgradeable, OwnableUpgradeable, Ree
         project.maximumPurchase = maximumPurchase;
 
         _projects[_totalProjects] = project;
+
+        if(owner() == msg.sender) {
+            _indexer._registerTrustedProject(project.id);
+        }
 
         emit ProjectCreated(project.id, project.tokenAddress, project.paidWith, project.totalTokens, project.startingBlock, project.endsAtBlock, project.pricePerToken);
      }
@@ -135,7 +140,17 @@ contract GreedStarter is Initializable, UUPSUpgradeable, OwnableUpgradeable, Ree
             emit RewardsClaimed(projectId, msg.sender, rewardedAmount);
         }
     }
-
+    ////////////////////////////////////////////////////////////////////
+    // Views                                                        ////
+    ////////////////////////////////////////////////////////////////////
+    function getProjects(uint[] memory ids) external view returns(Project[] memory) {
+        require(ids.length <= 30, "GP"); // You can request 30 projects at once
+        Project[] memory projects = new Project[](ids.length);
+        for(uint i = 0; i < ids.length; i++) {
+            projects[i] = _projects[ids[i]];
+        }
+        return projects;
+    }
     ////////////////////////////////////////////////////////////////////
     // Only Owner                                                   ////
     ////////////////////////////////////////////////////////////////////
@@ -152,27 +167,17 @@ contract GreedStarter is Initializable, UUPSUpgradeable, OwnableUpgradeable, Ree
         emit TreasuryAddressAndFeesUpdated(treasuryAddress, newFee);
     }
 
-    function _setProjectAsTrusted(uint projectId) public onlyOwner {
-        // ST: This project doesn't exists
-        require(_projects[projectId].id != 0, "ST");
-        _totalTrustedProjects += 1;
-        _trustedProjects[_totalTrustedProjects] = projectId;
-        emit ProjectMarkedAsTrusted(projectId);
-    }
-
-    function _removeFromTrustedProjects(uint projectIndex) public onlyOwner {
-        uint projectId = _trustedProjects[projectIndex];
-        // RT: This project doesn't exists
-        require(projectId != 0, "RT");
-        _trustedProjects[projectIndex] = 0;
-        emit ProjectRemovedFromTrustedProjects(projectId, projectIndex);
+    function _setIndexer(address indexerAddress) external onlyOwner {
+        _indexerAddress = indexerAddress;
+        _indexer = GreedStarterIndexer(indexerAddress);
+        emit GreedStarterIndexerUpdated(indexerAddress);
     }
 
     event ProjectCreated(uint indexed projectId, address payable tokenAddress, address payable paidWith, uint totalAvailable, uint startingBlock, uint endsAtBlock, uint pricePerToken);
-    event ProjectMarkedAsTrusted(uint indexed projectId);
-    event ProjectRemovedFromTrustedProjects(uint indexed projectId, uint indexed projectIndex);
     event InvestedInProject(uint indexed projectId, address user, uint amountPaid, uint amountRewarded, uint totalPaid, uint totalRewarded);
     event CreatorWithdrawnFunds(uint indexed projectId, address creatorAddress, uint amountCollected, uint amountRecovered);
     event RewardsClaimed(uint indexed projectId, address user, uint amountClaimed);
     event TreasuryAddressAndFeesUpdated(address indexed treasuryAddress, uint16 newFee);
+    event GreedStarterIndexerUpdated(address newIndexerAddress);
+
 }
