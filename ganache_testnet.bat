@@ -1,1 +1,0 @@
-ganache-cli --deterministic --chainId 31337 --db "./_ganache-cli-db"
