@@ -54,8 +54,9 @@ contract GreedStarter is Initializable, UUPSUpgradeable, OwnableUpgradeable, Ree
         require(tokenAddress != address(0), "CP1");
         // CP2: Cannot create a project and sell it for the same currency
         require(tokenAddress != paidWith, "CP2");
-        // CP3: The minimum length should be of least 5000 blocks
-        require(block.number.lowerThan(endsAtBlock) && endsAtBlock - block.number >= 1000, "CP3");
+        // CP3: The minimum length should be of least 1000 blocks
+        // TODO: Increase minimum block length, Should be set to 5000 at least
+        require(block.number.lowerThan(endsAtBlock) && endsAtBlock - block.number >= 100, "CP3");
         // CP4: The startingBlock should be higher than the current block and lower than the end block
         require(startingBlock.notElapsedOrEqualToCurrentBlock() && startingBlock.lowerThan(endsAtBlock), "CP4");
         // CP5: The minimumPurchase and maximumPurchase must be higher than 0, The minimumPurchase should be lower than the maximumPurchase

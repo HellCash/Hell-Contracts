@@ -2,7 +2,7 @@ import {BigNumber, Contract} from 'ethers';
 import {ethers} from 'hardhat';
 import {AuctionTestHelpers} from '../../helpers/AuctionTestHelpers';
 import {HellTestHelpers} from '../../helpers/HellTestHelpers';
-import erc20sol from "../../../artifacts/@openzeppelin/contracts/token/ERC20/ERC20.sol/ERC20.json";
+import erc20sol from "../../artifacts/@openzeppelin/contracts/token/ERC20/ERC20.sol/ERC20.json";
 import contractAddresses from '../../scripts/contractAddresses.json';
 import {parseEther} from 'ethers/lib/utils';
 import {EtherUtils} from '../../utils/ether-utils';

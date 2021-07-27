@@ -28,13 +28,12 @@ describe('[Greed Starter] function claimFunds', async () => {
 
         const totalProjects: BigNumber = await greedStarterContract._totalProjects();
 
-
         await greedStarterContract.createProject(
             contractAddresses.hell, // Token address
             EtherUtils.zeroAddress(), // Address of paying currency
             parseEther("50"), // Total Tokens
-            currentBlock + 25, // Starting block
-            currentBlock + 5500, // Ending block
+            currentBlock + 5, // Starting block
+            currentBlock + 100, // Ending block
             parseEther("20"), // Price per token
             parseEther("1"), // Minimum Purchase
             parseEther("5") // Maximum Purchase
@@ -44,11 +43,13 @@ describe('[Greed Starter] function claimFunds', async () => {
     });
 
     it('Should fail if the Project is still in progress', async() => {
-        // Expect revert WR1
-        throw "Not implemented";
+        const greedStarterContract: Contract = await GreedStarterHelpers.getGreedStarterContract(guest1Signer);
+        await expect(greedStarterContract.claimFunds(hellProjectId)).to.be.revertedWith("WR1");
     });
 
     it('Project creator should be able to withdraw his rewards and left over tokens', async() => {
+        const greedStarterContract: Contract = await GreedStarterHelpers.getGreedStarterContract(masterSigner);
+        
         // Verify that treasury fees were paid if anything was sold
         // Verify that the creator received his rewards (Tokens that were sold)
         // Verify that the creator received any left over tokens (Tokens that didn't sold)
@@ -60,8 +61,6 @@ describe('[Greed Starter] function claimFunds', async () => {
         // Expect revert WR2
         throw "Not implemented";
     });
-
-
 
     it('Should fail if the project is finished and the user tries to claim funds without having invested', async() => {
         // To make this tests we need to wait until the project finishes.

@@ -35,7 +35,6 @@ contract GreedStarterIndexer is Initializable, UUPSUpgradeable, OwnableUpgradeab
         return trustedProjectIds;
     }
 
-
     ////////////////////////////////////////////////////////////////////
     // Greed Starter                                                ////
     ////////////////////////////////////////////////////////////////////
@@ -53,6 +52,7 @@ contract GreedStarterIndexer is Initializable, UUPSUpgradeable, OwnableUpgradeab
         __Ownable_init();
         __UUPSUpgradeable_init();
         _maximumPageSize = 30;
+        _totalTrustedProjects = 0;
         _setGreedStarterContract(greedStarterAddress);
     }
 

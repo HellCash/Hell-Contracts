@@ -165,7 +165,7 @@ describe('[Greed Starter] function createProject', async () => {
     it('Should create the project successfully', async () => {
         const hellContract: Contract = await HellTestHelpers.getHellContract(masterSigner);
         const greedStarterContract: Contract = await GreedStarterHelpers.getGreedStarterContract(masterSigner);
-        const currentBlock = await ethers.provider.getBlockNumber();
+        const currentBlock: number = await ethers.provider.getBlockNumber();
         await hellContract.approve(contractAddresses.greedStarter, parseEther("200000"));
 
         const totalProjects: BigNumber = await greedStarterContract._totalProjects();
