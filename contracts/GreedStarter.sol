@@ -20,7 +20,7 @@ contract GreedStarter is Initializable, UUPSUpgradeable, OwnableUpgradeable, Ree
     uint public _totalProjects;
     mapping(uint => Project) public _projects;
     mapping(uint => mapping(address => uint)) public _paidAmount;
-    mapping(uint => mapping(address => uint)) public _rewardedAmount;
+    mapping(uint => mapping(address => uint)) public _pendingRewards;
 
     address payable private _hellTreasuryAddress;
     uint16 private _hellTreasuryFee;
@@ -109,9 +109,9 @@ contract GreedStarter is Initializable, UUPSUpgradeable, OwnableUpgradeable, Ree
          project.totalSold += purchasedAmount;
 
          _paidAmount[projectId][msg.sender] += amountToPay;
-         _rewardedAmount[projectId][msg.sender] += purchasedAmount;
+         _pendingRewards[projectId][msg.sender] += purchasedAmount;
 
-         emit InvestedInProject(projectId, msg.sender, amountToPay, purchasedAmount, _paidAmount[projectId][msg.sender], _rewardedAmount[projectId][msg.sender]);
+         emit InvestedInProject(projectId, msg.sender, amountToPay, purchasedAmount, _paidAmount[projectId][msg.sender], _pendingRewards[projectId][msg.sender]);
      }
 
     function claimFunds(uint projectId) external nonReentrant {
@@ -133,10 +133,10 @@ contract GreedStarter is Initializable, UUPSUpgradeable, OwnableUpgradeable, Ree
             }
             emit CreatorWithdrawnFunds(projectId, msg.sender, rewardedAmount, unsoldAmount);
         } else {
-            rewardedAmount = _rewardedAmount[projectId][msg.sender];
+            rewardedAmount = _pendingRewards[projectId][msg.sender];
             // "You don't have any reward to claim"
-            require(_rewardedAmount[projectId][msg.sender] > 0, "WR3");
-            _rewardedAmount[projectId][msg.sender] = 0;
+            require(_pendingRewards[projectId][msg.sender] > 0, "WR3");
+            _pendingRewards[projectId][msg.sender] = 0;
             payable(msg.sender).safeTransferAsset(project.tokenAddress, rewardedAmount);
             emit RewardsClaimed(projectId, msg.sender, rewardedAmount);
         }
