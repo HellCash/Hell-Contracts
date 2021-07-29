@@ -13,6 +13,7 @@ contract GreedStarterIndexer is Initializable, UUPSUpgradeable, OwnableUpgradeab
     //////////////////////////////////////////////////////////////////////////
     uint public _totalTrustedProjects;
     mapping(uint => uint) public _trustedProjects;
+    mapping(uint => bool) public _projectIsTrusted;
     //////////////////////////////////////////////////////////////////////////
     // Holds the number of projects the user has created
     mapping(address => uint) public _userTotalProjects;
@@ -42,6 +43,7 @@ contract GreedStarterIndexer is Initializable, UUPSUpgradeable, OwnableUpgradeab
     function _registerTrustedProject(uint projectId) external onlyOwnerOrGreedStarter {
         _totalTrustedProjects += 1;
         _trustedProjects[_totalTrustedProjects] = projectId;
+        _projectIsTrusted[projectId] = true;
         emit ProjectRegisteredAsTrusted(projectId);
     }
 
@@ -59,6 +61,7 @@ contract GreedStarterIndexer is Initializable, UUPSUpgradeable, OwnableUpgradeab
     function _removeFromTrustedProjects(uint projectIndex) external onlyOwner {
         uint projectId = _trustedProjects[projectIndex];
         _trustedProjects[projectIndex] = 0;
+        _projectIsTrusted[projectId] = false;
         emit ProjectRemovedFromTrustedProjects(projectId, projectIndex);
     }
 
