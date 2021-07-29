@@ -90,7 +90,7 @@ contract GreedStarter is Initializable, UUPSUpgradeable, OwnableUpgradeable, Ree
         emit ProjectCreated(project.id, project.tokenAddress, project.paidWith, project.totalTokens, project.startingBlock, project.endsAtBlock, project.pricePerToken);
      }
 
-     function invest(uint projectId, uint amountToPay) external nonReentrant {
+     function invest(uint projectId, uint amountToPay) external payable nonReentrant {
          Project storage project = _projects[projectId];
          // IP1: This project doesn't exists
          require(project.id != 0, "IP1");
