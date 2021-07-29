@@ -123,15 +123,17 @@ contract GreedStarter is Initializable, UUPSUpgradeable, OwnableUpgradeable, Ree
         if(msg.sender == project.createdBy) {
             require(project.fundsOrRewardsWithdrawnByCreator == false, "WR2");
             project.fundsOrRewardsWithdrawnByCreator = true;
+            uint userReceives;
+            uint feePaid;
             if (project.totalSold > 0) {
                 rewardedAmount = project.totalSold * project.pricePerToken;
-                payable(project.createdBy).safeTransferAssetAndPayFee(project.paidWith, rewardedAmount, _hellTreasuryAddress, _hellTreasuryFee);
+                (userReceives, feePaid) = payable(project.createdBy).safeTransferAssetAndPayFee(project.paidWith, rewardedAmount, _hellTreasuryAddress, _hellTreasuryFee);
             }
             uint unsoldAmount = project.totalTokens - project.totalSold;
             if (unsoldAmount > 0) {
                 payable(project.createdBy).safeTransferAsset(project.tokenAddress, unsoldAmount);
             }
-            emit CreatorWithdrawnFunds(projectId, msg.sender, rewardedAmount, unsoldAmount);
+            emit CreatorWithdrawnFunds(projectId, msg.sender, rewardedAmount, feePaid, userReceives, unsoldAmount);
         } else {
             rewardedAmount = _pendingRewards[projectId][msg.sender];
             // "You don't have any reward to claim"
@@ -176,7 +178,7 @@ contract GreedStarter is Initializable, UUPSUpgradeable, OwnableUpgradeable, Ree
 
     event ProjectCreated(uint indexed projectId, address payable tokenAddress, address payable paidWith, uint totalAvailable, uint startingBlock, uint endsAtBlock, uint pricePerToken);
     event InvestedInProject(uint indexed projectId, address user, uint amountPaid, uint amountRewarded, uint totalPaid, uint totalRewarded);
-    event CreatorWithdrawnFunds(uint indexed projectId, address creatorAddress, uint amountCollected, uint amountRecovered);
+    event CreatorWithdrawnFunds(uint indexed projectId, address creatorAddress, uint amountRewarded, uint paidFees, uint amountRewardedAfterFees, uint amountRecovered);
     event RewardsClaimed(uint indexed projectId, address user, uint amountClaimed);
     event TreasuryAddressAndFeesUpdated(address indexed treasuryAddress, uint16 newFee);
     event GreedStarterIndexerUpdated(address newIndexerAddress);
