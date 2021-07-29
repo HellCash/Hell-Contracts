@@ -23,7 +23,7 @@ contract GreedStarter is Initializable, UUPSUpgradeable, OwnableUpgradeable, Ree
     mapping(uint => mapping(address => uint)) public _pendingRewards;
 
     address payable private _hellTreasuryAddress;
-    uint16 private _hellTreasuryFee;
+    uint16 public _hellTreasuryFee;
 
     struct Project {
         uint id;
