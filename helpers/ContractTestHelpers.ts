@@ -4,6 +4,7 @@ import {Signer} from "ethers";
 import {Console} from "../utils/console";
 import doublonSol from "../artifacts/contracts/external/Doublon.sol/Doublon.json";
 import bdoublonSol from "../artifacts/contracts/external/BDoublon.sol/BDoublon.json";
+import erc20Sol from "../artifacts/@openzeppelin/contracts/token/ERC20/ERC20.sol/ERC20.json"
 import contractAddresses from "../scripts/contractAddresses.json";
 import {SignerWithAddress} from "@nomiclabs/hardhat-ethers/src/signers";
 let hellAddress: string;
@@ -25,7 +26,9 @@ export class ContractTestHelpers {
         console.log('\tBlock Number After mining: ' + blockNumber);
         Console.logHr();
     }
-
+    static async getERC20Contract(contractAddress: string, accountSigner?: Signer) {
+        return await ethers.getContractAt(erc20Sol.abi, contractAddress, accountSigner);
+    }
     static async getDoublonContract(accountSigner?: Signer) {
         return await ethers.getContractAt(doublonSol.abi, contractAddresses.doublon, accountSigner);
     }
