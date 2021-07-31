@@ -1,1 +1,0 @@
-npx hardhat run --network localhost scripts/upgradeAuctionHouse.ts

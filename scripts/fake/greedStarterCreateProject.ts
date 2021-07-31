@@ -1,12 +1,12 @@
 import {Contract, Signer} from "ethers";
 import {ethers} from "hardhat";
-import {GreedStarterHelpers} from "../helpers/GreedStarterHelpers";
-import {EtherUtils} from "../utils/ether-utils";
+import {GreedStarterHelpers} from "../../helpers/GreedStarterHelpers";
+import {EtherUtils} from "../../utils/ether-utils";
 import {parseEther} from "ethers/lib/utils";
-import contractAddresses from "./contractAddresses.json";
-import {HellTestHelpers} from "../helpers/HellTestHelpers";
-import {Console} from "../utils/console";
-import {ContractTestHelpers} from "../helpers/ContractTestHelpers";
+import contractAddresses from "../contractAddresses.json";
+import {HellTestHelpers} from "../../helpers/HellTestHelpers";
+import {Console} from "../../utils/console";
+import {ContractTestHelpers} from "../../helpers/ContractTestHelpers";
 
 async function main() {
     const masterSigner: Signer = (await ethers.getSigners())[0];
