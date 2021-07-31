@@ -1,6 +1,6 @@
 import "@nomiclabs/hardhat-waffle";
 import "@openzeppelin/hardhat-upgrades";
-// import 'hardhat-contract-sizer';
+import 'hardhat-contract-sizer';
 import 'hardhat-deploy';
 import "hardhat-erc1820"; // Hardhat plugin to automatically deploy the ERC-1820 Registry contract.
 
@@ -46,7 +46,7 @@ export default {
   },
   contractSizer: {
     alphaSort: true,
-    runOnCompile: true,
+    runOnCompile: false,
     disambiguatePaths: false,
   }
 };
