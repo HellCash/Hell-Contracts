@@ -8,8 +8,6 @@ import erc20Sol from "../artifacts/@openzeppelin/contracts/token/ERC20/ERC20.sol
 import fusdSol from "../artifacts/contracts/external/FUSD.sol/FUSD.json";
 import contractAddresses from "../scripts/contractAddresses.json";
 import {SignerWithAddress} from "@nomiclabs/hardhat-ethers/src/signers";
-let hellAddress: string;
-let vaultAddress: string;
 
 export class ContractTestHelpers {
     accountSigners: SignerWithAddress[] = [];
@@ -35,6 +33,6 @@ export class ContractTestHelpers {
         return await ethers.getContractAt(bdoublonSol.abi, contractAddresses.bDoublon, accountSigner);
     }
     static async getFUSDContract(accountSigner?: Signer) {
-        return await ethers.getContractAt(bdoublonSol.abi, contractAddresses.bDoublon, accountSigner);
+        return await ethers.getContractAt(fusdSol.abi, contractAddresses.fusd, accountSigner);
     }
 }
