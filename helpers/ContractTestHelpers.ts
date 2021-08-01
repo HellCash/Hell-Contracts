@@ -18,13 +18,11 @@ export class ContractTestHelpers {
     static async mineBlocks(numberOfBlocks: Number) {
         Console.logHr();
         console.log("\tMining " + numberOfBlocks + " blocks");
-        let blockNumber = await ethers.provider.getBlockNumber();
-        console.log('\tCurrent Block Number: ' + blockNumber);
         for(let i = 0; i < numberOfBlocks; i++) {
+            console.log('\tCurrent Block Number: ' + await ethers.provider.getBlockNumber());
             await network.provider.send("evm_mine");
         }
-        blockNumber = await ethers.provider.getBlockNumber();
-        console.log('\tBlock Number After mining: ' + blockNumber);
+        console.log('\tMining Completed');
         Console.logHr();
     }
     static async getERC20Contract(contractAddress: string, accountSigner?: Signer) {

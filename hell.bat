@@ -8,6 +8,7 @@ if "%command%"=="test" (goto :test) else ^
 if "%command%"=="fake" (goto :fake) else ^
 if "%command%"=="deploy-fake" (goto :deploy-fake) else ^
 if "%command%"=="deploy-test" (goto :deploy-test) else ^
+if "%command%"=="mine" (goto :mine) else ^
 if "%command%"=="help" (goto :help) else ^
 echo You didn't provide a valid command
 goto :exit
@@ -36,10 +37,15 @@ goto :exit
 call npx hardhat test
 goto :exit
 
+:mine
+call npx hardhat run --network localhost scripts/autoMine.ts
+goto :exit
+
 :help
 echo deploy  "Deploy contracts specified on scripts/deploy.ts"
 echo deploy-fake  "Deploy contracts and then create test data"
 echo deploy-test  "Deploy contracts and then execute tests"
+echo mine    "Start auto mining blocks, You'll have to stop this command manually with CTRL + C"
 echo upgrade ^<contractName^> "Upgrade the specified contract implementation"
 echo compile  "Compile the contracts specified at /contracts"
 echo size    "Display the size of the Hell ecosystem contracts"
