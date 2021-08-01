@@ -28,8 +28,8 @@ async function main() {
         hellAmount, // Total Tokens
         currentBlock + 25, // Starting block
         currentBlock + 5500, // Ending block
-        parseEther("40"), // Price per token
-        parseEther("0.00001"), // Minimum purchase
+        parseEther("50"), // Price per token
+        parseEther("0.001"), // Minimum purchase
         parseEther("10") // Maximum Purchase
     );
     const hellProjectTxReceipt = await hellProjectTx.wait(1);
@@ -46,7 +46,7 @@ async function main() {
         doublonAmount, // Total Tokens
         currentBlock + 50, // Starting block
         currentBlock + 7000, // Ending block
-        parseEther("0.00001"), // Price per token
+        parseEther("0.01"), // Price per token
         parseEther("1000"), // Minimum purchase
         parseEther("10000") // Maximum Purchase
     );
@@ -54,25 +54,6 @@ async function main() {
     const doublonProjectTxReceipt = await doublonProjectTx.wait(1);
     if (doublonProjectTxReceipt.status == 1) {
         console.log('Doublon project created Successfully');
-    } else {
-        console.log('Failed to create Doublon project');
-    }
-
-    Console.logTitle('Creating 2 Doublon for Ether Project');
-    const doublonProject2Tx = await greedStarterContract.createProject(
-        contractAddresses.doublon, // Token address
-        EtherUtils.zeroAddress(), // Address of paying currency
-        doublonAmount, // Total Tokens
-        currentBlock + 20, // Starting block
-        currentBlock + 7000, // Ending block
-        parseEther("0.000000000000000001"), // Price per token
-        parseEther("0.000000000000000001"), // Minimum purchase
-        parseEther("100000") // Maximum Purchase
-    );
-
-    const doublonProject2TxReceipt = await doublonProject2Tx.wait(1);
-    if (doublonProject2TxReceipt.status == 1) {
-        console.log('2 Doublon project created Successfully');
     } else {
         console.log('Failed to create Doublon project');
     }

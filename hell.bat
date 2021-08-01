@@ -40,7 +40,7 @@ goto :exit
 echo deploy  "Deploy contracts specified on scripts/deploy.ts"
 echo deploy-fake  "Deploy contracts and then create test data"
 echo deploy-test  "Deploy contracts and then execute tests"
-echo upgrade ^< contractName ^> "Upgrade the specified contract implementation"
+echo upgrade ^<contractName^> "Upgrade the specified contract implementation"
 echo compile  "Compile the contracts specified at /contracts"
 echo size    "Display the size of the Hell ecosystem contracts"
 echo test   "Execute tests defined at /test"
