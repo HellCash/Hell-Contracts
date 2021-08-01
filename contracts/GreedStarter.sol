@@ -117,7 +117,7 @@ contract GreedStarter is Initializable, UUPSUpgradeable, OwnableUpgradeable, Ree
          // IP5: Not enough tokens available to perform this investment;
          require((project.totalTokens - project.totalSold) >= amountToBuy, "IP5");
          // IP6: You can't purchase less than the minimum amount
-         require(amountToBuy + _pendingRewards[projectId][msg.sender] >= project.minimumPurchase, "IP6");
+         require(amountToBuy >= project.minimumPurchase, "IP6");
          // IP7: You can't purchase more than the maximum allowed
          require(_pendingRewards[projectId][msg.sender] + amountToBuy <= project.maximumPurchase, "IP7");
          // Calculate the amount that the user has to pay for this investment
