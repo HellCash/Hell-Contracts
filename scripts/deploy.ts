@@ -1,6 +1,4 @@
-import {deployContracts} from "./contractDeployment";
-import {deployAuctionHouse} from "./deployments/deployAuctionHouse";
-
+import {deployContracts} from "./deployContracts";
 // We recommend this pattern to be able to use async/await everywhere
 // and properly handle errors.
 async function main() {

@@ -26,17 +26,28 @@ contract GreedStarter is Initializable, UUPSUpgradeable, OwnableUpgradeable, Ree
     uint16 public _hellTreasuryFee;
 
     struct Project {
+        // Unique identifier for this project
         uint id;
+        // Token address being offered, this is what users will receive after investing
         address payable tokenAddress;
+        // Token address used to invest, this is what users will have to pay in order to invest
         address payable paidWith;
+        // Time frames in which the project will be available for investments
         uint startingBlock;
         uint endsAtBlock;
+        // Defines how much 1 unit of the token costs against the paidWith asset
         uint pricePerToken;
+        // Total amount of tokens available for sale on this project
         uint totalTokens;
+        // Amount of tokens that were sold, from the totalTokens
         uint totalSold;
+        // Minimum amount that any address is allowed to purchase
         uint minimumPurchase;
+        // Maximum amount that any address is allowed to purchase
         uint maximumPurchase;
+        // Address of the creator of the project
         address createdBy;
+        // Boolean to verify if the Project creator has withdrawn his rewards or leftover tokens
         bool fundsOrRewardsWithdrawnByCreator;
     }
 
@@ -59,59 +70,67 @@ contract GreedStarter is Initializable, UUPSUpgradeable, OwnableUpgradeable, Ree
         require(block.number.lowerThan(endsAtBlock) && endsAtBlock - block.number >= 100, "CP3");
         // CP4: The startingBlock should be higher than the current block and lower than the end block
         require(startingBlock.notElapsedOrEqualToCurrentBlock() && startingBlock.lowerThan(endsAtBlock), "CP4");
-        // CP5: The minimumPurchase and maximumPurchase must be higher than 0, The minimumPurchase should be lower than the maximumPurchase
-        require(0 < minimumPurchase && 0 < maximumPurchase && minimumPurchase < maximumPurchase, "CP5");
+        // CP5: The minimum and maximum purchase must be higher than 0.0001
+        // we'll verify that it has at least 4 decimals
+        require(minimumPurchase <= 1e14 && 1e14 <= maximumPurchase, "CP5");
+        // CP6: The minimumPurchase should be lower or equal to the maximumPurchase
+        require(minimumPurchase <= maximumPurchase, "CP6");
+        // CP7: The minimumPrice per token should be higher than 0.01
+        require(1e16 <= pricePerToken, "CP7");
         // safeDepositAsset: Validates for enough: balance, allowance and if the GreedStarter Contract received the expected amount
         payable(address(this)).safeDepositAsset(tokenAddress, totalTokens);
 
-        Project memory project;
+        // Increase the total projects, this value will be used as our next project id
         _totalProjects += 1;
-
+        // Create a new Project and fill it
+        Project memory project;
         project.id = _totalProjects;
         project.tokenAddress = tokenAddress;
         project.paidWith = paidWith;
-
         project.totalTokens = totalTokens;
         project.startingBlock = startingBlock;
         project.endsAtBlock = endsAtBlock;
         project.pricePerToken = pricePerToken;
-
         project.createdBy = msg.sender;
-
         project.minimumPurchase = minimumPurchase;
         project.maximumPurchase = maximumPurchase;
-
+        // Save the project
         _projects[_totalProjects] = project;
-
+        // If the Contract owner is the msg.sender, mark the Project as trusted
         if(owner() == msg.sender) {
             _indexer._registerTrustedProject(project.id);
         }
-
+        // Logs a ProjectCreated event
         emit ProjectCreated(project.id, project.tokenAddress, project.paidWith, project.totalTokens, project.startingBlock, project.endsAtBlock, project.pricePerToken);
      }
 
-     function invest(uint projectId, uint amountToPay) external payable nonReentrant {
+     function invest(uint projectId, uint amountToBuy) external payable nonReentrant {
          Project storage project = _projects[projectId];
          // IP1: This project doesn't exists
          require(project.id != 0, "IP1");
-         // IP2: "Cannot invest in your your own project"
+         // IP2: "You can't invest in your your own project"
          require(msg.sender != project.createdBy, "IP2");
          // IP3: This project already finished
          require(project.endsAtBlock.notElapsed(), "IP3");
          // IP4: This project hasn't started yet
          require(project.startingBlock.elapsedOrEqualToCurrentBlock(), "IP4");
-         uint purchasedAmount = (1 ether * amountToPay) / project.pricePerToken;
-         // IP5: Not enough tokens available to perform this purchase;
-         uint tokensAvailable = project.totalTokens - project.totalSold;
-         require(tokensAvailable >= purchasedAmount, "IP5");
-         // Transfer user funds to the InfernalIncubator
+         // IP5: Not enough tokens available to perform this investment;
+         require((project.totalTokens - project.totalSold) >= amountToBuy, "IP5");
+         // IP6: You can't purchase less than the minimum amount
+         require(amountToBuy + _pendingRewards[projectId][msg.sender] >= project.minimumPurchase, "IP6");
+         // IP7: You can't purchase more than the maximum allowed
+         require(_pendingRewards[projectId][msg.sender] + amountToBuy <= project.maximumPurchase, "IP7");
+         // Calculate the amount that the user has to pay for this investment
+         uint amountToPay = (project.pricePerToken * amountToBuy) / 1 ether;
+         // Transfer user funds to the Greed Starter Contract
+         // safeDepositAsset: Validates for enough: balance, allowance and if the GreedStarter Contract received the expected amount
          payable(address(this)).safeDepositAsset(project.paidWith, amountToPay);
-         project.totalSold += purchasedAmount;
-
+         // Save changes
          _paidAmount[projectId][msg.sender] += amountToPay;
-         _pendingRewards[projectId][msg.sender] += purchasedAmount;
-
-         emit InvestedInProject(projectId, msg.sender, amountToPay, purchasedAmount, _paidAmount[projectId][msg.sender], _pendingRewards[projectId][msg.sender]);
+         project.totalSold += amountToBuy;
+         _pendingRewards[projectId][msg.sender] += amountToBuy;
+         // Logs an InvestedInProject event
+         emit InvestedInProject(projectId, msg.sender, amountToPay, amountToBuy, _paidAmount[projectId][msg.sender], _pendingRewards[projectId][msg.sender]);
      }
 
     function claimFunds(uint projectId) external nonReentrant {

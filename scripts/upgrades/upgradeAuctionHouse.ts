@@ -1,14 +1,13 @@
 import {ethers, upgrades} from "hardhat";
-import {Console} from "../utils/console";
-import contractAddresses from "../scripts/contractAddresses.json";
+import {Console} from "../../utils/console";
+import contractAddresses from "../contractAddresses.json";
 
 export async function deployContracts() {
     console.clear();
-    Console.logHr();
-    console.log("Upgrading Hell Vault Logic")
+    Console.logTitle("Upgrading Auction House Logic");
     await upgrades.upgradeProxy(
-        contractAddresses.hellVault,
-        await ethers.getContractFactory("HellVault")
+        contractAddresses.auctionHouse,
+        await ethers.getContractFactory("AuctionHouse")
     );
     console.log('success');
     Console.logHr();

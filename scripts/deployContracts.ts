@@ -10,6 +10,7 @@ import {deployBDoublon} from "./deployments/deployBDoublon";
 import {deployAuctionHouseIndexer} from "./deployments/deployAuctionHouseIndexer";
 import {deployGreedStarter} from "./deployments/deployGreedStarter";
 import {deployGreedStarterIndexer} from "./deployments/deployGreedStarterIndexer";
+import {deployFUSD} from "./deployments/deployFUSD";
 
 export async function deployContracts(): Promise<boolean> {
     Console.logTitle("Deploying Contracts");
@@ -47,6 +48,7 @@ export async function deployContracts(): Promise<boolean> {
         'auctionHouseIndexer': auctionIndexerContract.address,
         'greedStarter': greedStarterContract.address,
         'greedStarterIndexer': greedStarterIndexerContract.address,
+        'fusd': (await deployFUSD()).address,
     };
 
     writeFileSync(resolve(__dirname, 'contractAddresses.json'), JSON.stringify(addressesData));
