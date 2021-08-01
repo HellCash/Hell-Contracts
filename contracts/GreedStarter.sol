@@ -71,12 +71,14 @@ contract GreedStarter is Initializable, UUPSUpgradeable, OwnableUpgradeable, Ree
         // CP4: The startingBlock should be higher than the current block and lower than the end block
         require(startingBlock.notElapsedOrEqualToCurrentBlock() && startingBlock.lowerThan(endsAtBlock), "CP4");
         // CP5: The minimum and maximum purchase must be higher than 0.0001
-        // we'll verify that it has at least 4 decimals
+        // we'll verify that it has at least 14 decimals // TODO: Verify for 6 decimals, we need to support at least mwei 10^6
         require(1e14 <= minimumPurchase  && 1e14 <= maximumPurchase, "CP5");
         // CP6: The minimumPurchase should be lower or equal to the maximumPurchase
         require(minimumPurchase <= maximumPurchase, "CP6");
         // CP7: The minimumPrice per token should be higher than 0.01
         require(1e16 <= pricePerToken, "CP7");
+        // CP8: The Total Tokens cannot be lower than the maximum or minimumPurchase
+        require(minimumPurchase <= totalTokens &&  maximumPurchase <= totalTokens, "CP8");
         // safeDepositAsset: Validates for enough: balance, allowance and if the GreedStarter Contract received the expected amount
         payable(address(this)).safeDepositAsset(tokenAddress, totalTokens);
 
