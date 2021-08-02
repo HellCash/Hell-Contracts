@@ -65,6 +65,7 @@ goto :exit
 
 :fake
 call npx hardhat run --network localhost scripts/fake/greedStarterCreateProject.ts
+call npx hardhat run --network localhost scripts/fake/auctionHouseCreateAuctions.ts
 goto :exit
 
 :exit
