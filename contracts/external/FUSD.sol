@@ -10,9 +10,9 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 */
 contract FUSD is ERC20, Ownable {
     constructor () ERC20("FUSD", "FUSD") {
-        _mint(msg.sender, 50000000 * (10 ** decimals()));
+        _mint(msg.sender, 500000000 * (10 ** decimals()));
     }
     function decimals() public pure override returns (uint8) {
-        return 4;
+        return 6;
     }
 }

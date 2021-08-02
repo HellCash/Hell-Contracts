@@ -6,6 +6,6 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 
 contract Doublon is ERC20, Ownable {
     constructor () ERC20("DOUBLON", "DOUBLON") {
-        _mint(msg.sender, 1250000 * (10 ** decimals()));
+        _mint(msg.sender, 5250000 * (10 ** decimals()));
     }
 }

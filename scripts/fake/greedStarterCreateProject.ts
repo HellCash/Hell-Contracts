@@ -1,25 +1,30 @@
-import {Contract, Signer} from "ethers";
+import {BigNumber, Contract, Signer} from "ethers";
 import {ethers} from "hardhat";
 import {GreedStarterHelpers} from "../../helpers/GreedStarterHelpers";
 import {EtherUtils} from "../../utils/ether-utils";
-import {parseEther} from "ethers/lib/utils";
+import {formatUnits, parseEther} from "ethers/lib/utils";
 import contractAddresses from "../contractAddresses.json";
 import {HellTestHelpers} from "../../helpers/HellTestHelpers";
 import {Console} from "../../utils/console";
 import {ContractTestHelpers} from "../../helpers/ContractTestHelpers";
 
 async function main() {
-    const masterSigner: Signer = (await ethers.getSigners())[0];
+    const signers = await ethers.getSigners();
+    const masterSigner: any = signers[0];
+    const guest1Signer: any = signers[1];
+
     const currentBlock: number = await ethers.provider.getBlockNumber();
     const hellContract: Contract = await HellTestHelpers.getHellContract(masterSigner);
     const doublonContract: Contract = await ContractTestHelpers.getDoublonContract(masterSigner);
     const greedStarterContract: Contract = await GreedStarterHelpers.getGreedStarterContract(masterSigner);
+    const fusdContract: Contract = await ContractTestHelpers.getFUSDContract(masterSigner);
 
     const hellAmount = parseEther("100");
     const doublonAmount = parseEther("225000");
 
     await hellContract.approve(contractAddresses.greedStarter, hellAmount);
     await doublonContract.approve(contractAddresses.greedStarter, doublonAmount.mul(2));
+    await fusdContract.approve(contractAddresses.fusd, doublonAmount.mul(2));
 
     Console.logTitle('Creating HELL for Ether project');
     const hellProjectTx = await greedStarterContract.createProject(
@@ -27,9 +32,9 @@ async function main() {
         EtherUtils.zeroAddress(), // Address of paying currency
         hellAmount, // Total Tokens
         currentBlock + 25, // Starting block
-        currentBlock + 5500, // Ending block
+        currentBlock + 120, // Ending block
         parseEther("50"), // Price per token
-        parseEther("0.001"), // Minimum purchase
+        parseEther("0.01"), // Minimum purchase
         parseEther("10") // Maximum Purchase
     );
     const hellProjectTxReceipt = await hellProjectTx.wait(1);
@@ -56,6 +61,33 @@ async function main() {
         console.log('Doublon project created Successfully');
     } else {
         console.log('Failed to create Doublon project');
+    }
+
+    //////////////////////////////////////////////////////////////////
+    const guestDoublonAmount = parseEther('100000');
+    await doublonContract.transfer(guest1Signer.address, guestDoublonAmount);
+
+    const guestSignedGreedStarter = await GreedStarterHelpers.getGreedStarterContract(guest1Signer);
+    const guestSignedDoublonContract = await ContractTestHelpers.getDoublonContract(guest1Signer);
+    await guestSignedDoublonContract.approve(contractAddresses.greedStarter, guestDoublonAmount);
+    // TODO: FIX TO BE ABLE TO USE WITH 6 DECIMALS
+    Console.logTitle('Creating Guest Doublon for FUSD project');
+    const guestDoublonProjectTx = await guestSignedGreedStarter.createProject(
+        contractAddresses.doublon, // Token address
+        contractAddresses.fusd, // Address of paying currency
+        guestDoublonAmount, // Total Tokens
+        currentBlock + 50, // Starting block
+        currentBlock + 1000, // Ending block
+        parseEther("0.01"), // Price per token
+        parseEther("100"), // Minimum purchase
+        parseEther("100000") // Maximum Purchase
+    );
+
+    const guestDoublonProjectTxReceipt = await guestDoublonProjectTx.wait(1);
+    if (guestDoublonProjectTxReceipt.status == 1) {
+        console.log('Guest Doublon project created Successfully');
+    } else {
+        console.log('Failed to create Guest Doublon project');
     }
 }
 

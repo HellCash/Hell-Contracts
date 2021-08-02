@@ -4,6 +4,7 @@ pragma solidity ^0.8.6;
 import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 import "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
+import "@openzeppelin/contracts/token/ERC20/extensions/IERC20Metadata.sol";
 import "@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol";
 import "./libraries/HellishTransfers.sol";
 import "./libraries/HellishBlocks.sol";
@@ -65,20 +66,20 @@ contract GreedStarter is Initializable, UUPSUpgradeable, OwnableUpgradeable, Ree
         require(tokenAddress != address(0), "CP1");
         // CP2: Cannot create a project and sell it for the same currency
         require(tokenAddress != paidWith, "CP2");
-        // CP3: The minimum length should be of least 1000 blocks
-        // TODO: Increase minimum block length, Should be set to 5000 at least
-        require(block.number.lowerThan(endsAtBlock) && endsAtBlock - block.number >= 100, "CP3");
-        // CP4: The startingBlock should be higher than the current block and lower than the end block
-        require(startingBlock.notElapsedOrEqualToCurrentBlock() && startingBlock.lowerThan(endsAtBlock), "CP4");
-        // CP5: The minimum and maximum purchase must be higher than 0.0001
-        // we'll verify that it has at least 14 decimals // TODO: Verify for 6 decimals, we need to support at least mwei 10^6
-        require(1e14 <= minimumPurchase  && 1e14 <= maximumPurchase, "CP5");
-        // CP6: The minimumPurchase should be lower or equal to the maximumPurchase
-        require(minimumPurchase <= maximumPurchase, "CP6");
-        // CP7: The minimumPrice per token should be higher than 0.01
-        require(1e16 <= pricePerToken, "CP7");
-        // CP8: The Total Tokens cannot be lower than the maximum or minimumPurchase
-        require(minimumPurchase <= totalTokens &&  maximumPurchase <= totalTokens, "CP8");
+        // CP3: The Project Token must have 18 decimals of precision
+        require(IERC20Metadata(tokenAddress).decimals() == 18, "CP3");
+        // CP4: The minimum length should be of least 1000 blocks // TODO: Increase minimum block length, Should be set to 5000 at least
+        require(block.number.lowerThan(endsAtBlock) && endsAtBlock - block.number >= 100, "CP4");
+        // CP5: The startingBlock should be higher than the current block and lower than the end block
+        require(startingBlock.notElapsedOrEqualToCurrentBlock() && startingBlock.lowerThan(endsAtBlock), "CP5");
+        // CP6: The minimum and maximum purchase must be higher than 0.01, We enforce this to ensure enough precision on price calculations
+        require(1e16 <= minimumPurchase  && 1e16 <= maximumPurchase, "CP6");
+        // CP7: The minimumPurchase should be lower or equal to the maximumPurchase
+        require(minimumPurchase <= maximumPurchase, "CP7");
+        // CP8: The minimumPrice per token should be higher than 1e6 wei (Like on USDT or USDC)
+        require(1e6 <= pricePerToken, "CP8");
+        // CP9: The Total Tokens cannot be lower than the maximum or minimumPurchase
+        require(minimumPurchase <= totalTokens &&  maximumPurchase <= totalTokens, "CP9");
         // safeDepositAsset: Validates for enough: balance, allowance and if the GreedStarter Contract received the expected amount
         payable(address(this)).safeDepositAsset(tokenAddress, totalTokens);
 
