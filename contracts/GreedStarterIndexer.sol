@@ -20,11 +20,14 @@ contract GreedStarterIndexer is Initializable, UUPSUpgradeable, OwnableUpgradeab
     // Projects created by the specified user ( User address => index => project.id)
     mapping(address => mapping(uint => uint)) _userProjects;
     //////////////////////////////////////////////////////////////////////////
+    // Holds a boolean to let know if the user has participated on a specific project
+    // userAddress => projectId => bool
+    mapping(address => mapping(uint => bool)) _userParticipatedInProject;
     // Holds the amount of projects where the user has participated
-    // UserAddress => totalParticipatedProjects
+    // userAddress => totalParticipatedProjects
     mapping(address => uint) public _userTotalParticipatedProjects;
     // Holds the Project ids where the user participated
-    // UserAddress => index => projectId
+    // userAddress => index => projectId
     mapping(address => mapping(uint => uint)) _userParticipatedProjects;
 
     function getTrustedProjectIds(uint[] memory indexes) external view returns(uint[] memory) {
@@ -45,6 +48,14 @@ contract GreedStarterIndexer is Initializable, UUPSUpgradeable, OwnableUpgradeab
         _trustedProjects[_totalTrustedProjects] = projectId;
         _projectIsTrusted[projectId] = true;
         emit ProjectRegisteredAsTrusted(projectId);
+    }
+
+    function _registerUserParticipation(uint projectId, address userAddress) external onlyGreedStarter {
+        if (_userParticipatedInProject[userAddress][projectId] == false) {
+            _userParticipatedInProject[userAddress][projectId] = true;
+            _userTotalParticipatedProjects[userAddress] += 1;
+            _userParticipatedProjects[userAddress][_userTotalParticipatedProjects[userAddress]] = projectId;
+        }
     }
 
     ////////////////////////////////////////////////////////////////////

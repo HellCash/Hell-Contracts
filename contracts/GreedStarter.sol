@@ -20,6 +20,8 @@ contract GreedStarter is Initializable, UUPSUpgradeable, OwnableUpgradeable, Ree
 
     uint public _totalProjects;
     mapping(uint => Project) public _projects;
+    // Used to verify if the Project creator has withdrawn his rewards or leftover tokens (projectId => bool)
+    mapping(uint => bool) public _projectFundsOrRewardsWithdrawnByCreator;
     mapping(uint => mapping(address => uint)) public _paidAmount;
     mapping(uint => mapping(address => uint)) public _pendingRewards;
 
@@ -42,14 +44,14 @@ contract GreedStarter is Initializable, UUPSUpgradeable, OwnableUpgradeable, Ree
         uint totalTokens;
         // Amount of tokens that were sold, from the totalTokens
         uint totalSold;
+        // Rewards Collected, total amount of the paidWith currency that the project has collected.
+        uint rewardsCollected;
         // Minimum amount that any address is allowed to purchase
         uint minimumPurchase;
         // Maximum amount that any address is allowed to purchase
         uint maximumPurchase;
         // Address of the creator of the project
         address createdBy;
-        // Boolean to verify if the Project creator has withdrawn his rewards or leftover tokens
-        bool fundsOrRewardsWithdrawnByCreator;
     }
 
     function createProject(
@@ -111,27 +113,34 @@ contract GreedStarter is Initializable, UUPSUpgradeable, OwnableUpgradeable, Ree
      function invest(uint projectId, uint amountToBuy) external payable nonReentrant {
          Project storage project = _projects[projectId];
          // IP1: This project doesn't exists
-         require(project.id != 0, "IP1");
+         require(project.id != 0, "I1");
          // IP2: "You can't invest in your your own project"
-         require(msg.sender != project.createdBy, "IP2");
+         require(msg.sender != project.createdBy, "I2");
          // IP3: This project already finished
-         require(project.endsAtBlock.notElapsed(), "IP3");
+         require(project.endsAtBlock.notElapsed(), "I3");
          // IP4: This project hasn't started yet
-         require(project.startingBlock.elapsedOrEqualToCurrentBlock(), "IP4");
+         require(project.startingBlock.elapsedOrEqualToCurrentBlock(), "I4");
          // IP5: Not enough tokens available to perform this investment;
-         require((project.totalTokens - project.totalSold) >= amountToBuy, "IP5");
+         require((project.totalTokens - project.totalSold) >= amountToBuy, "I5");
          // IP6: You can't purchase less than the minimum amount
-         require(amountToBuy >= project.minimumPurchase, "IP6");
+         require(amountToBuy >= project.minimumPurchase, "I6");
          // IP7: You can't purchase more than the maximum allowed
-         require(_pendingRewards[projectId][msg.sender] + amountToBuy <= project.maximumPurchase, "IP7");
+         require(_pendingRewards[projectId][msg.sender] + amountToBuy <= project.maximumPurchase, "I7");
          // Calculate the amount that the user has to pay for this investment
          uint amountToPay = (project.pricePerToken * amountToBuy) / 1 ether;
          // Transfer user funds to the Greed Starter Contract
          // safeDepositAsset: Validates for enough: balance, allowance and if the GreedStarter Contract received the expected amount
          payable(address(this)).safeDepositAsset(project.paidWith, amountToPay);
+         // Register user participation
+         _indexer._registerUserParticipation(projectId, msg.sender);
          // Save changes
+         // Update the amount the user has invested in this project
          _paidAmount[projectId][msg.sender] += amountToPay;
+         // Update the total investments the project has collected
+         project.rewardsCollected += amountToPay;
+         // Update the total amount that this project has sold
          project.totalSold += amountToBuy;
+         // Update the amount of rewards that will be available for the investor once the project ends.
          _pendingRewards[projectId][msg.sender] += amountToBuy;
          // Logs an InvestedInProject event
          emit InvestedInProject(projectId, msg.sender, amountToPay, amountToBuy, _paidAmount[projectId][msg.sender], _pendingRewards[projectId][msg.sender]);
@@ -139,30 +148,38 @@ contract GreedStarter is Initializable, UUPSUpgradeable, OwnableUpgradeable, Ree
 
     function claimFunds(uint projectId) external nonReentrant {
         Project storage project = _projects[projectId];
-        // WR1: "This project is still in progress"
-        require(project.endsAtBlock.elapsed(), "WR1");
-
-        uint rewardedAmount;
+        // CF1: "This project is still in progress"
+        require(project.endsAtBlock.elapsed(), "CF1");
+        // If the msg.sender is the project creator
         if(msg.sender == project.createdBy) {
-            require(project.fundsOrRewardsWithdrawnByCreator == false, "WR2");
-            project.fundsOrRewardsWithdrawnByCreator = true;
+            // CF2: You already withdrawn your rewards and leftover tokens
+            require(_projectFundsOrRewardsWithdrawnByCreator[projectId] == false, "CF2");
+            // Mark his project rewards as claimed
+            _projectFundsOrRewardsWithdrawnByCreator[projectId] = true;
             uint userReceives;
             uint feePaid;
-            if (project.totalSold > 0) {
-                rewardedAmount = project.totalSold * project.pricePerToken;
-                (userReceives, feePaid) = payable(project.createdBy).safeTransferAssetAndPayFee(project.paidWith, rewardedAmount, _hellTreasuryAddress, _hellTreasuryFee);
+            // If the project collected more than 0 rewards, transfer the earned rewards to the project creator and pay treasury fees.
+            if (project.rewardsCollected > 0) {
+                (userReceives, feePaid) = payable(project.createdBy).safeTransferAssetAndPayFee(project.paidWith, project.rewardsCollected, _hellTreasuryAddress, _hellTreasuryFee);
             }
+            // Calculate if there were leftover tokens
             uint unsoldAmount = project.totalTokens - project.totalSold;
             if (unsoldAmount > 0) {
+                // Transfer leftover tokens back to the project creator
                 payable(project.createdBy).safeTransferAsset(project.tokenAddress, unsoldAmount);
             }
-            emit CreatorWithdrawnFunds(projectId, msg.sender, rewardedAmount, feePaid, userReceives, unsoldAmount);
+            // Logs a CreatorWithdrawnFunds event.
+            emit CreatorWithdrawnFunds(projectId, msg.sender, project.rewardsCollected, feePaid, userReceives, unsoldAmount);
+        // If the msg.sender isn't the project creator.
         } else {
-            rewardedAmount = _pendingRewards[projectId][msg.sender];
-            // "You don't have any reward to claim"
-            require(_pendingRewards[projectId][msg.sender] > 0, "WR3");
+            uint rewardedAmount = _pendingRewards[projectId][msg.sender];
+            // CF3: "You don't have any reward to claim"
+            require(_pendingRewards[projectId][msg.sender] > 0, "CF3");
+            // Set user pendingRewards back to 0
             _pendingRewards[projectId][msg.sender] = 0;
+            // Send the user his earned rewards
             payable(msg.sender).safeTransferAsset(project.tokenAddress, rewardedAmount);
+            // Logs a RewardsClaimed event.
             emit RewardsClaimed(projectId, msg.sender, rewardedAmount);
         }
     }

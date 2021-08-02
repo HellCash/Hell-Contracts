@@ -9,8 +9,8 @@ export abstract class Project {
   pricePerToken: BigNumber;
   totalTokens: BigNumber;
   totalSold: BigNumber;
+  rewardsCollected: BigNumber;
   minimumPurchase: BigNumber;
   maximumPurchase: BigNumber;
   createdBy: string;
-  fundsOrRewardsWithdrawnByCreator: boolean;
 }
