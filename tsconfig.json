@@ -8,7 +8,6 @@
     "resolveJsonModule": true,
     "strictPropertyInitialization": false
   },
-  "include": ["./scripts",
-    "./test", "./helpers", "./test_disabled"],
+  "include": ["./scripts", "./test", "./helpers", "./test_disabled"],
   "files": ["./hardhat.config.ts"]
 }
