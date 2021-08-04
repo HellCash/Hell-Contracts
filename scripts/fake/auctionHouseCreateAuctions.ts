@@ -50,6 +50,24 @@ async function main() {
         parseUnits('250', 6), // Buyout price
         currentBlock + 2225);
 
+    Console.logTitle('Creating Hell Auction, sold against ALPACA');
+    await auctionHouseContract.createAuction(
+        contractAddresses.hell, // Auction Hell
+        parseEther('10'), // Auction 10 worth of Hell
+        '0x8F0528cE5eF7B51152A59745bEfDD91D97091d2F', // Against Alpaca
+        parseEther('150000'), // Bid Price
+        parseEther('220000'), // Buyout price
+        currentBlock + 2225);
+
+    Console.logTitle('Creating Hell Auction, sold against XVS');
+    await auctionHouseContract.createAuction(
+        contractAddresses.hell, // Auction Hell
+        parseEther('10'), // Auction 10 worth of Hell
+        '0xcF6BB5389c92Bdda8a3747Ddb454cB7a64626C63', // Against XVS
+        parseEther('550'), // Bid Price
+        parseEther('650'), // Buyout price
+        currentBlock + 2225);
+
     Console.logTitle('Creating Ether Auction, sold against Hell');
     await auctionHouseContract.createAuction(
         EtherUtils.zeroAddress(), // Auction Ether
