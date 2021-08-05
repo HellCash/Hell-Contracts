@@ -1,15 +1,17 @@
 import {ethers} from "hardhat";
 import {BigNumber, Contract} from "ethers";
 import {HellTestHelpers} from "../../helpers/HellTestHelpers";
-import {parseEther} from "ethers/lib/utils";
+import {parseEther, parseUnits} from "ethers/lib/utils";
 import {expect} from "chai";
 import {GreedStarterHelpers} from "../../helpers/GreedStarterHelpers";
-import {EtherUtils} from "../../utils/ether-utils";
 import contractAddresses from "../../scripts/contractAddresses.json";
+import {Project} from "../../models/project";
+import {ContractTestHelpers} from "../../helpers/ContractTestHelpers";
 
-describe('[Greed Starter] function claimFunds', async () => {
+describe('[Greed Starter] function claimFunds',  () => {
     let masterSigner: any;
     let guest1Signer: any;
+    let guest2Signer: any;
     let treasurySigner: any;
     let hellProjectId: BigNumber;
 
@@ -17,11 +19,18 @@ describe('[Greed Starter] function claimFunds', async () => {
         const accountSigners = await ethers.getSigners();
         masterSigner = accountSigners[0];
         guest1Signer = accountSigners[1];
+        guest2Signer = accountSigners[2];
         treasurySigner = accountSigners[3];
+
+        //Transfer Fusd to guest 1
+        const fusdContract: Contract = await ContractTestHelpers.getFUSDContract(masterSigner);
+        const userBalanceOfFusd: BigNumber = parseUnits("300000",6);
+        await fusdContract.transfer(guest1Signer.address, userBalanceOfFusd);
 
         const currentBlock = await ethers.provider.getBlockNumber();
 
         const hellContract: Contract = await HellTestHelpers.getHellContract(masterSigner);
+        // First we increase the allowances of the master signer
         await hellContract.approve(contractAddresses.greedStarter, parseEther("100"));
 
         const greedStarterContract: Contract = await GreedStarterHelpers.getGreedStarterContract(masterSigner);
@@ -29,59 +38,91 @@ describe('[Greed Starter] function claimFunds', async () => {
         const totalProjects: BigNumber = await greedStarterContract._totalProjects();
 
         await greedStarterContract.createProject(
-            contractAddresses.hell, // Token address
-            EtherUtils.zeroAddress(), // Address of paying currency
-            parseEther("50"), // Total Tokens
+            hellContract.address, // Token address
+            fusdContract.address, // Address of paying currency
+            parseEther("100"), // Total Tokens
             currentBlock + 5, // Starting block
-            currentBlock + 100, // Ending block
-            parseEther("20"), // Price per token
-            parseEther("1"), // Minimum Purchase
-            parseEther("5") // Maximum Purchase
+            currentBlock + 105, // Ending block
+            parseUnits("16500",6), // Price per token
+            parseEther("2"), // Minimum purchase
+            parseEther("50"), // Maximum Purchase
         );
 
         hellProjectId = totalProjects.add(1);
+
     });
 
     it('Should fail if the Project is still in progress', async() => {
         const greedStarterContract: Contract = await GreedStarterHelpers.getGreedStarterContract(guest1Signer);
-        await expect(greedStarterContract.claimFunds(hellProjectId)).to.be.revertedWith("WR1");
+        await expect(greedStarterContract.claimFunds(hellProjectId))
+            .to.be.revertedWith("CF1");
     });
 
+
     it('Project creator should be able to withdraw his rewards and left over tokens', async() => {
+        // Mined 10 blocks to ensure the project has started
+        for (let i = 0; i < 10; i++) {
+            await ethers.provider.send('evm_mine', []);
+        }
+
+        // Make a investment with guest1Signer
+        const guest1GreedStarterContract: Contract = await GreedStarterHelpers.getGreedStarterContract(guest1Signer);
+        const fusdContract: Contract = await ContractTestHelpers.getFUSDContract(guest1Signer);
+        await fusdContract.approve(contractAddresses.greedStarter, parseUnits("300000",6));
+        await guest1GreedStarterContract.invest(hellProjectId, parseEther('3'));
+
+        // console.log(await guest1GreedStarterContract._pendingRewards(hellProjectId, guest1Signer.address));
+
+        // Mined 110 blocks to ensure the project has ended
+        for (let i = 0; i < 110; i++) {
+            await ethers.provider.send('evm_mine', []);
+        }
+        // Execute assertion
         const greedStarterContract: Contract = await GreedStarterHelpers.getGreedStarterContract(masterSigner);
-        
-        // Verify that treasury fees were paid if anything was sold
-        // Verify that the creator received his rewards (Tokens that were sold)
-        // Verify that the creator received any left over tokens (Tokens that didn't sold)
-        // Expect event emission "CreatorWithdrawnFunds"
-        throw "Not implemented";
+        const project: Project = (await greedStarterContract.getProjects([hellProjectId]))[0];
+        const treasuryFees: BigNumber = await greedStarterContract._hellTreasuryFee();
+        const expectedFees: BigNumber = project.rewardsCollected.div(treasuryFees);
+        const expectedRewards: BigNumber = project.rewardsCollected;
+        const leftOverTokens: BigNumber  = project.totalTokens.sub(project.totalSold);
+        const rewardedAfterFees: BigNumber = expectedRewards.sub(expectedFees);
+
+        await expect(greedStarterContract.claimFunds(hellProjectId))
+            .to.emit(greedStarterContract, 'CreatorWithdrawnFunds')
+            .withArgs(project.id, masterSigner.address, expectedRewards, expectedFees, rewardedAfterFees, leftOverTokens);
+
     });
 
     it('Should fail if the creator tries to claim more than once', async() => {
-        // Expect revert WR2
-        throw "Not implemented";
+        const greedStarterContract : Contract = await GreedStarterHelpers.getGreedStarterContract(masterSigner);
+        await expect(greedStarterContract.claimFunds(hellProjectId))
+            .to.be.revertedWith('CF2');
+
+    });
+
+    it('Investors should be able to withdraw his rewards', async() => {
+        const greedStarterContract: Contract = await GreedStarterHelpers.getGreedStarterContract(guest1Signer);
+        const expectedRewards: BigNumber = await greedStarterContract._pendingRewards(hellProjectId, guest1Signer.address);
+        console.log('Rewards', expectedRewards);
+        await expect(greedStarterContract.claimFunds(hellProjectId))
+            .to.emit(greedStarterContract, 'RewardsClaimed')
+            .withArgs(hellProjectId, guest1Signer.address, expectedRewards);
+
     });
 
     it('Should fail if the project is finished and the user tries to claim funds without having invested', async() => {
         // To make this tests we need to wait until the project finishes.
-        for (let i = 0; i < 1000; i++) {
+        for (let i = 0; i < 105; i++) {
             await ethers.provider.send('evm_mine', []);
         }
-        // Expect Revert WR3
-        const greedStarterContract: Contract = await GreedStarterHelpers.getGreedStarterContract(guest1Signer);
-        await expect(greedStarterContract.claimFunds(hellProjectId)).to.be.revertedWith("WR3");
-    });
 
-    it('Investors should be able to withdraw his rewards', async() => {
-        // Verify that the user received his funds
-        // Verify that the users rewards were set back to 0
-        // Expect event emission "RewardsClaimed"
-        throw "Not implemented";
+        const greedStarterContract: Contract = await GreedStarterHelpers.getGreedStarterContract(guest2Signer);
+        await expect(greedStarterContract.claimFunds(hellProjectId))
+            .to.be.revertedWith("CF3");
     });
 
     it('Should fail if investor tries to withdraw his rewards more than once', async() => {
-        // Expect Revert WR3
-        throw "Not Implemented";
+        const greedStarterContract: Contract = await GreedStarterHelpers.getGreedStarterContract(guest1Signer);
+        await expect(greedStarterContract.claimFunds(hellProjectId))
+            .to.be.revertedWith('CF3');
     });
-
 });
