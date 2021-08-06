@@ -70,8 +70,8 @@ contract GreedStarter is Initializable, UUPSUpgradeable, OwnableUpgradeable, Ree
         require(tokenAddress != paidWith, "CP2");
         // CP3: The Project Token must have 18 decimals of precision
         require(IERC20Metadata(tokenAddress).decimals() == 18, "CP3");
-        // CP4: The minimum length should be of least 1000 blocks // TODO: Increase minimum block length, Should be set to 5000 at least
-        require(block.number.lowerThan(endsAtBlock) && endsAtBlock - block.number >= 100, "CP4");
+        // CP4: The minimum length should be of least 5000 blocks
+        require(block.number.lowerThan(endsAtBlock) && endsAtBlock - block.number >= 5000, "CP4");
         // CP5: The startingBlock should be higher than the current block and lower than the end block
         require(startingBlock.notElapsedOrEqualToCurrentBlock() && startingBlock.lowerThan(endsAtBlock), "CP5");
         // CP6: The minimum and maximum purchase must be higher than 0.01,
@@ -112,19 +112,19 @@ contract GreedStarter is Initializable, UUPSUpgradeable, OwnableUpgradeable, Ree
 
      function invest(uint projectId, uint amountToBuy) external payable nonReentrant {
          Project storage project = _projects[projectId];
-         // IP1: This project doesn't exists
+         // I1: This project doesn't exists
          require(project.id != 0, "I1");
-         // IP2: "You can't invest in your your own project"
+         // I2: "You can't invest in your your own project"
          require(msg.sender != project.createdBy, "I2");
-         // IP3: This project already finished
+         // I3: This project already finished
          require(project.endsAtBlock.notElapsed(), "I3");
-         // IP4: This project hasn't started yet
+         // I4: This project hasn't started yet
          require(project.startingBlock.elapsedOrEqualToCurrentBlock(), "I4");
-         // IP5: Not enough tokens available to perform this investment;
+         // I5: Not enough tokens available to perform this investment;
          require((project.totalTokens - project.totalSold) >= amountToBuy, "I5");
-         // IP6: You can't purchase less than the minimum amount
+         // I6: You can't purchase less than the minimum amount
          require(amountToBuy >= project.minimumPurchase, "I6");
-         // IP7: You can't purchase more than the maximum allowed
+         // I7: You can't purchase more than the maximum allowed
          require(_pendingRewards[projectId][msg.sender] + amountToBuy <= project.maximumPurchase, "I7");
          // Calculate the amount that the user has to pay for this investment
          uint amountToPay = (project.pricePerToken * amountToBuy) / 1 ether;
@@ -187,7 +187,7 @@ contract GreedStarter is Initializable, UUPSUpgradeable, OwnableUpgradeable, Ree
     // Views                                                        ////
     ////////////////////////////////////////////////////////////////////
     function getProjects(uint[] memory ids) external view returns(Project[] memory) {
-        require(ids.length <= 30, "GP"); // You can request 30 projects at once
+        require(ids.length <= 30, "PAG"); // You can request 30 projects at once
         Project[] memory projects = new Project[](ids.length);
         for(uint i = 0; i < ids.length; i++) {
             projects[i] = _projects[ids[i]];

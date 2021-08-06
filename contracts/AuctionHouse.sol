@@ -54,9 +54,9 @@ contract AuctionHouse is Initializable, UUPSUpgradeable, OwnableUpgradeable, Ree
            require(buyoutPrice > startingPrice, "CA1");
         }
         // "The minimum Auction length should be of least 2000 blocks";
-        require(endsAtBlock > block.number && endsAtBlock - block.number >= 2000, "CA3");
+        require(endsAtBlock > block.number && endsAtBlock - block.number >= 2000, "CA2");
         // "The auctioned token address and the selling token address cannot be the same";
-        require(auctionedTokenAddress != payingTokenAddress, "CA4");
+        require(auctionedTokenAddress != payingTokenAddress, "CA3");
         // Deposit user funds in the Auction House Contract
         address(this).safeDepositAsset(auctionedTokenAddress, auctionedAmount);
 
@@ -124,8 +124,8 @@ contract AuctionHouse is Initializable, UUPSUpgradeable, OwnableUpgradeable, Ree
             if (_auctions[auctionId].endsAtBlock <= block.number) {
                 // if the user is the winner of the auction
                 if (msg.sender == _auctions[auctionId].highestBidder) {
-                    // CF1: "You already claimed this auction rewards"
-                    require(_auctions[auctionId].rewardsWithdrawnByWinner == false, "CF1");
+                    // ACF1: "You already claimed this auction rewards"
+                    require(_auctions[auctionId].rewardsWithdrawnByWinner == false, "ACF1");
                     _auctions[auctionId].rewardsWithdrawnByWinner = true;
                     // Set user bids back to 0, these funds are going now to the creator of the Auction
                     _auctionBids[auctionId][msg.sender] = 0;
@@ -135,8 +135,8 @@ contract AuctionHouse is Initializable, UUPSUpgradeable, OwnableUpgradeable, Ree
                 }
                 // if the user is the creator of the auction
                 if (msg.sender == _auctions[auctionId].createdBy) {
-                    // CF2: "You already claimed this auction rewards"
-                    require(_auctions[auctionId].fundsOrRewardsWithdrawnByCreator == false, "CF2");
+                    // ACF1: "You already claimed this auction rewards"
+                    require(_auctions[auctionId].fundsOrRewardsWithdrawnByCreator == false, "ACF1");
                     _auctions[auctionId].fundsOrRewardsWithdrawnByCreator = true;
                     // If there was a HighestBidder, send the Highest bid to the creator
                     if(_auctions[auctionId].highestBid > 0 && _auctions[auctionId].totalBids > 0) {
@@ -149,15 +149,15 @@ contract AuctionHouse is Initializable, UUPSUpgradeable, OwnableUpgradeable, Ree
                     }
                 }
             } else {
-                // CF3: You don't have anything available to claim
-                revert("CF3");
+                // ACF2: You don't have anything available to claim
+                revert("ACF2");
             }
         // If the user is not the Highest bidder or the creator of the Auction
         } else {
             // We get the User bids and then proceed to check if the user has bids available to claim
             uint userBids = _auctionBids[auctionId][msg.sender];
-            // CF4: "You have no funds available to claim from this auction"
-            require(userBids > 0, "CF4");
+            // ACF3: "You have no funds available to claim from this auction"
+            require(userBids > 0, "ACF3");
             // if it does have funds, set them back to 0
             _auctionBids[auctionId][msg.sender] = 0;
             // Send the user his lost bids
@@ -169,7 +169,7 @@ contract AuctionHouse is Initializable, UUPSUpgradeable, OwnableUpgradeable, Ree
     // Views                                                        ////
     ////////////////////////////////////////////////////////////////////
     function getAuctions(uint[] memory ids) external view returns(Auction[] memory) {
-        require(ids.length <= 30, "RT"); // You can request 30 auctions at once
+        require(ids.length <= 30, "PAG"); // You can request 30 auctions at once
         Auction[] memory auctions = new Auction[](ids.length);
         for(uint i = 0; i < ids.length; i++) {
             auctions[i] = _auctions[ids[i]];
