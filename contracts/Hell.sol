@@ -16,7 +16,7 @@ contract Hell is Initializable, ERC20Upgradeable, UUPSUpgradeable, OwnableUpgrad
         __Ownable_init();
         __UUPSUpgradeable_init();
         _mint(msg.sender, 666 * 10 ** decimals());
-        _burnFee = 4;
+        _burnFee = 5;
         _burntTokens = 0;
     }
     ////////////////////////////////////////////////////////////////////
