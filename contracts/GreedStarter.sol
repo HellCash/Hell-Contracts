@@ -134,10 +134,20 @@ contract GreedStarter is Initializable, UUPSUpgradeable, OwnableUpgradeable, Ree
          // Register user participation
          _indexer._registerUserParticipation(projectId, msg.sender);
          // Save changes
-         // Update the amount the user has invested in this project
-         _paidAmount[projectId][msg.sender] += amountToPay;
-         // Update the total investments the project has collected
-         project.rewardsCollected += amountToPay;
+         // If the project is being paid with the Network currency, we can safely pass msg.value to avoid negligible leftovers.
+         // safeDepositAsset already verified that the amountToPay was higher or equal to msg.value.
+         if(project.paidWith == address(0)) {
+             // Update the amount the user has invested in this project
+             _paidAmount[projectId][msg.sender] += msg.value;
+             // Update the total investments the project has collected
+             project.rewardsCollected += msg.value;
+         // Else if we are paying with a ERC20 compliant token.
+         } else {
+             // Update the amount the user has invested in this project
+             _paidAmount[projectId][msg.sender] += amountToPay;
+             // Update the total investments the project has collected
+             project.rewardsCollected += amountToPay;
+         }
          // Update the total amount that this project has sold
          project.totalSold += amountToBuy;
          // Update the amount of rewards that will be available for the investor once the project ends.
