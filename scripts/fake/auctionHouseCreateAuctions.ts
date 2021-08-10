@@ -41,6 +41,15 @@ async function main() {
         parseUnits('660000', 6), // Buyout price
         currentBlock + 2025);
 
+    Console.logTitle('Creating Hell Auction, sold against FUSD');
+    await auctionHouseContract.createAuction(
+        contractAddresses.hell, // Auction Hell
+        parseEther('1'), // Auction 1 worth of Hell
+        contractAddresses.fusd, // Against FUSD
+        parseUnits('10000', 6), // Bid Price
+        parseUnits('35000', 6), // Buyout price
+        currentBlock + 2025);
+
     Console.logTitle('Creating Doublon Auction, sold against FUSD');
     await auctionHouseContract.createAuction(
         contractAddresses.doublon, // Auction Hell
