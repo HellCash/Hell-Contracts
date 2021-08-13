@@ -74,16 +74,16 @@ contract GreedStarter is Initializable, UUPSUpgradeable, OwnableUpgradeable, Ree
         require(block.number.lowerThan(endsAtBlock) && endsAtBlock - block.number >= 5000, "CP4");
         // CP5: The startingBlock should be higher than the current block and lower than the end block
         require(startingBlock.notElapsedOrEqualToCurrentBlock() && startingBlock.lowerThan(endsAtBlock), "CP5");
-        // CP6: The minimum and maximum purchase must be higher than 0.01,
+        // CP6: The minimum and maximum purchase must be higher or equal to 0.01,
         // We enforce this to ensure enough precision on price calculations
         require(1e16 <= minimumPurchase  && 1e16 <= maximumPurchase, "CP6");
-        // CP7: The minimumPurchase should be lower or equal to the maximumPurchase
+        // CP7: The minimumPurchase must be lower or equal to the maximumPurchase
         require(minimumPurchase <= maximumPurchase, "CP7");
-        // CP8: The minimumPrice per token should be higher than 1e6 wei (Like on USDT or USDC)
+        // CP8: The pricePerToken per token must be higher or equal to 1e6 wei (Like on USDT or USDC)
         require(1e6 <= pricePerToken, "CP8");
         // CP9: The Total Tokens cannot be lower than the maximum or minimumPurchase
         // Since we already tested for minimumPurchase and maximumPurchase we can assume that the totalTokens are also higher or equal than 1e16
-        require(minimumPurchase <= totalTokens &&  maximumPurchase <= totalTokens, "CP9");
+        require(minimumPurchase <= totalTokens && maximumPurchase <= totalTokens, "CP9");
         // safeDepositAsset: Validates for enough: balance, allowance and if the GreedStarter Contract received the expected amount
         payable(address(this)).safeDepositAsset(tokenAddress, totalTokens);
         // Increase the total projects, this value will be used as our next project id
