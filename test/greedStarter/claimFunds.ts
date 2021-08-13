@@ -15,6 +15,8 @@ describe('[Greed Starter] function claimFunds',  () => {
     let guest2Signer: any;
     let treasurySigner: any;
     let hellProjectId: BigNumber;
+    let hellProjectIdPaidWithDoublon: BigNumber;
+    let doublonProjectId: BigNumber;
 
     before(async() => {
         const accountSigners = await ethers.getSigners();
@@ -28,6 +30,13 @@ describe('[Greed Starter] function claimFunds',  () => {
         await fusdContract.transfer(guest1Signer.address, parseUnits("300000",6));
 
         // First we increase the allowances of the master signer
+        const doublonContract: Contract = await ContractTestHelpers.getDoublonContract(masterSigner);
+        await doublonContract.approve(contractAddresses.greedStarter, parseEther("12500"));
+
+        // Transfer some Doublon to guest2
+        await doublonContract.transfer(guest2Signer.address, parseUnits('10000'));
+
+        // First we increase the allowances of the master signer
         const hellContract: Contract = await HellTestHelpers.getHellContract(masterSigner);
         await hellContract.approve(contractAddresses.greedStarter, parseEther("100"));
 
@@ -38,7 +47,7 @@ describe('[Greed Starter] function claimFunds',  () => {
         await greedStarterContract.createProject(
             hellContract.address, // Token address
             fusdContract.address, // Address of paying currency
-            parseEther("100"), // Total Tokens
+            parseEther("60"), // Total Tokens
             currentBlock + 5, // Starting block
             currentBlock + 110, // Ending block
             parseUnits("16500",6), // Price per token
@@ -48,6 +57,31 @@ describe('[Greed Starter] function claimFunds',  () => {
 
         hellProjectId = totalProjects.add(1);
 
+        await greedStarterContract.createProject(
+            hellContract.address, // Token address
+            doublonContract.address, // Address of paying currency
+            parseEther("40"), // Total Tokens
+            currentBlock + 5, // Starting block
+            currentBlock + 150, // Ending block
+            parseEther("500"), // Price per token
+            parseEther("2"), // Minimum purchase
+            parseEther("30"), // Maximum Purchase
+        );
+
+        hellProjectIdPaidWithDoublon = totalProjects.add(2);
+
+        await greedStarterContract.createProject(
+            doublonContract.address, // Token address
+            EtherUtils.zeroAddress(), // Address of paying currency
+            parseEther("200"), // Total Tokens
+            currentBlock + 5, // Starting block
+            currentBlock + 500, // Ending block
+            parseEther("0.5"), // Price per token
+            parseEther("2"), // Minimum purchase
+            parseEther("50"), // Maximum Purchase
+        );
+
+        doublonProjectId = totalProjects.add(3);
 
     });
 
@@ -58,7 +92,7 @@ describe('[Greed Starter] function claimFunds',  () => {
     });
 
 
-    it('Project creator should be able to withdraw his rewards and left over tokens', async() => {
+    it('Paid with FUSD: Project creator should be able to withdraw his rewards and left over tokens', async() => {
         // Mined 10 blocks to ensure the project has started
         for (let i = 0; i < 10; i++) {
             await ethers.provider.send('evm_mine', []);
@@ -87,6 +121,72 @@ describe('[Greed Starter] function claimFunds',  () => {
             .to.emit(greedStarterContract, 'CreatorWithdrawnFunds')
             .withArgs(project.id, masterSigner.address, expectedRewards, expectedFees, rewardedAfterFees, leftOverTokens);
 
+    });
+
+
+    it('Paid with ERC20: Project creator should be able to withdraw his rewards and left over tokens', async() => {
+        // Mined 10 blocks to ensure the project has started
+        for (let i = 0; i < 10; i++) {
+            await ethers.provider.send('evm_mine', []);
+        }
+
+        // Make a investment with guest2Signer
+        const guest1GreedStarterContract: Contract = await GreedStarterHelpers.getGreedStarterContract(guest2Signer);
+        const doublonContract: Contract = await ContractTestHelpers.getDoublonContract(guest2Signer);
+        await doublonContract.approve(contractAddresses.greedStarter, parseEther('5000'));
+        await guest1GreedStarterContract.invest(hellProjectIdPaidWithDoublon, parseEther('3'));
+
+        // Mined 5000 blocks to ensure the project has ended
+        for (let i = 0; i < 160; i++) {
+            await ethers.provider.send('evm_mine', []);
+        }
+          // Execute assertion
+        const greedStarterContract: Contract = await GreedStarterHelpers.getGreedStarterContract(masterSigner);
+        const project: Project = (await greedStarterContract.getProjects([hellProjectIdPaidWithDoublon]))[0];
+        const treasuryFees: BigNumber = await greedStarterContract._hellTreasuryFee();
+        const expectedFees: BigNumber = project.rewardsCollected.div(treasuryFees);
+        const expectedRewards: BigNumber = project.rewardsCollected;
+        const leftOverTokens: BigNumber  = project.totalTokens.sub(project.totalSold);
+        const rewardedAfterFees: BigNumber = expectedRewards.sub(expectedFees);
+        console.log()
+        await expect(greedStarterContract.claimFunds(hellProjectIdPaidWithDoublon))
+            .to.emit(greedStarterContract, 'CreatorWithdrawnFunds')
+            .withArgs(project.id, masterSigner.address, expectedRewards, expectedFees, rewardedAfterFees, leftOverTokens);
+
+    });
+
+
+    it('Paid with ETHER: Project creator should be able to withdraw his rewards and left over tokens', async() => {
+        for (let i = 0; i < 25; i++) {
+            await ethers.provider.send('evm_mine', []);
+        }
+        // Make a investment with guest1Signer
+        const guest1GreedStarterContract: Contract = await GreedStarterHelpers.getGreedStarterContract(guest1Signer);
+        const amountToPay = parseEther('5')
+        await guest1GreedStarterContract.invest(doublonProjectId, parseEther('10'),{value: amountToPay});
+        // Mined 5000 blocks to ensure the project has ended
+        for (let i = 0; i < 510; i++) {
+            await ethers.provider.send('evm_mine', []);
+        }
+        // Execute assertion
+        const greedStarterContract: Contract = await GreedStarterHelpers.getGreedStarterContract(masterSigner);
+        const project: Project = (await greedStarterContract.getProjects([doublonProjectId]))[0];
+        const treasuryFees: BigNumber = await greedStarterContract._hellTreasuryFee();
+        const expectedFees: BigNumber = project.rewardsCollected.div(treasuryFees);
+        const expectedRewards: BigNumber = project.rewardsCollected;
+        const leftOverTokens: BigNumber  = project.totalTokens.sub(project.totalSold);
+        const rewardedAfterFees: BigNumber = expectedRewards.sub(expectedFees);
+
+        await expect(greedStarterContract.claimFunds(doublonProjectId))
+            .to.emit(greedStarterContract, 'CreatorWithdrawnFunds')
+            .withArgs(project.id, masterSigner.address, expectedRewards, expectedFees, rewardedAfterFees, leftOverTokens);
+    });
+
+
+    it('Should fail if the creator tries to claim more than once', async () => {
+        const greedStarterContract : Contract = await GreedStarterHelpers.getGreedStarterContract(masterSigner);
+        await expect(greedStarterContract.claimFunds(hellProjectId))
+            .to.be.revertedWith('CF2')
     });
 
 
