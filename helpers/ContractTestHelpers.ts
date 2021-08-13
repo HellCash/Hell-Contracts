@@ -1,4 +1,4 @@
-import {deployContracts} from "../scripts/deployContracts";
+import {deployLocalContracts} from "../scripts/deployLocalContracts";
 import {ethers, network} from "hardhat";
 import {Signer} from "ethers";
 import {Console} from "../utils/console";

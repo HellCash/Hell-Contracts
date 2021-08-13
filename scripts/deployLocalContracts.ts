@@ -1,4 +1,4 @@
-import {ethers, upgrades} from "hardhat";
+import {ethers} from "hardhat";
 import {writeFileSync} from "fs";
 import {resolve} from "path";
 import {Console} from "../utils/console";
@@ -12,7 +12,7 @@ import {deployGreedStarter} from "./deployments/deployGreedStarter";
 import {deployGreedStarterIndexer} from "./deployments/deployGreedStarterIndexer";
 import {deployFUSD} from "./deployments/deployFUSD";
 
-export async function deployContracts(): Promise<boolean> {
+async function deployLocalContracts() {
     Console.logTitle("Deploying Contracts");
     const accounts = await ethers.provider.listAccounts();
     const treasuryAddress = accounts[4];
@@ -55,3 +55,10 @@ export async function deployContracts(): Promise<boolean> {
     Console.logHr();
     return true;
 }
+
+deployLocalContracts()
+    .then(() => process.exit(0))
+    .catch(error => {
+        console.error(error);
+        process.exit(1);
+    });
