@@ -9,7 +9,7 @@ export class Console {
         console.log("\t\t" +message);
         this.logHr();
     }
-    static async contractDeploymentInformation(name: string, contract: Contract) {
-        this.logTitle("Contract \"" + name + "\" deployed to address: " + contract.address);
+    static contractDeploymentInformation(name: string, contract: Contract) {
+        this.logTitle(`Contract "${name}" deployed to address: ${contract.address}`);
     }
 }
