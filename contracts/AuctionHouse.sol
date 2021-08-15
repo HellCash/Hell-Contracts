@@ -128,7 +128,10 @@ contract AuctionHouse is Initializable, UUPSUpgradeable, OwnableUpgradeable, Ree
                 if (msg.sender == _auctions[auctionId].highestBidder) {
                     // ACF1: "You already claimed this auction rewards"
                     require(_auctions[auctionId].rewardsWithdrawnByWinner == false, "ACF1");
+                    // Set winner rewards as withdrawn
                     _auctions[auctionId].rewardsWithdrawnByWinner = true;
+                    // Register Auction as Won
+                    _indexer.registerAuctionWon(auctionId, msg.sender);
                     // Set user bids back to 0, these funds are going now to the creator of the Auction
                     _auctionBids[auctionId][msg.sender] = 0;
                     // Send the earned tokens to the winner and a pay the small fee agreed upon the auction creation.
@@ -139,9 +142,12 @@ contract AuctionHouse is Initializable, UUPSUpgradeable, OwnableUpgradeable, Ree
                 if (msg.sender == _auctions[auctionId].createdBy) {
                     // ACF1: "You already claimed this auction rewards"
                     require(_auctions[auctionId].fundsOrRewardsWithdrawnByCreator == false, "ACF1");
+                    // Set creator rewards as withdrawn
                     _auctions[auctionId].fundsOrRewardsWithdrawnByCreator = true;
                     // If there was a HighestBidder, send the Highest bid to the creator
                     if(_auctions[auctionId].highestBid > 0 && _auctions[auctionId].totalBids > 0) {
+                        // Register auction as sold
+                        _indexer.registerAuctionSold(auctionId, msg.sender);
                         (uint userReceives, uint feePaid) = payable(msg.sender).safeTransferAssetAndPayFee(_auctions[auctionId].payingTokenAddress, _auctions[auctionId].highestBid, _hellTreasuryAddress, _auctions[auctionId].auctionHouseFee);
                         emit ClaimSoldAuctionRewards(auctionId, msg.sender, _auctions[auctionId].payingTokenAddress, userReceives, feePaid);
                     } else {

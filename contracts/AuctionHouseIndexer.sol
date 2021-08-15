@@ -41,6 +41,16 @@ contract AuctionHouseIndexer is Initializable, UUPSUpgradeable, OwnableUpgradeab
     mapping(address => uint) public _totalPaidWithTokenAuctions;
     // Auctions sold for the specific token address (Token Address => index => auction.id);
     mapping(address => mapping(uint => uint)) _paidWithTokenAuctions;
+    ////////////////////////////////////////////////////////////////////////
+    // Total Auctions won by User Address
+    mapping(address => uint) public _userTotalAuctionsWon;
+    // Holds a boolean to let know if the user won a specific Auction
+    mapping(address => mapping(uint => bool)) _userWonTheAuction;
+    ////////////////////////////////////////////////////////////////////////
+    // Total Auctions sold by User Address
+    mapping(address => uint) public _userTotalAuctionsSold;
+    // Holds a boolean to let know if the user managed to sell a specific Auction
+    mapping(address => mapping(uint => bool)) _userSoldTheAuction;
     ////////////////////////////////////////////////////////////////////
     // Public Views                                                 ////
     ////////////////////////////////////////////////////////////////////
@@ -125,6 +135,22 @@ contract AuctionHouseIndexer is Initializable, UUPSUpgradeable, OwnableUpgradeab
             _userParticipatedInAuction[userAddress][auctionId] = true;
             _userTotalParticipatedAuctions[userAddress] += 1;
             _userParticipatedAuctions[userAddress][_userTotalParticipatedAuctions[userAddress]] = auctionId;
+        }
+        return true;
+    }
+
+    function registerAuctionSold(uint auctionId, address creatorAddress) onlyAuctionHouse external returns(bool) {
+        if(_userSoldTheAuction[creatorAddress][auctionId] == false) {
+            _userSoldTheAuction[creatorAddress][auctionId] = true;
+            _userTotalAuctionsSold += 1;
+        }
+        return true;
+    }
+
+    function registerAuctionWon(uint auctionId, address winnerAddress) onlyAuctionHouse external returns(bool) {
+        if(_userWonTheAuction[winnerAddress][auctionId] == false) {
+            _userWonTheAuction[winnerAddress][auctionId] = true;
+            _userTotalAuctionsWon += 1;
         }
         return true;
     }
