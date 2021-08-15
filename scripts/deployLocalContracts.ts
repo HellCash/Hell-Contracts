@@ -11,6 +11,7 @@ import {deployAuctionHouseIndexer} from "./deployments/deployAuctionHouseIndexer
 import {deployGreedStarter} from "./deployments/deployGreedStarter";
 import {deployGreedStarterIndexer} from "./deployments/deployGreedStarterIndexer";
 import {deployFUSD} from "./deployments/deployFUSD";
+import {BigNumber} from "ethers";
 
 async function deployLocalContracts() {
     Console.logTitle("Deploying Contracts");
@@ -25,7 +26,7 @@ async function deployLocalContracts() {
     await hellContract._setHellVaultAddress(hellVaultContract.address);
     console.log('Hell Contract: Exclude Hell Vault from burn list');
     await hellContract._setExcludedFromBurnList(hellVaultContract.address, true);
-    const auctionContract = await deployAuctionHouse(treasuryAddress);
+    const auctionContract = await deployAuctionHouse(treasuryAddress, BigNumber.from(2000), 800);
     console.log('Hell Contract: Exclude Auction House from burn list');
     await hellContract._setExcludedFromBurnList(auctionContract.address, true);
     const auctionIndexerContract = await deployAuctionHouseIndexer(auctionContract.address);
