@@ -10,8 +10,8 @@ export async function deployAuctionHouse(treasuryAddress: string, minimumAuction
         ],
         {kind: 'uups'}
     );
-    const feePercentage = 1 / auctionHouseFee;
     if (printLogs) {
+        const feePercentage = 1 / auctionHouseFee;
         Console.contractDeploymentInformation("AuctionHouse", auctionHouseContractProxy);
         console.log(`[Auction House Contract]: Minimum Auction Length ${minimumAuctionLength}`);
         console.log(`[Auction House Contract]: Set Treasury Address to ${treasuryAddress} with fees of ${feePercentage}%`);
