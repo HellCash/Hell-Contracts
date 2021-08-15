@@ -209,10 +209,10 @@ contract GreedStarter is Initializable, UUPSUpgradeable, OwnableUpgradeable, Ree
     // Only Owner                                                   ////
     ////////////////////////////////////////////////////////////////////
     function _authorizeUpgrade(address) internal override onlyOwner {}
-    function initialize(address payable treasuryAddress, uint16 treasuryFee, uint minimumProjectLength) initializer public {
+    function initialize(uint minimumProjectLength, address payable treasuryAddress, uint16 treasuryFee) initializer public {
         __Ownable_init();
         __UUPSUpgradeable_init();
-        _minimumProjectLength = minimumProjectLength;
+        _setMinimumProjectLength(minimumProjectLength);
         _setTreasuryAddressAndFees(treasuryAddress, treasuryFee);
     }
 
@@ -228,7 +228,7 @@ contract GreedStarter is Initializable, UUPSUpgradeable, OwnableUpgradeable, Ree
         emit GreedStarterIndexerUpdated(indexerAddress);
     }
 
-    function _setMinimumProjectLength(uint newLength) external onlyOwner {
+    function _setMinimumProjectLength(uint newLength) public onlyOwner {
         _minimumProjectLength = newLength;
         emit MinimumProjectLengthUpdated(newLength);
     }

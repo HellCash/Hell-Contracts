@@ -190,17 +190,18 @@ contract AuctionHouse is Initializable, UUPSUpgradeable, OwnableUpgradeable, Ree
     ////////////////////////////////////////////////////////////////////
     // Only Owner                                                   ////
     ////////////////////////////////////////////////////////////////////
-    function initialize(uint minimumAuctionLength) initializer public {
+    function initialize(uint minimumAuctionLength, address payable treasuryAddress, uint16 auctionHouseFee) initializer public {
         __Ownable_init();
         __UUPSUpgradeable_init();
-        _minimumAuctionLength = minimumAuctionLength;
+        _setMinimumAuctionLength(minimumAuctionLength);
+        _setTreasuryAddressAndFees(treasuryAddress, auctionHouseFee);
     }
-    function _setMinimumAuctionLength(uint newLength) external onlyOwner {
+    function _setMinimumAuctionLength(uint newLength) public onlyOwner {
         _minimumAuctionLength = newLength;
         emit MinimumAuctionLengthUpdated(newLength);
     }
     function _authorizeUpgrade(address) internal override onlyOwner {}
-    function _setTreasuryAddressAndFees(address payable treasuryAddress, uint16 newFee) external onlyOwner {
+    function _setTreasuryAddressAndFees(address payable treasuryAddress, uint16 newFee) public onlyOwner {
         _hellTreasuryAddress = treasuryAddress;
         _auctionHouseFee = newFee;
         emit TreasuryAddressAndFeesUpdated(treasuryAddress, newFee);
