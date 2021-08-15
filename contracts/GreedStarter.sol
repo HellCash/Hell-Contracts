@@ -27,6 +27,7 @@ contract GreedStarter is Initializable, UUPSUpgradeable, OwnableUpgradeable, Ree
 
     address payable private _hellTreasuryAddress;
     uint16 public _hellTreasuryFee;
+    uint _minimumProjectLength;
 
     struct Project {
         // Unique identifier for this project
@@ -70,8 +71,8 @@ contract GreedStarter is Initializable, UUPSUpgradeable, OwnableUpgradeable, Ree
         require(tokenAddress != paidWith, "CP2");
         // CP3: The Project Token must have 18 decimals of precision
         require(IERC20Metadata(tokenAddress).decimals() == 18, "CP3");
-        // CP4: The minimum length should be of least 5000 blocks
-        require(block.number.lowerThan(endsAtBlock) && endsAtBlock - block.number >= 5000, "CP4");
+        // CP4: The minimum length should be of least _minimumProjectLength blocks
+        require(block.number.lowerThan(endsAtBlock) && endsAtBlock - block.number >= _minimumProjectLength, "CP4");
         // CP5: The startingBlock should be higher than the current block and lower than the end block
         require(startingBlock.notElapsedOrEqualToCurrentBlock() && startingBlock.lowerThan(endsAtBlock), "CP5");
         // CP6: The minimum and maximum purchase must be higher or equal to 0.01,
@@ -197,7 +198,7 @@ contract GreedStarter is Initializable, UUPSUpgradeable, OwnableUpgradeable, Ree
     // Views                                                        ////
     ////////////////////////////////////////////////////////////////////
     function getProjects(uint[] memory ids) external view returns(Project[] memory) {
-        require(ids.length <= 30, "PAG"); // You can request 30 projects at once
+        require(ids.length <= 30, "PAG"); // PAG: Pagination limit exceeded
         Project[] memory projects = new Project[](ids.length);
         for(uint i = 0; i < ids.length; i++) {
             projects[i] = _projects[ids[i]];
@@ -208,9 +209,10 @@ contract GreedStarter is Initializable, UUPSUpgradeable, OwnableUpgradeable, Ree
     // Only Owner                                                   ////
     ////////////////////////////////////////////////////////////////////
     function _authorizeUpgrade(address) internal override onlyOwner {}
-    function initialize(address payable treasuryAddress, uint16 treasuryFee) initializer public {
+    function initialize(address payable treasuryAddress, uint16 treasuryFee, uint minimumProjectLength) initializer public {
         __Ownable_init();
         __UUPSUpgradeable_init();
+        _minimumProjectLength = minimumProjectLength;
         _setTreasuryAddressAndFees(treasuryAddress, treasuryFee);
     }
 
@@ -226,11 +228,17 @@ contract GreedStarter is Initializable, UUPSUpgradeable, OwnableUpgradeable, Ree
         emit GreedStarterIndexerUpdated(indexerAddress);
     }
 
+    function _setMinimumProjectLength(uint newLength) external onlyOwner {
+        _minimumProjectLength = newLength;
+        emit MinimumProjectLengthUpdated(newLength);
+    }
+
     event ProjectCreated(uint indexed projectId, address payable tokenAddress, address payable paidWith, uint totalAvailable, uint startingBlock, uint endsAtBlock, uint pricePerToken);
     event InvestedInProject(uint indexed projectId, address userAddress, uint amountPaid, uint amountRewarded, uint totalPaid, uint totalRewarded);
     event CreatorWithdrawnFunds(uint indexed projectId, address creatorAddress, uint amountRewarded, uint paidFees, uint amountRewardedAfterFees, uint amountRecovered);
     event RewardsClaimed(uint indexed projectId, address userAddress, uint amountRewarded);
     event TreasuryAddressAndFeesUpdated(address indexed treasuryAddress, uint16 newFee);
     event GreedStarterIndexerUpdated(address newIndexerAddress);
+    event MinimumProjectLengthUpdated(uint newLength);
 
 }

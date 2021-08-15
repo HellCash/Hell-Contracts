@@ -32,7 +32,7 @@ contract GreedStarterIndexer is Initializable, UUPSUpgradeable, OwnableUpgradeab
     // Public Views                                                 ////
     ////////////////////////////////////////////////////////////////////
     function getTrustedProjectIds(uint[] memory indexes) external view returns(uint[] memory) {
-        require(indexes.length <= _maximumPageSize, "PAG"); // You can request 30 ids at once
+        require(indexes.length <= _maximumPageSize, "PAG"); // Pagination limit exceeded
         uint[] memory trustedProjectIds = new uint[](indexes.length);
         for(uint i = 0; i < indexes.length; i++) {
             trustedProjectIds[i] = _trustedProjects[indexes[i]];

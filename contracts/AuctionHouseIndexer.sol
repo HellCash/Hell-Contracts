@@ -142,7 +142,7 @@ contract AuctionHouseIndexer is Initializable, UUPSUpgradeable, OwnableUpgradeab
     function registerAuctionSold(uint auctionId, address creatorAddress) onlyAuctionHouse external returns(bool) {
         if(_userSoldTheAuction[creatorAddress][auctionId] == false) {
             _userSoldTheAuction[creatorAddress][auctionId] = true;
-            _userTotalAuctionsSold += 1;
+            _userTotalAuctionsSold[creatorAddress] += 1;
         }
         return true;
     }
@@ -150,7 +150,7 @@ contract AuctionHouseIndexer is Initializable, UUPSUpgradeable, OwnableUpgradeab
     function registerAuctionWon(uint auctionId, address winnerAddress) onlyAuctionHouse external returns(bool) {
         if(_userWonTheAuction[winnerAddress][auctionId] == false) {
             _userWonTheAuction[winnerAddress][auctionId] = true;
-            _userTotalAuctionsWon += 1;
+            _userTotalAuctionsWon[winnerAddress] += 1;
         }
         return true;
     }

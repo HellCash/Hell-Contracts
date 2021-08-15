@@ -44,6 +44,7 @@ contract AuctionHouse is Initializable, UUPSUpgradeable, OwnableUpgradeable, Ree
     ///////////////////////////////////////////////////////////////////////////////////////////
     uint16 _auctionHouseFee;
     address payable private _hellTreasuryAddress;
+    uint _minimumAuctionLength;
     ///////////////////////////////////////////////////////////////////////////////////////////
     address private _indexerAddress;
     AuctionHouseIndexer private _indexer;
@@ -55,8 +56,8 @@ contract AuctionHouse is Initializable, UUPSUpgradeable, OwnableUpgradeable, Ree
             // "The buyout price must be higher than the starting price"
            require(buyoutPrice > startingPrice, "CA1");
         }
-        // "The minimum Auction length should be of least 2000 blocks";
-        require(block.number.lowerThan(endsAtBlock) && endsAtBlock - block.number >= 2000, "CA2");
+        // "The minimum Auction length should be of least _minimumAuctionLength blocks";
+        require(block.number.lowerThan(endsAtBlock) && endsAtBlock - block.number >= _minimumAuctionLength, "CA2");
         // "The auctioned token address and the selling token address cannot be the same";
         require(auctionedTokenAddress != payingTokenAddress, "CA3");
         // Deposit user funds in the Auction House Contract
@@ -189,9 +190,14 @@ contract AuctionHouse is Initializable, UUPSUpgradeable, OwnableUpgradeable, Ree
     ////////////////////////////////////////////////////////////////////
     // Only Owner                                                   ////
     ////////////////////////////////////////////////////////////////////
-    function initialize() initializer public {
+    function initialize(uint minimumAuctionLength) initializer public {
         __Ownable_init();
         __UUPSUpgradeable_init();
+        _minimumAuctionLength = minimumAuctionLength;
+    }
+    function _setMinimumAuctionLength(uint newLength) external onlyOwner {
+        _minimumAuctionLength = newLength;
+        emit MinimumAuctionLengthUpdated(newLength);
     }
     function _authorizeUpgrade(address) internal override onlyOwner {}
     function _setTreasuryAddressAndFees(address payable treasuryAddress, uint16 newFee) external onlyOwner {
@@ -223,4 +229,5 @@ contract AuctionHouse is Initializable, UUPSUpgradeable, OwnableUpgradeable, Ree
     event ClaimUnsoldAuctionFunds(uint indexed auctionId, address indexed userAddress, address tokenAddress, uint userReceives, uint feePaid);
     event ClaimWonAuctionRewards(uint indexed auctionId, address indexed userAddress, address tokenAddress, uint userReceives, uint feePaid);
     event ClaimSoldAuctionRewards(uint indexed auctionId, address indexed userAddress, address tokenAddress, uint userReceives, uint feePaid);
+    event MinimumAuctionLengthUpdated(uint newLength);
 }
