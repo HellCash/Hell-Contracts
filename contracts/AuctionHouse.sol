@@ -7,10 +7,12 @@ import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol";
 import "./libraries/HellishTransfers.sol";
 import "./AuctionHouseIndexer.sol";
+import "./libraries/HellishBlocks.sol";
 
 contract AuctionHouse is Initializable, UUPSUpgradeable, OwnableUpgradeable, ReentrancyGuardUpgradeable {
     using HellishTransfers for address;
     using HellishTransfers for address payable;
+    using HellishBlocks for uint;
 
     struct Auction {
         // Auction Details
@@ -54,7 +56,7 @@ contract AuctionHouse is Initializable, UUPSUpgradeable, OwnableUpgradeable, Ree
            require(buyoutPrice > startingPrice, "CA1");
         }
         // "The minimum Auction length should be of least 2000 blocks";
-        require(endsAtBlock > block.number && endsAtBlock - block.number >= 2000, "CA2");
+        require(block.number.lowerThan(endsAtBlock) && endsAtBlock - block.number >= 2000, "CA2");
         // "The auctioned token address and the selling token address cannot be the same";
         require(auctionedTokenAddress != payingTokenAddress, "CA3");
         // Deposit user funds in the Auction House Contract
@@ -87,7 +89,7 @@ contract AuctionHouse is Initializable, UUPSUpgradeable, OwnableUpgradeable, Ree
         // "Auction not found"
         require(auction.id != 0, "IB1");
         // "This Auction has already finished"
-        require(auction.endsAtBlock > block.number, "IB2");
+        require(auction.endsAtBlock.notElapsed(), "IB2");
         // "The amount cannot be empty";
         require(amount > 0, "IB3");
         // You cannot place bids on your own auction
@@ -121,7 +123,7 @@ contract AuctionHouse is Initializable, UUPSUpgradeable, OwnableUpgradeable, Ree
     function claimFunds(uint auctionId) public nonReentrant {
         if(msg.sender == _auctions[auctionId].highestBidder || msg.sender == _auctions[auctionId].createdBy) {
             // If the Auction ended the highest bidder and the creator of the Auction will be able to withdraw their funds
-            if (_auctions[auctionId].endsAtBlock <= block.number) {
+            if (_auctions[auctionId].endsAtBlock.elapsedOrEqualToCurrentBlock()) {
                 // if the user is the winner of the auction
                 if (msg.sender == _auctions[auctionId].highestBidder) {
                     // ACF1: "You already claimed this auction rewards"
@@ -169,7 +171,7 @@ contract AuctionHouse is Initializable, UUPSUpgradeable, OwnableUpgradeable, Ree
     // Views                                                        ////
     ////////////////////////////////////////////////////////////////////
     function getAuctions(uint[] memory ids) external view returns(Auction[] memory) {
-        require(ids.length <= 30, "PAG"); // You can request 30 auctions at once
+        require(ids.length <= 30, "PAG"); // Pagination limit exceeded
         Auction[] memory auctions = new Auction[](ids.length);
         for(uint i = 0; i < ids.length; i++) {
             auctions[i] = _auctions[ids[i]];
