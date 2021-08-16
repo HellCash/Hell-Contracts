@@ -16,6 +16,9 @@ export class auctionHouseTestingEnvironment {
     accountSigners: any[];
     masterSigner: any;
     treasurySigner: any;
+    guest1Signer: any;
+    guest2Signer: any;
+    guest3Signer: any;
     // Proxy Contracts
     hellContract: Contract;
     doublonContract: Contract;
@@ -32,6 +35,9 @@ export class auctionHouseTestingEnvironment {
         this.accountSigners = await ethers.getSigners();
         this.masterSigner = this.accountSigners[0];
         this.treasurySigner = this.accountSigners[1];
+        this.guest1Signer = this.accountSigners[2];
+        this.guest2Signer = this.accountSigners[3];
+        this.guest3Signer = this.accountSigners[4];
         // Set Contracts
         this.hellContract = await deployHell(this.PRINT_DEPLOYMENT_LOGS);
         this.auctionHouseContract = await deployAuctionHouse(this.treasurySigner.address, BigNumber.from(this.minimumAuctionLength),  this.treasuryFees, this.PRINT_DEPLOYMENT_LOGS);
