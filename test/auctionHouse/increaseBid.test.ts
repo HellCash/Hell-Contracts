@@ -1,7 +1,7 @@
 import {BigNumber, Contract} from "ethers";
 import {expect} from "chai";
 import {parseEther, parseUnits} from "ethers/lib/utils";
-import env, {ethers} from "hardhat";
+import {ethers} from "hardhat";
 import {EtherUtils} from "../../utils/ether-utils";
 import {auctionHouseTestingEnvironment} from "./@auctionHouseTestingEnvironment";
 
