@@ -73,9 +73,9 @@ contract GreedStarter is Initializable, UUPSUpgradeable, OwnableUpgradeable, Ree
         require(IERC20Metadata(tokenAddress).decimals() == 18, "CP3");
         // CP4: The minimum length should be of least _minimumProjectLength blocks
         require(block.number.lowerThan(endsAtBlock) && endsAtBlock - block.number >= _minimumProjectLength, "CP4");
-        // CP5: The startingBlock should be higher than the current block and lower than the end block
+        // CP5: The startingBlock should be higher or equal to the current block and lower than the ending block
         require(startingBlock.notElapsedOrEqualToCurrentBlock() && startingBlock.lowerThan(endsAtBlock), "CP5");
-        // CP6: The minimum and maximum purchase must be higher or equal to 0.01,
+        // CP6: The minimum and maximum purchase must be higher or equal to 0.01, (1e16 wei)
         // We enforce this to ensure enough precision on price calculations
         require(1e16 <= minimumPurchase  && 1e16 <= maximumPurchase, "CP6");
         // CP7: The minimumPurchase must be lower or equal to the maximumPurchase
