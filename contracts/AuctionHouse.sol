@@ -57,7 +57,7 @@ contract AuctionHouse is Initializable, UUPSUpgradeable, OwnableUpgradeable, Ree
            require(buyoutPrice > startingPrice, "CA1");
         }
         // "The minimum Auction length should be of least _minimumAuctionLength blocks";
-        require(block.number.lowerThan(endsAtBlock) && endsAtBlock - block.number >= _minimumAuctionLength, "CA2");
+        require(block.number.lowerThan(endsAtBlock) && (endsAtBlock - block.number) >= _minimumAuctionLength, "CA2");
         // "The auctioned token address and the selling token address cannot be the same";
         require(auctionedTokenAddress != payingTokenAddress, "CA3");
         // Deposit user funds in the Auction House Contract
