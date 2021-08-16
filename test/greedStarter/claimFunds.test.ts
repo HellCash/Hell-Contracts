@@ -141,7 +141,7 @@ export function claimFundsTest() {
     });
 
 
-    it('Should fail if the creator tries to claim more than once', async () => {
+    it('Should fail if project creators attempt to claimFunds more than once', async () => {
         await expect(environment.greedStarterContract.claimFunds(hellProjectIdPaidWithFusd))
             .to.be.revertedWith('CF2');
         await expect(environment.greedStarterContract.claimFunds(doublonProjectIdPaidWithEther))
@@ -172,7 +172,7 @@ export function claimFundsTest() {
             .withArgs(doublonProjectIdPaidWithEther, environment.guest1Signer.address, expectedRewards);
     });
 
-    it('Should fail if investor tries to withdraw his rewards more than once', async() => {
+    it('Should fail if investors attempt to claimFunds more than once', async() => {
         await expect(environment.greedStarterContract.connect(environment.guest1Signer).claimFunds(hellProjectIdPaidWithFusd))
             .to.be.revertedWith('CF3');
         await expect(environment.greedStarterContract.connect(environment.guest1Signer).claimFunds(doublonProjectIdPaidWithEther))
