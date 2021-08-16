@@ -5,6 +5,7 @@ import {expect} from "chai";
 import {Project} from "../../models/project";
 import {EtherUtils} from "../../utils/ether-utils";
 import {greedStarterTestingEnvironment} from "./@greedStarterTestingEnvironment";
+import {NetworkUtils} from "../../utils/network-utils";
 
 export function invest() {
     let doublonProjectIdPaidWithEther: BigNumber;
@@ -91,9 +92,7 @@ export function invest() {
 
     it('You can\'t purchase less than the minimum amount', async() => {
         // Mine some blocks until project starts
-        for (let i = 0; i < 15; i++) {
-            await ethers.provider.send('evm_mine', []);
-        }
+        await NetworkUtils.mineBlocks(15);
         await expect(environment.greedStarterContract.connect(environment.guest1Signer)
             .invest(
                 doublonProjectIdPaidWithEther,
@@ -256,9 +255,7 @@ export function invest() {
 
     it('Should fail if the project already finished', async() => {
         // Mine some block to ensure the project has ended
-        for (let i = 0; i < 200; i++) {
-            await ethers.provider.send('evm_mine', []);
-        }
+        await NetworkUtils.mineBlocks(200);
 
         await expect(environment.greedStarterContract.connect(environment.guest1Signer).invest(doublonProjectIdPaidWithEther,parseEther('50')))
             .to.be.revertedWith('I3');
