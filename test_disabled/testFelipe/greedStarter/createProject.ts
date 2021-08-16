@@ -1,12 +1,12 @@
 import {ethers} from "hardhat";
 import {BigNumber, Contract} from "ethers";
-import {HellTestHelpers} from "../../helpers/HellTestHelpers";
+import {HellTestHelpers} from "../../../helpers/HellTestHelpers";
 import {parseEther, parseUnits} from "ethers/lib/utils";
 import {expect} from "chai";
-import contractAddresses from "../../scripts/contractAddresses.json";
-import {GreedStarterHelpers} from "../../helpers/GreedStarterHelpers";
-import {EtherUtils} from "../../utils/ether-utils";
-import {ContractTestHelpers} from "../../helpers/ContractTestHelpers";
+import contractAddresses from "../../../scripts/contractAddresses.json";
+import {GreedStarterHelpers} from "../../../helpers/GreedStarterHelpers";
+import {EtherUtils} from "../../../utils/ether-utils";
+import {ContractTestHelpers} from "../../../helpers/ContractTestHelpers";
 
 
 describe('[Greed Starter] function createProject', async () => {

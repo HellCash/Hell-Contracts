@@ -1,8 +1,8 @@
 import {ethers} from "hardhat";
 import {Contract} from "ethers";
 import {expect} from "chai";
-import {HellTestHelpers} from "../../helpers/HellTestHelpers";
-import {GreedStarterHelpers} from "../../helpers/GreedStarterHelpers";
+import {HellTestHelpers} from "../../../helpers/HellTestHelpers";
+import {GreedStarterHelpers} from "../../../helpers/GreedStarterHelpers";
 
 describe('[Greed Starter] function initialize', async () => {
     let guest1Signer: any;

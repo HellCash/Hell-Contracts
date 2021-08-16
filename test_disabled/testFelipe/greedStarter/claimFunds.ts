@@ -1,13 +1,13 @@
 import {ethers} from "hardhat";
 import {BigNumber, Contract} from "ethers";
-import {HellTestHelpers} from "../../helpers/HellTestHelpers";
+import {HellTestHelpers} from "../../../helpers/HellTestHelpers";
 import {parseEther, parseUnits} from "ethers/lib/utils";
 import {expect} from "chai";
-import {GreedStarterHelpers} from "../../helpers/GreedStarterHelpers";
-import contractAddresses from "../../scripts/contractAddresses.json";
-import {Project} from "../../models/project";
-import {ContractTestHelpers} from "../../helpers/ContractTestHelpers";
-import {EtherUtils} from "../../utils/ether-utils";
+import {GreedStarterHelpers} from "../../../helpers/GreedStarterHelpers";
+import contractAddresses from "../../../scripts/contractAddresses.json";
+import {Project} from "../../../models/project";
+import {ContractTestHelpers} from "../../../helpers/ContractTestHelpers";
+import {EtherUtils} from "../../../utils/ether-utils";
 
 describe('[Greed Starter] function claimFunds',  () => {
     let masterSigner: any;

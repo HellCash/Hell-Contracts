@@ -1,4 +1,4 @@
-import {AuctionTestHelpers} from "../../helpers/AuctionTestHelpers";
+import {AuctionTestHelpers} from "../../../helpers/AuctionTestHelpers";
 import {ethers} from "hardhat";
 import {expect} from "chai";
 import {Contract} from "ethers";

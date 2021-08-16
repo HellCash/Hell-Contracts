@@ -1,4 +1,4 @@
-import {BigNumber, Contract, Signer} from "ethers";
+import {BigNumber, Contract} from "ethers";
 import {expect} from "chai";
 import {parseEther} from "ethers/lib/utils";
 import {AuctionTestHelpers} from "../../helpers/AuctionTestHelpers";
@@ -23,7 +23,7 @@ describe('[Auction House] function increaseBid',() => {
         const auctionHouseContract: Contract = await AuctionTestHelpers.getAuctionContract(masterSigner);
         const hellContract: Contract = await HellTestHelpers.getHellContract(masterSigner);
         const doublonContract: Contract = await ContractTestHelpers.getDoublonContract(masterSigner);
-        // First we increase the allowances of the master signer
+        // Increase the allowances of the master signer
         await hellContract.approve(contractAddresses.auctionHouse, parseEther("10000"));
         await doublonContract.approve(contractAddresses.auctionHouse, parseEther("100000"));
 

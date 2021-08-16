@@ -1,14 +1,14 @@
 import {BigNumber, Contract} from 'ethers';
 import {ethers} from 'hardhat';
-import {AuctionTestHelpers} from '../../helpers/AuctionTestHelpers';
-import {HellTestHelpers} from '../../helpers/HellTestHelpers';
-import erc20sol from "../../artifacts/@openzeppelin/contracts/token/ERC20/ERC20.sol/ERC20.json";
-import contractAddresses from '../../scripts/contractAddresses.json';
+import {AuctionTestHelpers} from '../../../helpers/AuctionTestHelpers';
+import {HellTestHelpers} from '../../../helpers/HellTestHelpers';
+import erc20sol from "../../../artifacts/@openzeppelin/contracts/token/ERC20/ERC20.sol/ERC20.json";
+import contractAddresses from '../../../scripts/contractAddresses.json';
 import {parseEther, parseUnits} from 'ethers/lib/utils';
-import {EtherUtils} from '../../utils/ether-utils';
+import {EtherUtils} from '../../../utils/ether-utils';
 import {expect} from 'chai';
-import {Auction} from '../../models/auction';
-import {ContractTestHelpers} from "../../helpers/ContractTestHelpers";
+import {Auction} from '../../../models/auction';
+import {ContractTestHelpers} from "../../../helpers/ContractTestHelpers";
 
 describe('[Auction House] function claimFunds', async () => {
     let masterSigner: any;

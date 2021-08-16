@@ -1,12 +1,12 @@
 import {BigNumber, Contract, Signer} from "ethers";
 import {expect} from "chai";
 import {parseEther, parseUnits} from "ethers/lib/utils";
-import {AuctionTestHelpers} from "../../helpers/AuctionTestHelpers";
+import {AuctionTestHelpers} from "../../../helpers/AuctionTestHelpers";
 import {ethers} from "hardhat";
-import contractAddresses from "../../scripts/contractAddresses.json";
-import {EtherUtils} from "../../utils/ether-utils";
-import {HellTestHelpers} from "../../helpers/HellTestHelpers";
-import {ContractTestHelpers} from "../../helpers/ContractTestHelpers";
+import contractAddresses from "../../../scripts/contractAddresses.json";
+import {EtherUtils} from "../../../utils/ether-utils";
+import {HellTestHelpers} from "../../../helpers/HellTestHelpers";
+import {ContractTestHelpers} from "../../../helpers/ContractTestHelpers";
 
 describe('[Auction House] function increaseBid',() => {
     let masterSigner: any;

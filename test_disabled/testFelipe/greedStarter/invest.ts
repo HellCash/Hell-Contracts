@@ -1,13 +1,13 @@
 import {ethers} from "hardhat";
 import {BigNumber, Contract} from "ethers";
-import {HellTestHelpers} from "../../helpers/HellTestHelpers";
+import {HellTestHelpers} from "../../../helpers/HellTestHelpers";
 import {parseEther, parseUnits} from "ethers/lib/utils";
 import {expect} from "chai";
-import {GreedStarterHelpers} from "../../helpers/GreedStarterHelpers";
-import contractAddresses from "../../scripts/contractAddresses.json";
-import {ContractTestHelpers} from "../../helpers/ContractTestHelpers";
-import {Project} from "../../models/project";
-import {EtherUtils} from "../../utils/ether-utils";
+import {GreedStarterHelpers} from "../../../helpers/GreedStarterHelpers";
+import contractAddresses from "../../../scripts/contractAddresses.json";
+import {ContractTestHelpers} from "../../../helpers/ContractTestHelpers";
+import {Project} from "../../../models/project";
+import {EtherUtils} from "../../../utils/ether-utils";
 
 
 describe('[Greed Starter] function invest', async () => {
@@ -25,7 +25,6 @@ describe('[Greed Starter] function invest', async () => {
         guest2Signer = accountSigners[2];
         treasurySigner = accountSigners[3];
 
-
         const currentBlock = await ethers.provider.getBlockNumber();
         const greedStarterContract: Contract = await GreedStarterHelpers.getGreedStarterContract(masterSigner);
 
@@ -33,21 +32,19 @@ describe('[Greed Starter] function invest', async () => {
         const fusdContract: Contract = await ContractTestHelpers.getFUSDContract(masterSigner);
         await fusdContract.transfer(guest1Signer.address, parseUnits('250000',6));
 
-        // First we increase the allowances of the master signer
+        // Increase the allowances of the master signer
         const doublonContract: Contract = await ContractTestHelpers.getDoublonContract(masterSigner);
         await doublonContract.approve(contractAddresses.greedStarter, parseEther("12500"));
 
         // Transfer some Doublon to guest2
         await doublonContract.transfer(guest2Signer.address, parseUnits('10000'));
 
-        // First we increase the allowances of the master signer
+        // Increase the allowances of the master signer
         const hellContract: Contract = await HellTestHelpers.getHellContract(masterSigner);
         await hellContract.approve(contractAddresses.greedStarter, parseEther("100"));
 
         const totalProjects: BigNumber = await greedStarterContract._totalProjects();
         const startingBlock = currentBlock + 15;
-
-
 
         await greedStarterContract.createProject(
             doublonContract.address, // Token address
@@ -61,7 +58,6 @@ describe('[Greed Starter] function invest', async () => {
         );
 
         doublonProjectId = totalProjects.add(1);
-
 
         await greedStarterContract.createProject(
             hellContract.address, // Token address
