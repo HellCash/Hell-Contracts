@@ -27,7 +27,7 @@ export function registerNewAuctionCreation() {
             )).to.be.revertedWith("Forbidden");
     });
 
-    it('Should registerNewAuctionCreation', async () => {
+    it('Should register new auction creation', async () => {
         const auctionId = BigNumber.from("10");
 
         const totalTokenAuctions: BigNumber = await environment.auctionHouseIndexerContract
