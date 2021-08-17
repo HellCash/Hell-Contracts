@@ -1,9 +1,9 @@
 import {initialize} from "./initialize.test";
-import {_setAuctionHouseContract} from "./_setAuctionHouseContract";
-import {registerNewAuctionCreation} from "./registerNewAuctionCreation";
-import {registerUserParticipation} from "./registerUserParticipation";
-import {registerAuctionSold} from "./registerAuctionSold";
-import {registerAuctionWon} from "./registerAuctionWon";
+import {_setAuctionHouseContract} from "./_setAuctionHouseContract.test";
+import {registerNewAuctionCreation} from "./registerNewAuctionCreation.test";
+import {registerUserParticipation} from "./registerUserParticipation.test";
+import {registerAuctionSold} from "./registerAuctionSold.test";
+import {registerAuctionWon} from "./registerAuctionWon.test";
 
 export function auctionHouseIndexerTests() {
     describe('initialize', initialize);
