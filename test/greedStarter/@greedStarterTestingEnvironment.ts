@@ -1,7 +1,5 @@
 import {deployHell} from "../../scripts/deployments/deployHell";
-import {deployAuctionHouse} from "../../scripts/deployments/deployAuctionHouse";
-import {deployAuctionHouseIndexer} from "../../scripts/deployments/deployAuctionHouseIndexer";
-import {BigNumber, Contract} from "ethers";
+import {Contract} from "ethers";
 import {ethers} from "hardhat";
 import {deployDoublon} from "../../scripts/deployments/deployDoublon";
 import {deployFUSD} from "../../scripts/deployments/deployFUSD";

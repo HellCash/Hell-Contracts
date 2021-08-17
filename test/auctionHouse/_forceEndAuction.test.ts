@@ -2,7 +2,7 @@ import {expect} from "chai";
 import {auctionHouseTestingEnvironment} from "./@auctionHouseTestingEnvironment";
 import {parseEther} from "ethers/lib/utils";
 import {EtherUtils} from "../../utils/ether-utils";
-import env, {ethers} from "hardhat";
+import {ethers} from "hardhat";
 import {BigNumber} from "ethers";
 
 export function _forceEndAuction() {
