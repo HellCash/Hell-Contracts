@@ -35,9 +35,9 @@ contract Hell is Initializable, ERC20Upgradeable, UUPSUpgradeable, OwnableUpgrad
         return super.transferFrom(sender, recipient, recipientReceives);
     }
 
-    function calculateBurnFees(uint amount, address recipient) public view returns (uint) {
+    function calculateBurnFees(address sender, address recipient, uint amount) public view returns (uint) {
         // If msg.sender or Recipient are Excluded from fees.
-        if (_excludedFromBurnFees[msg.sender] || _excludedFromBurnFees[recipient]) {
+        if (_excludedFromBurnFees[sender] || _excludedFromBurnFees[recipient]) {
             return 0;
         } else {
             return uint(_burnFee) * (amount / 100);
@@ -49,7 +49,7 @@ contract Hell is Initializable, ERC20Upgradeable, UUPSUpgradeable, OwnableUpgrad
     function _burnFees(address sender, address recipient, uint amount) internal returns (uint recipientReceives, uint amountBurned) {
         require(recipient != address(0), "Cannot transfer to the zero address");
         require(balanceOf(sender) >= amount, "Not enough balance");
-        amountBurned = calculateBurnFees(amount, recipient);
+        amountBurned = calculateBurnFees(sender, recipient, amount);
         if (amountBurned > 0) {
             // Subtract Burn fees
             amount -= amountBurned;
