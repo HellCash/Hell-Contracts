@@ -15,6 +15,7 @@ contract Hell is Initializable, ERC20Upgradeable, UUPSUpgradeable, OwnableUpgrad
         __ERC20_init("Hell", "HELL");
         __Ownable_init();
         __UUPSUpgradeable_init();
+        _hellVaultAddress = msg.sender;
         _excludedFromBurnFees[msg.sender] = true;
         _mint(msg.sender, 666 * 10 ** decimals());
         _burnFee = 5;
