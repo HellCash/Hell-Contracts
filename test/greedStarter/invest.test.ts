@@ -13,11 +13,10 @@ export function invest() {
     let hellProjectIdPaidWithDoublon: BigNumber;
 
     let environment: greedStarterTestingEnvironment = new greedStarterTestingEnvironment();
-    before(async () => {
-        await environment.initialize();
-    });
 
     before(async() => {
+        await environment.initialize();
+
         const currentBlock = await ethers.provider.getBlockNumber();
         const totalProjects: BigNumber = await environment.greedStarterContract._totalProjects();
         const startingBlock = currentBlock + 15;
