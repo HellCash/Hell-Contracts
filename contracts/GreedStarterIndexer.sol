@@ -17,17 +17,17 @@ contract GreedStarterIndexer is Initializable, UUPSUpgradeable, OwnableUpgradeab
     // Holds the number of projects the user has created
     mapping(address => uint) public _userTotalProjects;
     // Projects created by the specified user ( User address => index => project.id)
-    mapping(address => mapping(uint => uint)) _userProjects;
+    mapping(address => mapping(uint => uint)) public _userProjects;
     //////////////////////////////////////////////////////////////////////////
     // Holds a boolean to let know if the user has participated on a specific project
     // userAddress => projectId => bool
-    mapping(address => mapping(uint => bool)) _userParticipatedInProject;
+    mapping(address => mapping(uint => bool)) public _userParticipatedInProject;
     // Holds the amount of projects where the user has participated
     // userAddress => totalParticipatedProjects
     mapping(address => uint) public _userTotalParticipatedProjects;
     // Holds the Project ids where the user participated
     // userAddress => index => projectId
-    mapping(address => mapping(uint => uint)) _userParticipatedProjects;
+    mapping(address => mapping(uint => uint)) public _userParticipatedProjects;
     ////////////////////////////////////////////////////////////////////
     // Public Views                                                 ////
     ////////////////////////////////////////////////////////////////////
