@@ -17,10 +17,11 @@ export function _setHellVaultAddress() {
         await expect(environment.hellContract._setHellVaultAddress(EtherUtils.zeroAddress())).to.be.revertedWith("The Hell Vault address cannot be the zero address");
     });
 
-    // TODO: Update with the Hell vault Address when the Hell Vault contract is finished
     it('Should update the Hell Vault Address', async() => {
-        await expect(environment.hellContract._setHellVaultAddress(environment.masterSigner.address))
+        const newVaultAddress = environment.masterSigner.address;
+        await expect(environment.hellContract._setHellVaultAddress(newVaultAddress))
             .to.emit(environment.hellContract, "HellVaultAddressUpdated")
-            .withArgs(environment.masterSigner.address);
+            .withArgs(newVaultAddress);
+        expect(await environment.hellContract._hellVaultAddress()).to.be.equal(newVaultAddress);
     });
 }
