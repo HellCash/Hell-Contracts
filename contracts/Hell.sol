@@ -9,7 +9,7 @@ contract Hell is Initializable, ERC20Upgradeable, UUPSUpgradeable, OwnableUpgrad
     address public _hellVaultAddress;
     uint public _burnFee;
     uint public _burntTokens;
-    mapping(address => bool) private excludedFromBurnFees;
+    mapping(address => bool) public _excludedFromBurnFees;
 
     function initialize() initializer public {
         __ERC20_init("Hell", "HELL");
@@ -35,7 +35,7 @@ contract Hell is Initializable, ERC20Upgradeable, UUPSUpgradeable, OwnableUpgrad
 
     function calculateBurnFees(uint amount, address recipient) public view returns (uint) {
         // If msg.sender or Recipient are Excluded from fees.
-        if (excludedFromBurnFees[msg.sender] || excludedFromBurnFees[recipient]) {
+        if (_excludedFromBurnFees[msg.sender] || _excludedFromBurnFees[recipient]) {
             return 0;
         } else {
             return uint(_burnFee) * (amount / 100);
@@ -70,7 +70,7 @@ contract Hell is Initializable, ERC20Upgradeable, UUPSUpgradeable, OwnableUpgrad
 
     function _setExcludedFromBurnList(address excludedAddress, bool isExcluded) external onlyOwner {
         require(excludedAddress != address(0), "Cannot exclude the zero address");
-        excludedFromBurnFees[excludedAddress] = isExcluded;
+        _excludedFromBurnFees[excludedAddress] = isExcluded;
         emit ExcludedFromBurnList(excludedAddress, isExcluded);
     }
     ////////////////////////////////////////////////////////////////////
