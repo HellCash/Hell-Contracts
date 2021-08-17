@@ -158,15 +158,16 @@ contract AuctionHouseIndexer is Initializable, UUPSUpgradeable, OwnableUpgradeab
     ////////////////////////////////////////////////////////////////////
     // Only Owner                                                   ////
     ////////////////////////////////////////////////////////////////////
-    function initialize() initializer public {
+    function initialize(address auctionHouseAddress) initializer public {
         __Ownable_init();
         _maxPaginationSize = 30;
         // By default the only trusted token will be the Network currency
         _tokenIsTrusted[address(0)] = true;
+        _setAuctionHouseContract(auctionHouseAddress);
     }
 
     function _authorizeUpgrade(address) internal override onlyOwner {}
-    function _setAuctionHouseContract(address contractAddress) external onlyOwner {
+    function _setAuctionHouseContract(address contractAddress) public onlyOwner {
         _auctionHouseAddress = contractAddress;
         _auctionHouseContract = AuctionHouse(contractAddress);
         emit AuctionHouseContractUpdated(contractAddress);
