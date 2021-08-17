@@ -14,43 +14,43 @@ contract AuctionHouseIndexer is Initializable, UUPSUpgradeable, OwnableUpgradeab
     // Total Trusted token auctions
     uint public _totalTrustedTokenAuctions;
     // Holds the ids of the trusted Auctions ( index => auctionId )
-    mapping(uint => uint) _trustedTokenAuctions;
+    mapping(uint => uint) public _trustedTokenAuctions;
     // Help us know if a specific token address was marked as trusted or not.
-    mapping(address => bool) _tokenIsTrusted;
+    mapping(address => bool) public _tokenIsTrusted;
     //////////////////////////////////////////////////////////////////////////
     // Total auctions made for a specific token
     mapping(address => uint) public _totalTokenAuctions;
     // Auctions created for the specific token address (Token Address => index => auction.id);
-    mapping(address => mapping(uint => uint)) _tokenAuctions;
+    mapping(address => mapping(uint => uint)) public _tokenAuctions;
     //////////////////////////////////////////////////////////////////////////
     // Holds the number of auctions the user has created
     mapping(address => uint) public _userTotalAuctions;
     // Auctions created by the specified user ( User address => index => auction.id)
-    mapping(address => mapping(uint => uint)) _userAuctions;
+    mapping(address => mapping(uint => uint)) public _userAuctions;
     //////////////////////////////////////////////////////////////////////////
     // Holds the amount of auctions where the user has participated by making bids or buyouts
     // UserAddress => totalParticipatedAuctions
     mapping(address => uint) public _userTotalParticipatedAuctions;
     // Holds the auction ids of all the auctions where the user participated
     // UserAddress => index => AuctionId
-    mapping(address => mapping(uint => uint)) _userParticipatedAuctions;
+    mapping(address => mapping(uint => uint)) public _userParticipatedAuctions;
     // Holds a boolean to let know if the user has participated on a specific auction
-    mapping(address => mapping(uint => bool)) _userParticipatedInAuction;
+    mapping(address => mapping(uint => bool)) public _userParticipatedInAuction;
     //////////////////////////////////////////////////////////////////////////
     // Total Auctions by paying currency
     mapping(address => uint) public _totalPaidWithTokenAuctions;
     // Auctions sold for the specific token address (Token Address => index => auction.id);
-    mapping(address => mapping(uint => uint)) _paidWithTokenAuctions;
+    mapping(address => mapping(uint => uint)) public _paidWithTokenAuctions;
     ////////////////////////////////////////////////////////////////////////
     // Total Auctions won by User Address
     mapping(address => uint) public _userTotalAuctionsWon;
     // Holds a boolean to let know if the user won a specific Auction
-    mapping(address => mapping(uint => bool)) _userWonTheAuction;
+    mapping(address => mapping(uint => bool)) public _userWonTheAuction;
     ////////////////////////////////////////////////////////////////////////
     // Total Auctions sold by User Address
     mapping(address => uint) public _userTotalAuctionsSold;
     // Holds a boolean to let know if the user managed to sell a specific Auction
-    mapping(address => mapping(uint => bool)) _userSoldTheAuction;
+    mapping(address => mapping(uint => bool)) public _userSoldTheAuction;
     ////////////////////////////////////////////////////////////////////
     // Public Views                                                 ////
     ////////////////////////////////////////////////////////////////////
