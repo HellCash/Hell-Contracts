@@ -50,7 +50,7 @@ contract AuctionHouseIndexer is Initializable, UUPSUpgradeable, OwnableUpgradeab
     // Total Auctions sold by User Address
     mapping(address => uint) public _userTotalAuctionsSold;
     // Holds a boolean to let know if the user managed to sell a specific Auction
-    mapping(address => mapping(uint => bool)) public _userSoldTheAuction;
+    mapping(address => mapping(uint => bool)) public _userSoldAuction;
     ////////////////////////////////////////////////////////////////////
     // Public Views                                                 ////
     ////////////////////////////////////////////////////////////////////
@@ -140,8 +140,8 @@ contract AuctionHouseIndexer is Initializable, UUPSUpgradeable, OwnableUpgradeab
     }
 
     function registerAuctionSold(uint auctionId, address creatorAddress) onlyAuctionHouse external returns(bool) {
-        if(_userSoldTheAuction[creatorAddress][auctionId] == false) {
-            _userSoldTheAuction[creatorAddress][auctionId] = true;
+        if(_userSoldAuction[creatorAddress][auctionId] == false) {
+            _userSoldAuction[creatorAddress][auctionId] = true;
             _userTotalAuctionsSold[creatorAddress] += 1;
         }
         return true;
