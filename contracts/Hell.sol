@@ -86,12 +86,12 @@ contract Hell is Initializable, ERC20Upgradeable, UUPSUpgradeable, OwnableUpgrad
     function mintVaultRewards(uint amount) external onlyHellVault {
         require(amount > 0, "The amount cannot be 0");
         _mint(_hellVaultAddress, amount);
-        emit HellVaultMint(block.number, amount);
+        emit HellVaultMint(amount);
     }
     ////////////////////////////////////////////////////////////////////
     // Events                                                       ////
     ////////////////////////////////////////////////////////////////////
-    event HellVaultMint(uint indexed blockNumber, uint amount);
+    event HellVaultMint(uint amount);
     event HellVaultAddressUpdated(address newHellVaultAddress);
     event ExcludedFromBurnList(address excludedAddress, bool isExcluded);
 
