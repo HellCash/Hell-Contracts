@@ -42,12 +42,6 @@ contract GreedStarterIndexer is Initializable, UUPSUpgradeable, OwnableUpgradeab
     ////////////////////////////////////////////////////////////////////
     // Greed Starter                                                ////
     ////////////////////////////////////////////////////////////////////
-    function _registerTrustedProject(uint projectId) external onlyOwnerOrGreedStarter {
-        _totalTrustedProjects += 1;
-        _trustedProjects[_totalTrustedProjects] = projectId;
-        _projectIsTrusted[projectId] = true;
-        emit ProjectRegisteredAsTrusted(projectId);
-    }
 
     function _registerUserParticipation(uint projectId, address userAddress) external onlyGreedStarter {
         if (_userParticipatedInProject[userAddress][projectId] == false) {
@@ -60,12 +54,20 @@ contract GreedStarterIndexer is Initializable, UUPSUpgradeable, OwnableUpgradeab
     ////////////////////////////////////////////////////////////////////
     // Only Owner                                                   ////
     ////////////////////////////////////////////////////////////////////
+
     function initialize(address greedStarterAddress) initializer public {
         __Ownable_init();
         __UUPSUpgradeable_init();
         _maximumPageSize = 30;
         _totalTrustedProjects = 0;
         _setGreedStarterContract(greedStarterAddress);
+    }
+
+    function _registerTrustedProject(uint projectId) external onlyOwner {
+        _totalTrustedProjects += 1;
+        _trustedProjects[_totalTrustedProjects] = projectId;
+        _projectIsTrusted[projectId] = true;
+        emit ProjectRegisteredAsTrusted(projectId);
     }
 
     function _removeFromTrustedProjects(uint projectIndex) external onlyOwner {
@@ -84,10 +86,6 @@ contract GreedStarterIndexer is Initializable, UUPSUpgradeable, OwnableUpgradeab
     ////////////////////////////////////////////////////////////////////
     // Modifiers                                                    ////
     ////////////////////////////////////////////////////////////////////
-    modifier onlyOwnerOrGreedStarter() {
-        require(owner() == msg.sender || _greedStarterAddress == msg.sender, "Forbidden");
-        _;
-    }
     modifier onlyGreedStarter() {
         require(_greedStarterAddress == msg.sender, "Forbidden");
         _;

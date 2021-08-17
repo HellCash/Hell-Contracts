@@ -103,10 +103,6 @@ contract GreedStarter is Initializable, UUPSUpgradeable, OwnableUpgradeable, Ree
         project.maximumPurchase = maximumPurchase;
         // Save the project
         _projects[_totalProjects] = project;
-        // If the Contract owner is the msg.sender, mark the Project as trusted
-        if(owner() == msg.sender) {
-            _indexer._registerTrustedProject(project.id);
-        }
         // Logs a ProjectCreated event
         emit ProjectCreated(project.id, project.tokenAddress, project.paidWith, project.totalTokens, project.startingBlock, project.endsAtBlock, project.pricePerToken);
      }
