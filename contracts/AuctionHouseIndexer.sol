@@ -8,8 +8,8 @@ import "./AuctionHouse.sol";
 
 contract AuctionHouseIndexer is Initializable, UUPSUpgradeable, OwnableUpgradeable {
     AuctionHouse private _auctionHouseContract;
-    address _auctionHouseAddress;
-    uint16 _maxPaginationSize;
+    address public _auctionHouseAddress;
+    uint16 public _maxPaginationSize;
     //////////////////////////////////////////////////////////////////////////
     // Total Trusted token auctions
     uint public _totalTrustedTokenAuctions;
