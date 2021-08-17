@@ -22,7 +22,7 @@ export function registerAuctionSold() {
 
     let auctionId: BigNumber;
     let creatorUserAddress: string;
-    it('Should register user sale', async() => {
+    it("Should register user's sale", async() => {
         auctionId = BigNumber.from("10");
         creatorUserAddress = environment.guest2Signer.address;
         // Expect that the Auction wasn't registered as sold
@@ -46,7 +46,7 @@ export function registerAuctionSold() {
         _userSoldAuction(creatorUserAddress,auctionId)).to.be.true;
     });
 
-    it('Should register user sales only once', async () => {
+    it("Should register user's sale only once", async () => {
         const userTotalAuctionsSold = await environment.auctionHouseIndexerContract
             ._userTotalAuctionsSold(creatorUserAddress);
 
