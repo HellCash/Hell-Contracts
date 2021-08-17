@@ -75,7 +75,8 @@ export function registerNewAuctionCreation() {
             ._trustedTokenAuctions(afterTotalTrustedTokenAuctions))
             .to.be.equal(auctionId);
     });
-    it('Must not register as trusted, untrusted tokens', async () => {
+
+    it('Must not register as trusted, if the token is not trusted', async () => {
         const auctionId = BigNumber.from("11");
         const totalTrustedTokenAuctions: BigNumber = await environment.auctionHouseIndexerContract
             ._totalTrustedTokenAuctions();
