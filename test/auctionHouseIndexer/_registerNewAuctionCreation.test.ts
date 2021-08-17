@@ -4,7 +4,7 @@ import {BigNumber} from "ethers";
 import env from "hardhat";
 import {EtherUtils} from "../../utils/ether-utils";
 
-export function registerNewAuctionCreation() {
+export function _registerNewAuctionCreation() {
     let environment: auctionHouseTestingEnvironment = new auctionHouseTestingEnvironment();
     before(async () => {
         await environment.initialize();
@@ -19,7 +19,7 @@ export function registerNewAuctionCreation() {
     it('Should fail if not called by the Auction House', async() => {
         await expect(environment.auctionHouseIndexerContract
             .connect(environment.guest1Signer)
-            .registerNewAuctionCreation(
+            ._registerNewAuctionCreation(
                 BigNumber.from("15"),  // Auction ID
                 environment.masterSigner.address, // Creator Address
                 environment.hellContract.address, // Auction Token Address
@@ -40,7 +40,7 @@ export function registerNewAuctionCreation() {
             ._totalTrustedTokenAuctions();
 
         await expect(environment.auctionHouseIndexerContract
-            .registerNewAuctionCreation(
+            ._registerNewAuctionCreation(
                 auctionId,  // Auction ID
                 environment.masterSigner.address, // Creator Address
                 environment.hellContract.address, // Auction Token Address
@@ -82,7 +82,7 @@ export function registerNewAuctionCreation() {
             ._totalTrustedTokenAuctions();
 
         await expect(environment.auctionHouseIndexerContract
-            .registerNewAuctionCreation(
+            ._registerNewAuctionCreation(
                 auctionId,  // Auction ID
                 environment.masterSigner.address, // Creator Address
                 environment.doublonContract.address, // Auction Token Address

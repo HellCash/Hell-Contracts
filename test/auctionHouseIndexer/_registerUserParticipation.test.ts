@@ -4,7 +4,7 @@ import {BigNumber} from "ethers";
 import env from "hardhat";
 import {EtherUtils} from "../../utils/ether-utils";
 
-export function registerUserParticipation() {
+export function _registerUserParticipation() {
     let environment: auctionHouseTestingEnvironment = new auctionHouseTestingEnvironment();
     before(async () => {
         await environment.initialize();
@@ -16,7 +16,7 @@ export function registerUserParticipation() {
     it('Should fail if not called by the Auction House', async() => {
         await expect(environment.auctionHouseIndexerContract
             .connect(environment.guest1Signer)
-            .registerUserParticipation(
+            ._registerUserParticipation(
                 BigNumber.from("5"),  // Auction ID
                 environment.masterSigner.address, // Participant Address
             )).to.be.revertedWith("Forbidden");
@@ -35,7 +35,7 @@ export function registerUserParticipation() {
             ._userTotalParticipatedAuctions(participantUserAddress);
 
         await expect(environment.auctionHouseIndexerContract
-            .registerUserParticipation(
+            ._registerUserParticipation(
                 participatedAuctionId,
                 participantUserAddress,
             )).to.not.be.reverted;
@@ -58,7 +58,7 @@ export function registerUserParticipation() {
             ._userTotalParticipatedAuctions(participantUserAddress);
 
         await environment.auctionHouseIndexerContract
-            .registerUserParticipation(
+            ._registerUserParticipation(
                 participatedAuctionId,
                 participantUserAddress,
             );

@@ -112,7 +112,7 @@ contract AuctionHouseIndexer is Initializable, UUPSUpgradeable, OwnableUpgradeab
         _;
     }
 
-    function registerNewAuctionCreation(uint auctionId, address creatorAddress, address auctionedTokenAddress, address paidWithTokenAddress) external onlyAuctionHouse returns(bool) {
+    function _registerNewAuctionCreation(uint auctionId, address creatorAddress, address auctionedTokenAddress, address paidWithTokenAddress) external onlyAuctionHouse returns(bool) {
         // Register the token auction Index
         _totalTokenAuctions[auctionedTokenAddress] += 1;
         _tokenAuctions[auctionedTokenAddress][_totalTokenAuctions[auctionedTokenAddress]] = auctionId;
@@ -130,7 +130,7 @@ contract AuctionHouseIndexer is Initializable, UUPSUpgradeable, OwnableUpgradeab
         return true;
     }
 
-    function registerUserParticipation(uint auctionId, address userAddress) onlyAuctionHouse external returns(bool){
+    function _registerUserParticipation(uint auctionId, address userAddress) onlyAuctionHouse external returns(bool){
         if (_userParticipatedInAuction[userAddress][auctionId] == false) {
             _userParticipatedInAuction[userAddress][auctionId] = true;
             _userTotalParticipatedAuctions[userAddress] += 1;
@@ -139,7 +139,7 @@ contract AuctionHouseIndexer is Initializable, UUPSUpgradeable, OwnableUpgradeab
         return true;
     }
 
-    function registerAuctionSold(uint auctionId, address creatorAddress) onlyAuctionHouse external returns(bool) {
+    function _registerAuctionSold(uint auctionId, address creatorAddress) onlyAuctionHouse external returns(bool) {
         if(_userSoldAuction[creatorAddress][auctionId] == false) {
             _userSoldAuction[creatorAddress][auctionId] = true;
             _userTotalAuctionsSold[creatorAddress] += 1;
@@ -147,7 +147,7 @@ contract AuctionHouseIndexer is Initializable, UUPSUpgradeable, OwnableUpgradeab
         return true;
     }
 
-    function registerAuctionWon(uint auctionId, address winnerAddress) onlyAuctionHouse external returns(bool) {
+    function _registerAuctionWon(uint auctionId, address winnerAddress) onlyAuctionHouse external returns(bool) {
         if(_userWonTheAuction[winnerAddress][auctionId] == false) {
             _userWonTheAuction[winnerAddress][auctionId] = true;
             _userTotalAuctionsWon[winnerAddress] += 1;

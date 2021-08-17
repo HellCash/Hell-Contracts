@@ -79,7 +79,7 @@ contract AuctionHouse is Initializable, UUPSUpgradeable, OwnableUpgradeable, Ree
         _auctions[auction.id] = auction;
 
         // Register Auction Indexes
-        _indexer.registerNewAuctionCreation(auction.id, auction.createdBy, auction.auctionedTokenAddress, auction.payingTokenAddress);
+        _indexer._registerNewAuctionCreation(auction.id, auction.createdBy, auction.auctionedTokenAddress, auction.payingTokenAddress);
 
         // Emit information
         emit AuctionCreated(auction.createdBy, auction.auctionedTokenAddress, auction.payingTokenAddress, _totalAuctions, auction.auctionedAmount, auction.startingPrice, auction.buyoutPrice, auction.endsAtBlock);
@@ -109,7 +109,7 @@ contract AuctionHouse is Initializable, UUPSUpgradeable, OwnableUpgradeable, Ree
         _auctionBids[auctionId][msg.sender] = userTotalBid;
 
         // Mark the user as auction participant if it isn't already
-        _indexer.registerUserParticipation(auctionId, msg.sender);
+        _indexer._registerUserParticipation(auctionId, msg.sender);
 
         if (0 < auction.buyoutPrice && (userTotalBid >= auction.buyoutPrice)) {
             auction.endsAtBlock = block.number; // END The auction right away
@@ -132,7 +132,7 @@ contract AuctionHouse is Initializable, UUPSUpgradeable, OwnableUpgradeable, Ree
                     // Set winner rewards as withdrawn
                     _auctions[auctionId].rewardsWithdrawnByWinner = true;
                     // Register Auction as Won
-                    _indexer.registerAuctionWon(auctionId, msg.sender);
+                    _indexer._registerAuctionWon(auctionId, msg.sender);
                     // Set user bids back to 0, these funds are going now to the creator of the Auction
                     _auctionBids[auctionId][msg.sender] = 0;
                     // Send the earned tokens to the winner and a pay the small fee agreed upon the auction creation.
@@ -148,7 +148,7 @@ contract AuctionHouse is Initializable, UUPSUpgradeable, OwnableUpgradeable, Ree
                     // If there was a HighestBidder, send the Highest bid to the creator
                     if(_auctions[auctionId].highestBid > 0 && _auctions[auctionId].totalBids > 0) {
                         // Register auction as sold
-                        _indexer.registerAuctionSold(auctionId, msg.sender);
+                        _indexer._registerAuctionSold(auctionId, msg.sender);
                         (uint userReceives, uint feePaid) = payable(msg.sender).safeTransferAssetAndPayFee(_auctions[auctionId].payingTokenAddress, _auctions[auctionId].highestBid, _hellTreasuryAddress, _auctions[auctionId].auctionHouseFee);
                         emit ClaimSoldAuctionRewards(auctionId, msg.sender, _auctions[auctionId].payingTokenAddress, userReceives, feePaid);
                     } else {

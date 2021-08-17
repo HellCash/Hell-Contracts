@@ -2,7 +2,7 @@ import {expect} from "chai";
 import {auctionHouseTestingEnvironment} from "../auctionHouse/@auctionHouseTestingEnvironment";
 import {BigNumber} from "ethers";
 
-export function registerAuctionWon() {
+export function _registerAuctionWon() {
     let environment: auctionHouseTestingEnvironment = new auctionHouseTestingEnvironment();
     before(async () => {
         await environment.initialize();
@@ -14,7 +14,7 @@ export function registerAuctionWon() {
     it('Should fail if not called by the Auction House', async() => {
         await expect(environment.auctionHouseIndexerContract
             .connect(environment.guest2Signer)
-            .registerAuctionWon(
+            ._registerAuctionWon(
                 BigNumber.from("5"),  // Auction ID
                 environment.guest3Signer.address, // Creator Address
             )).to.be.revertedWith("Forbidden");
@@ -33,7 +33,7 @@ export function registerAuctionWon() {
             ._userTotalAuctionsWon(winnerUserAddress);
 
         await expect(environment.auctionHouseIndexerContract
-            .registerAuctionWon(
+            ._registerAuctionWon(
                 auctionId,  // Auction ID
                 winnerUserAddress, // Creator Address
             )).to.not.be.reverted;
@@ -51,7 +51,7 @@ export function registerAuctionWon() {
             ._userTotalAuctionsWon(winnerUserAddress);
 
         await expect(environment.auctionHouseIndexerContract
-            .registerAuctionWon(
+            ._registerAuctionWon(
                 auctionId,  // Auction ID
                 winnerUserAddress, // Creator Address
             )).to.not.be.reverted;
