@@ -14,7 +14,7 @@ export default {
     },
     hardhat: {
       accounts: {
-        count: 100
+        count: 1000
       }
     },
     bsc_testnet: {
