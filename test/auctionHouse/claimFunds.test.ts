@@ -12,13 +12,10 @@ export function claimFunds() {
     let etherAuctionIdPayWithHell: BigNumber;
     let doublonAuctionIdPayWithFusd: BigNumber;
     let closedAuctionId: BigNumber;
-    
     let environment: auctionHouseTestingEnvironment = new auctionHouseTestingEnvironment();
+    
     before(async () => {
         await environment.initialize();
-    });
-    
-    before(async () => {
         // Increase the allowances of the master signer
         await environment.hellContract.approve(environment.auctionHouseContract.address, parseEther('100'));
         await environment.doublonContract.approve(environment.auctionHouseContract.address, parseEther('1000'));
