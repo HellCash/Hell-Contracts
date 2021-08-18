@@ -130,28 +130,28 @@ export function createAuction() {
             .to.be.revertedWith('DA2');  // DA2: Not enough Balance
     });
 
-    it('Creating an Auction with a starting price lower than 1e16 should fail', async () => {
+    it('Creating an Auction with a starting price lower than 1 should fail', async () => {
         await environment.doublonContract.approve(environment.auctionHouseContract.address, parseEther("1"));
         await expect(environment.auctionHouseContract.createAuction(
             environment.doublonContract.address, // Auction Doublon
             parseEther("2000"),
             environment.hellContract.address, // Against Hell
-            parseUnits("0.1", 6), // Starting Bid Price  <----- REVERT : Must be higher or equal to 1e6
+            BigNumber.from(0), // Starting Bid Price  <----- REVERT : Must be higher than 0
             parseEther("10"), // Buyout price
             await ethers.provider.getBlockNumber() + (environment.minimumAuctionLength * 2)))
-            .to.be.revertedWith('CA4');  // CA4: The Auctioned amount and the Starting price must be higher than 1e6
+            .to.be.revertedWith('CA4');  // CA4: The Auctioned amount and the Starting price must be higher than 0
     });
 
-    it('Creating an Auction with an Auctioned Amount lower than 1e16 should fail', async () => {
+    it('Creating an Auction with an Auctioned Amount lower than 1 should fail', async () => {
         await environment.doublonContract.approve(environment.auctionHouseContract.address, parseEther("1"));
         await expect(environment.auctionHouseContract.createAuction(
             environment.doublonContract.address, // Auction Doublon
-            parseUnits("0.1", 6),  // <----- REVERT : Must be higher or equal to 1e6
+            BigNumber.from(0),  // <----- REVERT : Must be higher than 0
             environment.hellContract.address, // Against Hell
             parseUnits("1", 6), // Starting Bid Price
             parseEther("10"), // Buyout price
             await ethers.provider.getBlockNumber() + (environment.minimumAuctionLength * 2)))
-            .to.be.revertedWith('CA4');  // CA4: The Auctioned amount and the Starting price must be higher than 1e6
+            .to.be.revertedWith('CA4');  // CA4: The Auctioned amount and the Starting price must be higher than 0
     });
 
     it('Should create ETHER/HELL Auction Successfully',async () => {
