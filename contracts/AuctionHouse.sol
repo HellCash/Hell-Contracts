@@ -53,8 +53,8 @@ contract AuctionHouse is Initializable, UUPSUpgradeable, OwnableUpgradeable, Ree
     ////////////////////////////////////////////////////////////////////
     function createAuction(address auctionedTokenAddress, uint auctionedAmount, address payingTokenAddress, uint startingPrice, uint buyoutPrice, uint endsAtBlock) external payable nonReentrant {
         if (buyoutPrice > 0) {
-            // "The buyout price must be higher than the starting price"
-           require(buyoutPrice > startingPrice, "CA1");
+            // "The buyout price must be higher or equal to the starting price"
+           require(startingPrice <= buyoutPrice , "CA1");
         }
         // "The minimum Auction length should be of least _minimumAuctionLength blocks";
         require(block.number.lowerThan(endsAtBlock) && (endsAtBlock - block.number) >= _minimumAuctionLength, "CA2");
