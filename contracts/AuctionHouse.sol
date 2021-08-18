@@ -122,7 +122,7 @@ contract AuctionHouse is Initializable, UUPSUpgradeable, OwnableUpgradeable, Ree
         _auctions[auctionId] = auction;
     }
 
-    // @notice While the auction is in progress, only bidders that lost against another higher bidder will be able to withdraw their funds
+    // While the auction is in progress, only bidders that lost against another higher bidder will be able to withdraw their funds
     function claimFunds(uint auctionId) public nonReentrant {
         if(msg.sender == _auctions[auctionId].highestBidder || msg.sender == _auctions[auctionId].createdBy) {
             // If the Auction ended the highest bidder and the creator of the Auction will be able to withdraw their funds
@@ -220,7 +220,7 @@ contract AuctionHouse is Initializable, UUPSUpgradeable, OwnableUpgradeable, Ree
         emit AuctionClosedByAdmin(auctionId);
     }
     ////////////////////////////////////////////////////////////////////
-    // Events                                                   ////
+    // Events                                                       ////
     ////////////////////////////////////////////////////////////////////
     event AuctionCreated(address indexed userAddress, address indexed auctionedTokenAddress, address indexed payingTokenAddress, uint auctionIndex, uint auctionedAmount, uint startingPrice, uint buyoutPrice, uint endsAtBlock);
     event AuctionClosedByAdmin(uint auctionId);
