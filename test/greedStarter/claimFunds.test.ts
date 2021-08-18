@@ -151,21 +151,21 @@ export function claimFundsTest() {
     });
 
 
-    it('HELL/FUSD: Investors should be able to withdraw his rewards', async() => {
+    it('HELL/FUSD: Investors should be able to withdraw their rewards', async() => {
         const expectedRewards: BigNumber = await environment.greedStarterContract._pendingRewards(hellProjectIdPaidWithFusd, environment.guest1Signer.address);
         await expect(environment.greedStarterContract.connect(environment.guest1Signer).claimFunds(hellProjectIdPaidWithFusd))
             .to.emit(environment.greedStarterContract, 'RewardsClaimed')
             .withArgs(hellProjectIdPaidWithFusd, environment.guest1Signer.address, expectedRewards);
     });
 
-    it('HELL/DOUBLON: Investors should be able to withdraw his rewards', async() => {
+    it('HELL/DOUBLON: Investors should be able to withdraw their rewards', async() => {
         const expectedRewards: BigNumber = await environment.greedStarterContract._pendingRewards(hellProjectIdPaidWithDoublon, environment.guest2Signer.address);
         await expect(environment.greedStarterContract.connect(environment.guest2Signer).claimFunds(hellProjectIdPaidWithDoublon))
             .to.emit(environment.greedStarterContract, 'RewardsClaimed')
             .withArgs(hellProjectIdPaidWithDoublon, environment.guest2Signer.address, expectedRewards);
     });
 
-    it('DOUBLON/ETHER: Investors should be able to withdraw his rewards', async() => {
+    it('DOUBLON/ETHER: Investors should be able to withdraw their rewards', async() => {
         const expectedRewards: BigNumber = await environment.greedStarterContract._pendingRewards(doublonProjectIdPaidWithEther, environment.guest1Signer.address);
         await expect(environment.greedStarterContract.connect(environment.guest1Signer).claimFunds(doublonProjectIdPaidWithEther))
             .to.emit(environment.greedStarterContract, 'RewardsClaimed')
