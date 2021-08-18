@@ -54,7 +54,9 @@ contract GreedStarter is Initializable, UUPSUpgradeable, OwnableUpgradeable, Ree
         // Address of the creator of the project
         address createdBy;
     }
-
+    ////////////////////////////////////////////////////////////////////
+    // External functions                                           ////
+    ////////////////////////////////////////////////////////////////////
     function createProject(
         address payable tokenAddress,
         address payable paidWith,
@@ -228,7 +230,9 @@ contract GreedStarter is Initializable, UUPSUpgradeable, OwnableUpgradeable, Ree
         _minimumProjectLength = newLength;
         emit MinimumProjectLengthUpdated(newLength);
     }
-
+    ////////////////////////////////////////////////////////////////////
+    // Events                                                       ////
+    ////////////////////////////////////////////////////////////////////
     event ProjectCreated(uint indexed projectId, address payable tokenAddress, address payable paidWith, uint totalAvailable, uint startingBlock, uint endsAtBlock, uint pricePerToken);
     event InvestedInProject(uint indexed projectId, address userAddress, uint amountPaid, uint amountRewarded, uint totalPaid, uint totalRewarded);
     event CreatorWithdrawnFunds(uint indexed projectId, address creatorAddress, uint amountRewarded, uint paidFees, uint amountRewardedAfterFees, uint amountRecovered);
@@ -236,5 +240,4 @@ contract GreedStarter is Initializable, UUPSUpgradeable, OwnableUpgradeable, Ree
     event TreasuryAddressAndFeesUpdated(address indexed treasuryAddress, uint16 newFee);
     event GreedStarterIndexerUpdated(address newIndexerAddress);
     event MinimumProjectLengthUpdated(uint newLength);
-
 }
