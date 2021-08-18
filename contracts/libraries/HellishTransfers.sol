@@ -51,19 +51,24 @@ library HellishTransfers {
         uint16 treasuryFee
     ) internal returns (uint recipientReceives, uint fee) {
         require(treasuryFee > 0, "Treasury Fees cannot be zero");
+        // Fee will be 0 if amount is less than the treasuryFee, causing absolution from treasuryFees
         fee = amount / uint(treasuryFee);
         recipientReceives = amount - fee;
         // If the token is the zero address we know that we are using the network currency
         if (transferredTokenAddress == address(0)) {
             // Pay Treasury Fees
-            treasuryAddress.sendValue(fee);
+            if(fee > 0) {
+                treasuryAddress.sendValue(fee);
+            }
             // Send funds to recipient
             recipient.sendValue(recipientReceives);
         } else {
             // Else If the token is a compliant ERC20 token as defined in the EIP
             IERC20Upgradeable tokenInterface = IERC20Upgradeable(transferredTokenAddress);
-            // Pay Auction House Fees
-            tokenInterface.safeTransfer(treasuryAddress, fee);
+            // Pay Treasury Fees
+            if(fee > 0) {
+                tokenInterface.safeTransfer(treasuryAddress, fee);
+            }
             // Send funds to recipient
             tokenInterface.safeTransfer(recipient, recipientReceives);
         }
