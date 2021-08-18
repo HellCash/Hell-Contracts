@@ -6,7 +6,7 @@ import {createAuction} from "./createAuction.test";
 import {increaseBid} from "./increaseBid.test";
 import {claimFunds} from "./claimFunds.test";
 import {_setMinimumAuctionLength} from "./_setMinimumAuctionLength.test";
-import {bottomEdges} from "./bottomEdges";
+import {bottomEdges} from "./bottomEdges.test";
 
 export function auctionHouseTests() {
     describe('function initialize', initialize);
