@@ -17,5 +17,5 @@ export function auctionHouseTests() {
     describe('function createAuction', createAuction);
     describe('function increaseBid', increaseBid);
     describe('function claimFunds', claimFunds);
-    describe('bottom edge tests', bottomEdges);
+    describe('bottom edges', bottomEdges);
 }

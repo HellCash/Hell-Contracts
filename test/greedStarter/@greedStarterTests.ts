@@ -5,13 +5,15 @@ import {claimFundsTest} from "./claimFunds.test";
 import {_setIndexer} from "./_setIndexer.test";
 import {_setTreasuryAddressAndFees} from "./_setTreasuryAddressAndFees";
 import {_setMinimumProjectLength} from "./_setMinimumProjectLength.test";
+import {bottomEdges} from "./bottomEdges.test";
 
 export function greedStarterTests() {
-    describe('initialize', initialize);
-    describe('_setIndexer', _setIndexer);
-    describe('_setTreasuryAddressAndFees', _setTreasuryAddressAndFees);
-    describe('_setMinimumProjectLength', _setMinimumProjectLength);
-    describe('createProject', createProject);
-    describe('invest', invest);
-    describe('claimFunds', claimFundsTest);
+    describe('function initialize', initialize);
+    describe('function _setIndexer', _setIndexer);
+    describe('function _setTreasuryAddressAndFees', _setTreasuryAddressAndFees);
+    describe('function _setMinimumProjectLength', _setMinimumProjectLength);
+    describe('function createProject', createProject);
+    describe('function invest', invest);
+    describe('function claimFunds', claimFundsTest);
+    describe('bottom edges', bottomEdges);
 }
