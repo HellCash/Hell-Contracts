@@ -103,7 +103,7 @@ export function increaseBid() {
             )).to.be.revertedWith('IB6');
     });
 
-    it('Paid with ETHER: Should perform a successful bid', async () => {
+    it('HELL/ETHER: Should perform a successful bid', async () => {
         const auctionHouseContract = environment.auctionHouseContract.connect(environment.guest1Signer);
         const bidAmount = parseEther("12");
         await expect(auctionHouseContract.increaseBid(hellAuctionIdPayWithEther, bidAmount, {
@@ -123,7 +123,7 @@ export function increaseBid() {
             )).to.be.revertedWith('IB5');
     });
 
-    it("Paid with ETHER: Should fail if the user didn't send enough funds", async () => {
+    it("HELL/ETHER: Should fail if the user didn't send enough funds", async () => {
         const bidAmount = parseEther("15");
         await expect(environment.auctionHouseContract.connect(environment.guest2Signer)
             .increaseBid(hellAuctionIdPayWithEther, bidAmount, {
@@ -131,7 +131,7 @@ export function increaseBid() {
             })).to.be.revertedWith('DA1');
     });
 
-    it('Paid with ETHER: Should increase the user bid', async () => {
+    it('HELL/ETHER: Should increase the user bid', async () => {
         const auctionHouseContract: Contract = environment.auctionHouseContract.connect(environment.guest1Signer);
         const currentUserBid: BigNumber = await environment.auctionHouseContract._auctionBids(hellAuctionIdPayWithEther, environment.guest1Signer.address);
         const bidAmount = parseEther("2"); // We will increase the user bid by 2
@@ -142,7 +142,7 @@ export function increaseBid() {
         );
     });
 
-    it('Paid with ETHER: Should perform a Buyout if the user sent the buyout price and Emit a Buyout event', async () => {
+    it('HELL/ETHER: Should perform a Buyout if the user sent the buyout price and Emit a Buyout event', async () => {
         const auctionHouseContract: Contract = environment.auctionHouseContract.connect(environment.guest1Signer);
         const currentUserBid: BigNumber = await environment.auctionHouseContract._auctionBids(hellAuctionIdPayWithEther, environment.guest1Signer.address);
         // The buyout price was 35 ETH, since the user already bid 14, We require 21 more.
@@ -154,7 +154,7 @@ export function increaseBid() {
         );
     });
 
-    it('Paid with ERC20: Bid Should fail if the user hasn\'t enough allowance', async () => {
+    it('ETHER/HELL: Bid Should fail if the user hasn\'t enough allowance', async () => {
         const hellContract: Contract = environment.hellContract.connect(environment.guest1Signer);
         // Set the user Allowance back to 0
         await hellContract.approve(environment.auctionHouseContract.address, parseEther("0"));
@@ -164,7 +164,7 @@ export function increaseBid() {
             .to.be.revertedWith("DA3");
     });
 
-    it('Paid with ERC20: Should perform a successful bid', async () => {
+    it('ETHER/HELL: Should perform a successful bid', async () => {
         const bidAmount = parseEther("5");
         // Increase guest2 allowance
         await environment.hellContract.connect(environment.guest2Signer)
@@ -176,7 +176,7 @@ export function increaseBid() {
             );
     });
 
-    it('Paid with ERC20: Should increase the user bid', async () => {
+    it('ETHER/HELL: Should increase the user bid', async () => {
         const currentUserBid: BigNumber = await environment.auctionHouseContract._auctionBids(etherAuctionIdPayWithHell, environment.guest2Signer.address);
         const bidAmount = parseEther("2.5"); // We will increase the user bid by 2.5 for a total of 7.5
         // Increase guest2 allowance
@@ -189,7 +189,7 @@ export function increaseBid() {
         );
     });
 
-    it('Paid with ERC20: Should perform a Buyout if the user sent the buyout price and Emit a Buyout event', async () => {
+    it('ETHER/HELL: Should perform a Buyout if the user sent the buyout price and Emit a Buyout event', async () => {
         const bidAmount = parseEther("10");
         await environment.hellContract.connect(environment.guest1Signer)
             .approve(environment.auctionHouseContract.address, bidAmount);
@@ -199,7 +199,7 @@ export function increaseBid() {
         );
     });
 
-    it('Paid with FUSD: Should perform a successful bid', async () => {
+    it('DOUBLON/FUSD: Should perform a successful bid', async () => {
         const bidAmount = parseUnits("50", 6);
 
         await environment.fusdContract.connect(environment.guest1Signer)
@@ -212,7 +212,7 @@ export function increaseBid() {
             );
     });
 
-    it('Paid with FUSD: Should increase user bid', async () => {
+    it('DOUBLON/FUSD: Should increase user bid', async () => {
         const currentUserBid: BigNumber = await environment.auctionHouseContract._auctionBids(doublonAuctionIdPayWithFUSD, environment.guest1Signer.address);
         const bidAmount = parseUnits("30", 6); // We will increase the user bid by 30 for a total of 80
 
@@ -225,7 +225,7 @@ export function increaseBid() {
         );
     });
 
-    it('Paid with FUSD: Should perform a Buyout if the user sent the buyout price and Emit a Buyout event', async () => {
+    it('DOUBLON/FUSD: Should perform a Buyout if the user sent the buyout price and Emit a Buyout event', async () => {
         const bidAmount = parseUnits("100", 6);
         await environment.fusdContract.connect(environment.guest2Signer).approve(environment.auctionHouseContract.address, bidAmount);
         await expect(environment.auctionHouseContract.connect(environment.guest2Signer)
