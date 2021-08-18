@@ -60,6 +60,8 @@ contract AuctionHouse is Initializable, UUPSUpgradeable, OwnableUpgradeable, Ree
         require(block.number.lowerThan(endsAtBlock) && (endsAtBlock - block.number) >= _minimumAuctionLength, "CA2");
         // "The auctioned token address and the selling token address cannot be the same";
         require(auctionedTokenAddress != payingTokenAddress, "CA3");
+        // "The Auctioned amount and the Starting price must be higher than 1e6"
+        require(1e6 <= auctionedAmount && 1e6 <= startingPrice, "CA4");
         // Deposit user funds in the Auction House Contract
         address(this).safeDepositAsset(auctionedTokenAddress, auctionedAmount);
 
