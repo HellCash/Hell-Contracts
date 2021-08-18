@@ -130,7 +130,7 @@ export function createAuction() {
             .to.be.revertedWith('DA2');  // DA2: Not enough Balance
     });
 
-    it('Creating an Auction with a starting price lower than 1 should fail', async () => {
+    it('Creating an Auction with a starting price lower than 1 wei should fail', async () => {
         await environment.doublonContract.approve(environment.auctionHouseContract.address, parseEther("1"));
         await expect(environment.auctionHouseContract.createAuction(
             environment.doublonContract.address, // Auction Doublon
@@ -142,7 +142,7 @@ export function createAuction() {
             .to.be.revertedWith('CA4');  // CA4: The Auctioned amount and the Starting price must be higher than 0
     });
 
-    it('Creating an Auction with an Auctioned Amount lower than 1 should fail', async () => {
+    it('Creating an Auction with an Auctioned Amount lower than 1 wei should fail', async () => {
         await environment.doublonContract.approve(environment.auctionHouseContract.address, parseEther("1"));
         await expect(environment.auctionHouseContract.createAuction(
             environment.doublonContract.address, // Auction Doublon
