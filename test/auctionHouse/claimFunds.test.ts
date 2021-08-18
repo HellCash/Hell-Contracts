@@ -112,7 +112,7 @@ export function claimFunds() {
         await expect(auctionHouseContract.claimFunds(doublonAuctionIdPayWithFusd)).to.be.revertedWith('ACF3');
     });
 
-    it('Losing Bidders should be able to claim his lost bids', async () => {
+    it('Losing Bidders should be able to claim their lost bids', async () => {
         // Guest 2 proceeds to place higher bids than guest 1
         const guest2SignedAuctionHouseContract = environment.auctionHouseContract.connect(environment.guest2Signer);
         // Guest 2 bids 25 Ether buying out the Auction.
@@ -148,35 +148,48 @@ export function claimFunds() {
                 doublonAuction.yourBid);
     });
 
+    it('Losing Bidders should be able to claim their lost bids only once', async () => {
+        const auctionHouseContract: Contract = await environment.auctionHouseContract.connect(environment.guest1Signer);
+        await expect(auctionHouseContract.claimFunds(etherAuctionIdPayWithHell))
+            .to.be.revertedWith("ACF3");
+        await expect(auctionHouseContract.claimFunds(hellAuctionIdPayWithEther))
+            .to.be.revertedWith("ACF3");
+        await expect(auctionHouseContract.claimFunds(doublonAuctionIdPayWithFusd))
+            .to.be.revertedWith("ACF3");
+    });
+
     it('Auction Creator should be able to claim his rewards when Auction ends and when successfully sold', async () => {
-        const auctions = await environment.auctionHouseContract.getAuctions([etherAuctionIdPayWithHell, hellAuctionIdPayWithEther,doublonAuctionIdPayWithFusd]);
-        const etherAuction: Auction = auctions[0];
-        const hellAuction: Auction = auctions[1];
-        const doublonAuction: Auction = auctions[2];
+    const auctions = await environment.auctionHouseContract.getAuctions([etherAuctionIdPayWithHell, hellAuctionIdPayWithEther,doublonAuctionIdPayWithFusd]);
+    const etherAuction: Auction = auctions[0];
+    const hellAuction: Auction = auctions[1];
+    const doublonAuction: Auction = auctions[2];
 
-        // @ts-ignore
-        const expectedFeeInHell = etherAuction.highestBid.div(etherAuction.auctionHouseFee);
-        const expectedAmountInHell = etherAuction.highestBid?.sub(expectedFeeInHell);
+    // @ts-ignore
+    const expectedFeeInHell = etherAuction.highestBid.div(etherAuction.auctionHouseFee);
+    const expectedAmountInHell = etherAuction.highestBid?.sub(expectedFeeInHell);
 
-        await expect(environment.auctionHouseContract.claimFunds(etherAuctionIdPayWithHell))
-            .to.emit(environment.auctionHouseContract, 'ClaimSoldAuctionRewards')
-            .withArgs(etherAuctionIdPayWithHell, environment.masterSigner.address, environment.hellContract.address, expectedAmountInHell, expectedFeeInHell);
+    await expect(environment.auctionHouseContract.claimFunds(etherAuctionIdPayWithHell))
+        .to.emit(environment.auctionHouseContract, 'ClaimSoldAuctionRewards')
+        .withArgs(etherAuctionIdPayWithHell, environment.masterSigner.address,
+            environment.hellContract.address, expectedAmountInHell, expectedFeeInHell);
 
-        // @ts-ignore
-        const expectedFeeInEther = hellAuction.highestBid.div(hellAuction.auctionHouseFee);
-        const expectedAmountInEther = hellAuction.highestBid?.sub(expectedFeeInEther);
+    // @ts-ignore
+    const expectedFeeInEther = hellAuction.highestBid.div(hellAuction.auctionHouseFee);
+    const expectedAmountInEther = hellAuction.highestBid?.sub(expectedFeeInEther);
 
-        await expect(environment.auctionHouseContract.claimFunds(hellAuctionIdPayWithEther))
-            .to.emit(environment.auctionHouseContract, 'ClaimSoldAuctionRewards')
-            .withArgs(hellAuctionIdPayWithEther, environment.masterSigner.address, EtherUtils.zeroAddress(), expectedAmountInEther, expectedFeeInEther);
+    await expect(environment.auctionHouseContract.claimFunds(hellAuctionIdPayWithEther))
+        .to.emit(environment.auctionHouseContract, 'ClaimSoldAuctionRewards')
+        .withArgs(hellAuctionIdPayWithEther, environment.masterSigner.address,
+            EtherUtils.zeroAddress(), expectedAmountInEther, expectedFeeInEther);
 
-        // @ts-ignore
-        const expectedFeeInFusd = doublonAuction.highestBid.div(doublonAuction.auctionHouseFee);
-        const expectedAmountInFusd = doublonAuction.highestBid?.sub(expectedFeeInFusd);
+    // @ts-ignore
+    const expectedFeeInFusd = doublonAuction.highestBid.div(doublonAuction.auctionHouseFee);
+    const expectedAmountInFusd = doublonAuction.highestBid?.sub(expectedFeeInFusd);
 
-        await expect(environment.auctionHouseContract.claimFunds(doublonAuctionIdPayWithFusd))
-            .to.emit(environment.auctionHouseContract, 'ClaimSoldAuctionRewards')
-            .withArgs(doublonAuctionIdPayWithFusd, environment.masterSigner.address, environment.fusdContract.address, expectedAmountInFusd, expectedFeeInFusd);
+    await expect(environment.auctionHouseContract.claimFunds(doublonAuctionIdPayWithFusd))
+        .to.emit(environment.auctionHouseContract, 'ClaimSoldAuctionRewards')
+        .withArgs(doublonAuctionIdPayWithFusd, environment.masterSigner.address,
+            environment.fusdContract.address, expectedAmountInFusd, expectedFeeInFusd);
     });
 
     it('Auction Creator should be able to claim his funds back if the auction is never sold', async () => {
