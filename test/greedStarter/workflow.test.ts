@@ -128,7 +128,7 @@ export function workflow(
             }
         });
 
-        it('every investor should be able to claim their rewards ', async () => {
+        it('should claimFunds with every investor', async () => {
             const blocksRemaining = project.endsAtBlock.sub(await ethers.provider.getBlockNumber()).toNumber();
             // If the project hasn't finished yet, Mine blocks until it ends
             if (blocksRemaining > 0) {
