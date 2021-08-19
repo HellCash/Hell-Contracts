@@ -7,6 +7,7 @@ import erc20Sol from "../../artifacts/@openzeppelin/contracts/token/ERC20/ERC20.
 import {TokenName} from "../../enums/tokenName";
 import {formatUnits} from "ethers/lib/utils";
 import {Auction} from "../../models/auction";
+import {Random} from "../../utils/random";
 
 export function workflow(
     auctionedToken: TokenName,
@@ -15,7 +16,8 @@ export function workflow(
     startingPrice: BigNumber,
     buyoutPrice: BigNumber,
     lengthInBlocks: number,
-    maximumBidders: number | null = 99999,
+    maximumBidders: number | null = null,
+    randomiseBiddersOrder = false
     ) {
     return () => {
         let auctionedTokenAddress: string;
@@ -33,7 +35,7 @@ export function workflow(
             availableSigners.splice(0, 2);
             // Narrow down the available signers
             if (maximumBidders) {
-                availableSigners = availableSigners.slice(0, maximumBidders + 1);
+                availableSigners = availableSigners.slice(0, maximumBidders);
             }
         });
 
@@ -76,7 +78,6 @@ export function workflow(
             );
             auctionId = await environment.auctionHouseContract._totalAuctions();
             const auction: Auction = (await environment.auctionHouseContract.getAuctions([auctionId]))[0];
-            console.log(auctionId, auction);
             // Verify that all total auction variables increased their values by one
             expect(currentTotalAuctions.add(1)).to.be.equal(auctionId);
         });
@@ -84,8 +85,12 @@ export function workflow(
         it('should perform bids with every signer or until the auction ends', async () => {
             let i = 0;
             while (true) {
-                if (i == availableSigners.length) {
-                    i = 0;
+                if (randomiseBiddersOrder) {
+                    i = Random.randomIntegerNumber(0, availableSigners.length - 1);
+                } else {
+                    if (i == availableSigners.length) {
+                        i = 0;
+                    }
                 }
                 let bidAmount: BigNumber;
                 const auction: Auction = (await environment.auctionHouseContract.connect(availableSigners[i]).getAuctions([auctionId]))[0];
@@ -121,18 +126,27 @@ export function workflow(
                 } else {
                     // We'll assume that the Master signer has enough funds to share with every guest
                     let payingTokenContract: Contract = await ethers.getContractAt(erc20Sol.abi,
-                        auctionedTokenAddress, environment.masterSigner);
+                        payingTokenAddress, environment.masterSigner);
                     await payingTokenContract.transfer(availableSigners[i].address, bidAmount);
                     // Increase signer allowance
                     await payingTokenContract.connect(availableSigners[i])
-                        .approve(environment.auctionHouseContract.address, auctionedAmount);
+                        .approve(environment.auctionHouseContract.address, bidAmount);
                 }
 
                 const currentUserBid: BigNumber = await environment.auctionHouseContract
                     ._auctionBids(auctionId, availableSigners[i].address);
 
-                await expect(environment.auctionHouseContract.connect(availableSigners[i])
-                    .increaseBid(auctionId, bidAmount, override)).to.not.be.reverted;
+                try {
+                    await environment.auctionHouseContract.connect(availableSigners[i])
+                        .increaseBid(auctionId, bidAmount, override);
+                } catch (e) {
+                    // If the bid failed due the Auction ending block, we'll ignore the warning and break the loop
+                    if (e.message == "VM Exception while processing transaction: reverted with reason string 'IB2'") {
+                        break;
+                    } else {
+                        throw e;
+                    }
+                }
 
                 const auctionAfter: Auction = (await environment.auctionHouseContract.connect(availableSigners[i]).getAuctions([auctionId]))[0];
                 // Verify that the user bid was placed correctly
@@ -142,16 +156,40 @@ export function workflow(
             }
         });
 
-        it('should claim everyone lost bids', function () {
-
+        it('should claimFunds for the auction winner and loosing bidders', async () => {
+            for (let i = 0; i < availableSigners.length; i ++) {
+                const auctionHouseContract: Contract = await environment.auctionHouseContract.connect(availableSigners[i]);
+                const auction: Auction = (await auctionHouseContract.getAuctions([auctionId]))[0];
+                // If the guest is the Auction winner Expect to claim auction rewards
+                if (availableSigners[i].address == auction.highestBidder) {
+                    console.log(`\t Claiming funds for the Auction Winner guest ${i}`);
+                    const expectedFee = auction.auctionedAmount.div(auction.auctionHouseFee);
+                    const expectedAmountReceived = auction.auctionedAmount.sub(expectedFee);
+                    await expect(auctionHouseContract.claimFunds(auction.id))
+                        .to.emit(environment.auctionHouseContract, 'ClaimWonAuctionRewards')
+                        .withArgs(auction.id, availableSigners[i].address, auction.auctionedTokenAddress, expectedAmountReceived, expectedFee);
+                // If the guest is a losing bidder, expect to claim losing bids
+                } else {
+                    if (!auction.yourBid.isZero()) {
+                        console.log(`\t Claiming funds for guest ${i}`);
+                        await expect(auctionHouseContract.claimFunds(auction.id))
+                            .to.emit(environment.auctionHouseContract, 'ClaimLostBids')
+                            .withArgs(auction.id, availableSigners[i].address, auction.payingTokenAddress, auction.yourBid);
+                    }
+                }
+            }
         });
 
-        it('should claim winner rewards', function () {
+        it('should claim the Auction Creator rewards', async () => {
+            const auctionHouseContract: Contract = environment.auctionHouseContract;
+            const auction: Auction = (await auctionHouseContract.getAuctions([auctionId]))[0];
+            const expectedFee = auction.highestBid.div(auction.auctionHouseFee);
+            const expectedAmountReceived = auction.highestBid.sub(expectedFee);
 
-        });
-
-        it('should claim creator rewards', function () {
-
+            await expect(environment.auctionHouseContract.claimFunds(auction.id))
+                .to.emit(environment.auctionHouseContract, 'ClaimSoldAuctionRewards')
+                .withArgs(auction.id, environment.masterSigner.address, auction.payingTokenAddress,
+                    expectedAmountReceived, expectedFee);
         });
 
     }
