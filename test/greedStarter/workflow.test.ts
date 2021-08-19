@@ -100,8 +100,10 @@ export function workflow(
                 // Request the project
                 const latestProjectDetails: Project = await environment.greedStarterContract._projects(projectId);
                 const availableTokens = latestProjectDetails.totalTokens.sub(latestProjectDetails.totalSold);
-                // If there isn't anything left to sell break the loop
-                if (availableTokens.isZero()) {
+
+                const blocksRemaining = project.endsAtBlock.sub(await ethers.provider.getBlockNumber());
+                // If there isn't anything left to sell or the project ended, break the loop
+                if (availableTokens.isZero() || blocksRemaining.isZero()) {
                     break;
                 }
                 let amountToBuy: BigNumber;
