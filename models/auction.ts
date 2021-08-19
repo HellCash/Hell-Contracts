@@ -6,8 +6,8 @@ export class Auction {
   auctionedAmount?: BigNumber;
   payingTokenAddress?: string;
   startingPrice?: BigNumber;
-  buyoutPrice?: BigNumber;
-  endsAtBlock?: number;
+  buyoutPrice: BigNumber;
+  endsAtBlock: BigNumber;
 
   createdAt?: string;
   createdBy?: string;
@@ -17,6 +17,6 @@ export class Auction {
   totalBids?: BigNumber;
   rewardsWithdrawnByWinner?: boolean;
   fundsOrRewardsWithdrawnByCreator?: boolean;
-  yourBid?: BigNumber; // Added on responses only
+  yourBid: BigNumber; // Added on responses only
   auctionHouseFee?: number;
 }

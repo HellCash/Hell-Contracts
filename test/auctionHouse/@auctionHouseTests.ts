@@ -7,6 +7,9 @@ import {increaseBid} from "./increaseBid.test";
 import {claimFunds} from "./claimFunds.test";
 import {_setMinimumAuctionLength} from "./_setMinimumAuctionLength.test";
 import {bottomEdges} from "./bottomEdges.test";
+import {workflow} from "./workflow.test";
+import {TokenName} from "../../enums/tokenName";
+import {parseEther} from "ethers/lib/utils";
 
 export function auctionHouseTests() {
     describe('function initialize', initialize);
@@ -18,4 +21,13 @@ export function auctionHouseTests() {
     describe('function increaseBid', increaseBid);
     describe('function claimFunds', claimFunds);
     describe('bottom edges', bottomEdges);
+    describe('workflow', workflow(
+        TokenName.Hell, // Auctioned Token
+        parseEther('5'), // Auctioned Amount
+        TokenName.Ether, // Paying Token
+        parseEther('50'), // Starting Price
+        parseEther('100'), // Buyout Price
+        100,
+        2
+    ));
 }

@@ -6,6 +6,8 @@ import {ethers} from "hardhat";
 import {deployDoublon} from "../../scripts/deployments/deployDoublon";
 import {deployFUSD} from "../../scripts/deployments/deployFUSD";
 import {deployBDoublon} from "../../scripts/deployments/deployBDoublon";
+import {deployRandom} from "../../scripts/deployments/deployRandom";
+import {parseEther} from "ethers/lib/utils";
 
 export class auctionHouseTestingEnvironment {
     readonly PRINT_DEPLOYMENT_LOGS = false;
@@ -26,8 +28,9 @@ export class auctionHouseTestingEnvironment {
     auctionHouseContract: Contract;
     auctionHouseIndexerContract: Contract;
     bDoublonContract: Contract;
+    randomContract: Contract;
     // Initialize this testing environment
-    async initialize(minimumAuctionLength: number = 100, treasuryFees: number = 800) {
+    async initialize(minimumAuctionLength: number = 100, treasuryFees: number = 800, randomTokenSupply: BigNumber = parseEther('100000')) {
         // Set Environment Variables
         this.minimumAuctionLength = minimumAuctionLength;
         this.treasuryFees = treasuryFees;
@@ -47,5 +50,6 @@ export class auctionHouseTestingEnvironment {
         this.doublonContract = await deployDoublon(this.PRINT_DEPLOYMENT_LOGS);
         this.fusdContract = await deployFUSD(this.PRINT_DEPLOYMENT_LOGS);
         this.bDoublonContract = await deployBDoublon(this.PRINT_DEPLOYMENT_LOGS);
+        this.randomContract = await deployRandom(randomTokenSupply, false);
     };
 }
