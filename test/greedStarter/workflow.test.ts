@@ -96,14 +96,12 @@ export function workflow(
                 payingTokenDecimals = await payingTokenContract.decimals();
             }
 
-            const projectEndingBlock = project.endsAtBlock.sub(1).toNumber();
             for (let i = 0; i < availableSigners.length; i++) {
                 // Request the project
                 const latestProjectDetails: Project = await environment.greedStarterContract._projects(projectId);
                 const availableTokens = latestProjectDetails.totalTokens.sub(latestProjectDetails.totalSold);
-                // If there isn't anything left to sell or the project ended, break the loop
-                // We will subtract one more block from the current block number
-                if (availableTokens.isZero() || projectEndingBlock <= (await ethers.provider.getBlockNumber())) {
+                // If there isn't anything left to sell break the loop
+                if (availableTokens.isZero()) {
                     break;
                 }
                 let amountToBuy: BigNumber;
