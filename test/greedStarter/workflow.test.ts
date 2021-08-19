@@ -127,6 +127,7 @@ export function workflow(
         });
 
         it('should claimFunds with every investor', async () => {
+            console.log('\t Claiming funds with every investor, this might take a while...');
             const blocksRemaining = project.endsAtBlock.sub(await ethers.provider.getBlockNumber()).toNumber();
             // If the project hasn't finished yet, Mine blocks until it ends
             if (blocksRemaining > 0) {
