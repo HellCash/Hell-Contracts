@@ -29,7 +29,7 @@ export function greedStarterTests() {
         0.1, // Random maximum for purchases
         1, // Random maximum decimals
     ));
-    describe('Workflow for 666 tokens, Paid with ETHER, Price per token 10 ETH, Minimum purchase 1e16, Maximum Purchase 10 ether', workflow(
+    describe('Workflow for 666 tokens, Paid with ETH, Price per token 10 ETH, Minimum purchase 1e16, Maximum Purchase 10 ether', workflow(
         'ether', // Paid with
         parseEther('666'), // Total tokens
         parseEther('10'), // Price per token
@@ -49,7 +49,7 @@ export function greedStarterTests() {
         0.1, // Random minimum for purchases
         5 // Random maximum for purchases
     ));
-    describe('Workflow for 3000 tokens, Paid with FUSD, Price per token 5.5 FUSD, Minimum purchase 1e16 wei, Maximum Purchase 25 ether', workflow(
+    describe('Workflow for 10000 tokens, Paid with FUSD, Price per token 5.5 FUSD, Minimum purchase 1e16 wei, Maximum Purchase 100 ether', workflow(
         'fusd', // Paid with
         parseEther('10000'), // Total tokens
         parseUnits('5.5', 6), // Price per token
