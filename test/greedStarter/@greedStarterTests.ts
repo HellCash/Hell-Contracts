@@ -24,7 +24,7 @@ export function greedStarterTests() {
         parseEther('100'), // Price per token
         parseEther('0.1'), // Minimum purchase
         parseEther('0.1'), // Maximum Purchase
-        // The Random minimum and Random maximum calculate a random purchase amount between them
+        // The Random minimum and Random maximum, are used to calculate a random purchase amount between them
         0.1, // Random minimum for purchases
         0.1, // Random maximum for purchases
         1, // Random maximum decimals
@@ -35,7 +35,7 @@ export function greedStarterTests() {
         parseEther('10'), // Price per token
         parseEther('0.01'), // Minimum purchase
         parseEther('10'), // Maximum Purchase
-        // The Random minimum and Random maximum calculate a random purchase amount between them
+        // The Random minimum and Random maximum, are used to calculate a random purchase amount between them
         0.01, // Random minimum for purchases
         10 // Random maximum for purchases
     ));
@@ -45,7 +45,7 @@ export function greedStarterTests() {
         parseEther('5'), // Price per token
         parseEther('0.1'), // Minimum purchase
         parseEther('5'), // Maximum Purchase
-        // The Random minimum and Random maximum calculate a random purchase amount between them
+        // The Random minimum and Random maximum, are used to calculate a random purchase amount between them
         0.1, // Random minimum for purchases
         5 // Random maximum for purchases
     ));
@@ -55,7 +55,7 @@ export function greedStarterTests() {
         parseUnits('5.5', 6), // Price per token
         parseUnits('1', 16), // Minimum purchase
         parseEther('100'), // Maximum Purchase
-        // The Random minimum and Random maximum calculate a random purchase amount between them
+        // The Random minimum and Random maximum, are used to calculate a random purchase amount between them
         0.01, // Random minimum amount to buy
         100, // Random maximum amount to buy
         18, // Random maximum decimals
