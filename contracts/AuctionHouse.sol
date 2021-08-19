@@ -84,7 +84,7 @@ contract AuctionHouse is Initializable, UUPSUpgradeable, OwnableUpgradeable, Ree
         _indexer._registerNewAuctionCreation(auction.id, auction.createdBy, auction.auctionedTokenAddress, auction.payingTokenAddress);
 
         // Emit information
-        emit AuctionCreated(auction.createdBy, auction.auctionedTokenAddress, auction.payingTokenAddress, _totalAuctions, auction.auctionedAmount, auction.startingPrice, auction.buyoutPrice, auction.endsAtBlock);
+        emit AuctionCreated(auction.createdBy, auction.auctionedTokenAddress, auction.payingTokenAddress, auction.id, auction.auctionedAmount, auction.startingPrice, auction.buyoutPrice, auction.endsAtBlock);
     }
 
     function increaseBid(uint auctionId, uint amount) external payable nonReentrant {
@@ -222,7 +222,7 @@ contract AuctionHouse is Initializable, UUPSUpgradeable, OwnableUpgradeable, Ree
     ////////////////////////////////////////////////////////////////////
     // Events                                                       ////
     ////////////////////////////////////////////////////////////////////
-    event AuctionCreated(address indexed userAddress, address indexed auctionedTokenAddress, address indexed payingTokenAddress, uint auctionIndex, uint auctionedAmount, uint startingPrice, uint buyoutPrice, uint endsAtBlock);
+    event AuctionCreated(address indexed createdBy, address indexed auctionedTokenAddress, address indexed payingTokenAddress, uint auctionId, uint auctionedAmount, uint startingPrice, uint buyoutPrice, uint endsAtBlock);
     event AuctionClosedByAdmin(uint auctionId);
     event BidIncreased(uint indexed auctionId, address indexed bidder, uint indexed amount, uint userTotalBid);
     event Buyout(uint indexed auctionId, address indexed bidder, uint indexed amount, uint userTotalBid);
