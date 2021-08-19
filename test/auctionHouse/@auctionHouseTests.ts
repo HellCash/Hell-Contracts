@@ -43,15 +43,26 @@ export function auctionHouseTests() {
             12,
             true
     ));
-    describe('Workflow for 25000 FUSD / 5000 Doublon, No Buyout, during 250 blocks, 100 randomized bidders',
+    describe('Workflow for 25000 FUSD / 5000 Doublon, No Buyout, during 200 blocks, 100 randomized bidders',
         workflow(
             TokenName.FUSD, // Auctioned Token
             parseUnits('25000', 6), // Auctioned Amount
             TokenName.Doublon, // Paying Token
             parseEther('5000'), // Starting Price
             BigNumber.from(0), // Buyout Price
-            250,
+            200,
             100,
             true
     ));
+    describe('Workflow for 15 HELL / 5000 FUSD, No Buyout, during 250 blocks, 50 randomized bidders',
+        workflow(
+            TokenName.Hell, // Auctioned Token
+            parseEther('15'), // Auctioned Amount
+            TokenName.FUSD, // Paying Token
+            parseUnits('5000', 6), // Starting Price
+            BigNumber.from(0), // Buyout Price
+            250,
+            50,
+            true
+        ));
 }
