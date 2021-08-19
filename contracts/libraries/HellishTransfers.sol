@@ -12,7 +12,7 @@ library HellishTransfers {
 
     function safeDepositAsset(address recipient, address tokenAddress, uint amount) internal {
         if(tokenAddress == address(0)) {
-            // DA1: "You didn't send enough funds for this operation"
+            // DA1: "You didn't send enough Ether for this operation"
             require(msg.value >= amount, "DA1");
         } else {
             IERC20Upgradeable tokenInterface = IERC20Upgradeable(tokenAddress);
@@ -23,7 +23,7 @@ library HellishTransfers {
             uint recipientBalance = tokenInterface.balanceOf(recipient);
             // Transfer Sender tokens to the Recipient
             tokenInterface.safeTransferFrom(msg.sender, recipient, amount);
-            // DA4: You didn't send enough funds for this operation
+            // DA4: You didn't send enough tokens for this operation
             require(recipientBalance + amount == tokenInterface.balanceOf(recipient), "DA4");
         }
     }
