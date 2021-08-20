@@ -160,14 +160,14 @@ contract AuctionHouse is Initializable, UUPSUpgradeable, OwnableUpgradeable, Ree
                     }
                 }
             } else {
-                // ACF2: You don't have anything available to claim
+                // ACF2: This Auction is still in progress.
                 revert("ACF2");
             }
         // If the user is not the Highest bidder or the creator of the Auction
         } else {
             // We get the User bids and then proceed to check if the user has bids available to claim
             uint userBids = _auctionBids[auctionId][msg.sender];
-            // ACF3: "You have no funds available to claim from this auction"
+            // ACF3: "You have no leftover bids available to claim from this auction."
             require(userBids > 0, "ACF3");
             // if it does have funds, set them back to 0
             _auctionBids[auctionId][msg.sender] = 0;
