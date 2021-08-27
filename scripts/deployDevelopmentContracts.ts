@@ -18,7 +18,7 @@ async function deployDevelopmentContracts() {
     Console.logTitle("Deploying Contracts");
     const accounts = await ethers.provider.listAccounts();
     const treasuryAddress = accounts[1];
-    const hellContract = await deployHell();
+    const hellContract = await deployHell('Hell', 'HELL');
     await txConfirmation('[Hell Contract]: Exclude Owner from burn list',
         hellContract._setExcludedFromBurnList(accounts[0], true));
     await txConfirmation('[Hell Contract]: Exclude treasuryAddress from burn list',

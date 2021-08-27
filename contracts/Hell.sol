@@ -11,8 +11,8 @@ contract Hell is Initializable, ERC20Upgradeable, UUPSUpgradeable, OwnableUpgrad
     uint public _burntTokens;
     mapping(address => bool) public _excludedFromBurnFees;
 
-    function initialize() initializer public {
-        __ERC20_init("Hell", "HELL");
+    function initialize(string memory name, string memory symbol) initializer public {
+        __ERC20_init(name, symbol);
         __Ownable_init();
         __UUPSUpgradeable_init();
         _hellVaultAddress = msg.sender;
