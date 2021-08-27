@@ -9,7 +9,7 @@ export async function deployAuctionHouseIndexer(auctionHouseAddress: string, pri
         ], {kind: 'uups'});
     if (printLogs) {
         await Console.contractDeploymentInformation("AuctionHouseIndexer", auctionHouseIndexerContractProxy);
-        console.log('Auction House Indexer: Set Auction House Address to ' + auctionHouseAddress);
+        console.log('\t[Auction House Indexer Contact]: Set Auction House Address to ' + auctionHouseAddress);
     }
     return auctionHouseIndexerContractProxy;
 }
