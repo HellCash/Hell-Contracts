@@ -14,3 +14,4 @@ artifacts
 scripts/contractAddresses.json
 .openzeppelin
 scripts/_wip
+scripts/localhost-contract-addresses.json

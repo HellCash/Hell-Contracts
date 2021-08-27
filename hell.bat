@@ -14,11 +14,13 @@ echo You didn't provide a valid command
 goto :exit
 
 :deploy
-call npx hardhat run --network localhost scripts/deployDevelopmentContracts.ts
+set networkName=%2
+call npx hardhat run --network %networkName% scripts/deployDevelopmentContracts.ts
 goto :exit
 
 :deploy-fake
-call npx hardhat run --network localhost scripts/deployDevelopmentContracts.ts
+set networkName=%2
+call npx hardhat run --network %networkName% scripts/deployDevelopmentContracts.ts
 goto :fake
 
 :deploy-test
@@ -56,10 +58,11 @@ goto :exit
 
 :upgrade
 set contractName=%2
-if "%contractName%"=="hell" (npx hardhat run --network localhost scripts/upgrades/upgradeHell.ts) else ^
-if "%contractName%"=="hellVault" (npx hardhat run --network localhost scripts/upgrades/upgradeHellVault.ts) else ^
-if "%contractName%"=="greedStarter" (npx hardhat run --network localhost scripts/upgrades/upgradeGreedStarter.ts) else ^
-if "%contractName%"=="upgradeAuctionHouse" (npx hardhat run --network localhost scripts/upgrades/upgradeAuctionHouse.ts) else ^
+set networkName=%3
+if "%contractName%"=="hell" (npx hardhat run --network %networkName% scripts/upgrades/upgradeHell.ts) else ^
+if "%contractName%"=="hellVault" (npx hardhat run --network %networkName% scripts/upgrades/upgradeHellVault.ts) else ^
+if "%contractName%"=="greedStarter" (npx hardhat run --network %networkName% scripts/upgrades/upgradeGreedStarter.ts) else ^
+if "%contractName%"=="upgradeAuctionHouse" (npx hardhat run --network %networkName% scripts/upgrades/upgradeAuctionHouse.ts) else ^
 echo You didn't provide a valid contract name
 goto :exit
 

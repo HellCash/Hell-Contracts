@@ -1,10 +1,9 @@
-import {ethers} from "hardhat";
+import {ethers, hardhatArguments} from "hardhat";
 import {writeFileSync} from "fs";
 import {resolve} from "path";
 import {Console} from "../utils/console";
 import {deployAuctionHouse} from "./deployments/deployAuctionHouse";
 import {deployHell} from "./deployments/deployHell";
-import {deployHellVault} from "./deployments/deployHellVault";
 import {deployDoublon} from "./deployments/deployDoublon";
 import {deployBDoublon} from "./deployments/deployBDoublon";
 import {deployAuctionHouseIndexer} from "./deployments/deployAuctionHouseIndexer";
@@ -45,7 +44,7 @@ async function deployDevelopmentContracts() {
         'fusd': (await deployFUSD()).address,
     };
 
-    writeFileSync(resolve(__dirname, 'contractAddresses.json'), JSON.stringify(addressesData));
+    writeFileSync(resolve(__dirname, `${hardhatArguments.network}-contract-addresses.json`), JSON.stringify(addressesData));
     Console.logHr();
     return true;
 }
