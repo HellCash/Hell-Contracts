@@ -14,11 +14,11 @@ echo You didn't provide a valid command
 goto :exit
 
 :deploy
-call npx hardhat run --network localhost scripts/deployLocalContracts.ts
+call npx hardhat run --network localhost scripts/deployDevelopmentContracts.ts
 goto :exit
 
 :deploy-fake
-call npx hardhat run --network localhost scripts/deployLocalContracts.ts
+call npx hardhat run --network localhost scripts/deployDevelopmentContracts.ts
 goto :fake
 
 :deploy-test

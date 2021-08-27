@@ -18,14 +18,18 @@ async function main() {
     const hellContract = await deployHell();
     console.log('Hell Contract: Exclude Contract Owner from burn list');
     await hellContract._setExcludedFromBurnList(accounts[0], true);
-    const auctionContract = await deployAuctionHouse(treasuryAddress, BigNumber.from(2000), 800);
+    console.log('Hell Contract: Exclude Treasury Address from burn list');
+    await hellContract._setExcludedFromBurnList(accounts[1], true);
+    const auctionContract = await deployAuctionHouse(treasuryAddress,
+        BigNumber.from(2000),
+        800);
     console.log('Hell Contract: Exclude Auction House from burn list');
     await hellContract._setExcludedFromBurnList(auctionContract.address, true);
     const auctionIndexerContract = await deployAuctionHouseIndexer(auctionContract.address);
     console.log('Auction Contract: Set Indexer to ' + auctionIndexerContract.address);
     await auctionContract._setIndexer(auctionIndexerContract.address);
 
-    const greedStarterContract = await deployGreedStarter(treasuryAddress);
+    const greedStarterContract = await deployGreedStarter(1000, treasuryAddress, 800);
     console.log('Hell Contract: Exclude Greed Starter from burn list');
     await hellContract._setExcludedFromBurnList(greedStarterContract.address, true);
     const greedStarterIndexerContract = await deployGreedStarterIndexer(greedStarterContract.address);

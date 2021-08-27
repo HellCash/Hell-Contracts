@@ -13,7 +13,7 @@ import {deployGreedStarterIndexer} from "./deployments/deployGreedStarterIndexer
 import {deployFUSD} from "./deployments/deployFUSD";
 import {BigNumber} from "ethers";
 
-async function deployLocalContracts() {
+async function deployDevelopmentContracts() {
     Console.logTitle("Deploying Contracts");
     const accounts = await ethers.provider.listAccounts();
     const treasuryAddress = accounts[4];
@@ -33,7 +33,7 @@ async function deployLocalContracts() {
     console.log('Auction Contract: Set Indexer to ' + auctionIndexerContract.address);
     await auctionContract._setIndexer(auctionIndexerContract.address);
 
-    const greedStarterContract = await deployGreedStarter(treasuryAddress);
+    const greedStarterContract = await deployGreedStarter(1000, treasuryAddress, 800);
     console.log('Hell Contract: Exclude Greed Starter from burn list');
     await hellContract._setExcludedFromBurnList(greedStarterContract.address, true);
     const greedStarterIndexerContract = await deployGreedStarterIndexer(greedStarterContract.address);
@@ -57,7 +57,7 @@ async function deployLocalContracts() {
     return true;
 }
 
-deployLocalContracts()
+deployDevelopmentContracts()
     .then(() => process.exit(0))
     .catch(error => {
         console.error(error);
