@@ -7,6 +7,7 @@ export async function deployTimelock(delayInSeconds: number, printLogs: boolean 
         .deploy(delayInSeconds, [masterSigner.address], [masterSigner.address]);
     if (printLogs) {
         await Console.contractDeploymentInformation("TimelockController", timelockContract);
+        console.log(`\t[TimelockController Contract: Delay set to ${delayInSeconds} seconds`);
     }
     return timelockContract;
 }
