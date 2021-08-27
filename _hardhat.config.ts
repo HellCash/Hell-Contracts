@@ -5,7 +5,7 @@ import 'hardhat-deploy';
 import "hardhat-erc1820"; // Hardhat plugin to automatically deploy the ERC-1820 Registry contract.
 
 export default {
-  solidity: "0.8.6",
+  solidity: "0.8.7",
   defaultNetwork: "localhost",
   networks: {
     localhost: {

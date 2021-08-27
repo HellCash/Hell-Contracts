@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: BSD 3-Clause
-pragma solidity ^0.8.6;
+pragma solidity ^0.8.7;
 
 library HellishBlocks {
     function lowerThan(uint blockNumber, uint higherBlock) internal pure returns (bool) {
