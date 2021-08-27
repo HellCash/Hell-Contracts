@@ -20,12 +20,6 @@ async function deployDevelopmentContracts() {
     const hellContract = await deployHell();
     console.log('Hell Contract: Exclude Contract Owner from burn list');
     await hellContract._setExcludedFromBurnList(accounts[0], true);
-
-    // const hellVaultContract = await deployHellVault(hellContract.address, treasuryAddress);
-    // console.log('Hell Contract: Set Vault Address');
-    // await hellContract._setHellVaultAddress(hellVaultContract.address);
-    // console.log('Hell Contract: Exclude Hell Vault from burn list');
-    // await hellContract._setExcludedFromBurnList(hellVaultContract.address, true);
     const auctionContract = await deployAuctionHouse(treasuryAddress, BigNumber.from(2000), 800);
     console.log('Hell Contract: Exclude Auction House from burn list');
     await hellContract._setExcludedFromBurnList(auctionContract.address, true);
@@ -42,7 +36,6 @@ async function deployDevelopmentContracts() {
     // Write Deployment Addresses to JSON storage file
     const addressesData = {
         'hell' : hellContract.address,
-        // 'hellVault': hellVaultContract.address,
         'doublon': (await deployDoublon()).address,
         'bDoublon': (await deployBDoublon()).address,
         'auctionHouse': auctionContract.address,
