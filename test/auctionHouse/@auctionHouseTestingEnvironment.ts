@@ -42,7 +42,7 @@ export class auctionHouseTestingEnvironment {
         this.guest2Signer = this.accountSigners[3];
         this.guest3Signer = this.accountSigners[4];
         // Set Contracts
-        this.hellContract = await deployHell(this.PRINT_DEPLOYMENT_LOGS);
+        this.hellContract = await deployHell('Hell', 'HELL', this.PRINT_DEPLOYMENT_LOGS);
         this.auctionHouseContract = await deployAuctionHouse(this.treasurySigner.address, BigNumber.from(this.minimumAuctionLength),  this.treasuryFees, this.PRINT_DEPLOYMENT_LOGS);
         this.auctionHouseIndexerContract = await deployAuctionHouseIndexer(this.auctionHouseContract.address, this.PRINT_DEPLOYMENT_LOGS);
         await this.hellContract._setExcludedFromBurnList(this.auctionHouseContract.address, true);

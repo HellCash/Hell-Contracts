@@ -23,6 +23,6 @@ export class hellTestingEnvironment {
         this.guest2Signer = this.accountSigners[3];
         this.guest3Signer = this.accountSigners[4];
         // Set Contracts
-        this.hellContract = await deployHell(this.PRINT_DEPLOYMENT_LOGS);
+        this.hellContract = await deployHell('Hell', 'HELL', this.PRINT_DEPLOYMENT_LOGS);
     };
 }
