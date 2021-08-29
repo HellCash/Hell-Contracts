@@ -1,18 +1,18 @@
-import {Contract, Signer} from "ethers";
+import {Signer} from "ethers";
 import {ethers} from "hardhat";
-import contractAddresses from "../scripts/contractAddresses.json";
 import auctionHouseSol from "../artifacts/contracts/AuctionHouse.sol/AuctionHouse.json";
 import auctionHouseIndexerSol from "../artifacts/contracts/AuctionHouseIndexer.sol/AuctionHouseIndexer.json";
 import {Auction} from "../models/auction";
 import {parseEther} from "ethers/lib/utils";
+import {contractAddresses} from "./NetworkContractAddresses";
 
 export class AuctionTestHelpers {
     static async getAuctionContract(accountSigner?: Signer): Promise<any> {
-        return ethers.getContractAt(auctionHouseSol.abi, contractAddresses.auctionHouse, accountSigner);
+        return ethers.getContractAt(auctionHouseSol.abi, contractAddresses().auctionHouse, accountSigner);
     }
 
     static async getAuctionIndexer(accountSigner?: Signer): Promise<any> {
-        return ethers.getContractAt(auctionHouseIndexerSol.abi, contractAddresses.auctionHouseIndexer, accountSigner);
+        return ethers.getContractAt(auctionHouseIndexerSol.abi, contractAddresses().auctionHouseIndexer, accountSigner);
     }
 
     static async createAuction(accountSigner: Signer, auction: Auction): Promise<any> {
@@ -26,9 +26,9 @@ export class AuctionTestHelpers {
         let blockNumber = await ethers.provider.getBlockNumber();
 
         return contract.createAuction(
-            contractAddresses.doublon, // Auction Doublon
+            contractAddresses().doublon, // Auction Doublon
             parseEther("1000"), // 1000 Doublons
-            contractAddresses.hell, // Sell against Hell
+            contractAddresses().hell, // Sell against Hell
             parseEther("10"), // Starting Price of 10 Hell
             parseEther("15"), // Buyout Price 15 Hell
             blockNumber + 4100);

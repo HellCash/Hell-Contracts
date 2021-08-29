@@ -1,14 +1,15 @@
 import {Console} from "../utils/console";
 import {utils as Utils} from "ethers/lib/ethers";
-import {BigNumber, Contract, Signer} from "ethers";
+import {BigNumber, Signer} from "ethers";
 import hellSol from "../artifacts/contracts/Hell.sol/Hell.json";
-import contractAddresses from "../scripts/contractAddresses.json";
 import {ethers} from "hardhat";
+import {contractAddresses} from "./NetworkContractAddresses";
+
 
 export class HellTestHelpers {
 
     static async getHellContract(accountSigner?: Signer) {
-        return await ethers.getContractAt(hellSol.abi, contractAddresses.hell, accountSigner);
+        return await ethers.getContractAt(hellSol.abi, contractAddresses().hell, accountSigner);
     }
 
     static async getTotalSupply() {

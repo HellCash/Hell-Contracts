@@ -4,13 +4,14 @@ import {utils as Utils} from "ethers/lib/ethers";
 import {RewardCalculationMode} from "../models/reward-calculation-mode.enum";
 import {ClaimMode} from "../models/claim-mode.enum";
 import {ethers} from "hardhat";
-import contractAddresses from "../scripts/contractAddresses.json";
 import hellVaultSol from "../artifacts/contracts/HellVault.sol/HellVault.json";
 import {HellTestHelpers} from "./HellTestHelpers";
+import {contractAddresses} from "./NetworkContractAddresses";
 
 export class HellVaultTestHelpers {
     static async getHellVaultContract(accountSigner?: Signer) {
-        return await ethers.getContractAt(hellVaultSol.abi, contractAddresses.hellVault, accountSigner);
+        // @ts-ignore
+        return await ethers.getContractAt(hellVaultSol.abi, contractAddresses().hellVault, accountSigner);
     }
 
     static async depositHell(accountSigner: Signer, amount: BigNumber) {
