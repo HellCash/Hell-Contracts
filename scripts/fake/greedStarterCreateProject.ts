@@ -3,12 +3,14 @@ import {ethers} from "hardhat";
 import {GreedStarterHelpers} from "../../helpers/GreedStarterHelpers";
 import {EtherUtils} from "../../utils/ether-utils";
 import {parseEther, parseUnits} from "ethers/lib/utils";
-import contractAddresses from "../contractAddresses.json";
 import {HellTestHelpers} from "../../helpers/HellTestHelpers";
 import {Console} from "../../utils/console";
 import {ContractTestHelpers} from "../../helpers/ContractTestHelpers";
+import {contractAddresses} from "../../helpers/NetworkContractAddresses";
 
 async function main() {
+    const addresses = contractAddresses();
+
     const signers = await ethers.getSigners();
     const masterSigner: any = signers[0];
     const guest1Signer: any = signers[1];
@@ -22,13 +24,13 @@ async function main() {
     const hellAmount = parseEther("100");
     const doublonAmount = parseEther("225000");
 
-    await hellContract.approve(contractAddresses.greedStarter, hellAmount);
-    await doublonContract.approve(contractAddresses.greedStarter, doublonAmount.mul(2));
-    await fusdContract.approve(contractAddresses.fusd, doublonAmount.mul(2));
+    await hellContract.approve(addresses.greedStarter, hellAmount);
+    await doublonContract.approve(addresses.greedStarter, doublonAmount.mul(2));
+    await fusdContract.approve(addresses.fusd, doublonAmount.mul(2));
 
     Console.logTitle('Creating HELL for Ether project');
     const hellProjectTx = await greedStarterContract.createProject(
-        contractAddresses.hell, // Token address
+        addresses.hell, // Token address
         EtherUtils.zeroAddress(), // Address of paying currency
         hellAmount, // Total Tokens
         currentBlock + 25, // Starting block
@@ -46,8 +48,8 @@ async function main() {
 
     Console.logTitle('Creating Doublon for Hell project');
     const doublonProjectTx = await greedStarterContract.createProject(
-        contractAddresses.doublon, // Token address
-        contractAddresses.hell, // Address of paying currency
+        addresses.doublon, // Token address
+        addresses.hell, // Address of paying currency
         doublonAmount, // Total Tokens
         currentBlock + 50, // Starting block
         currentBlock + 7000, // Ending block
@@ -72,12 +74,12 @@ async function main() {
 
     const guestSignedGreedStarter = await GreedStarterHelpers.getGreedStarterContract(guest1Signer);
     const guestSignedDoublonContract = await ContractTestHelpers.getDoublonContract(guest1Signer);
-    await guestSignedDoublonContract.approve(contractAddresses.greedStarter, guestDoublonAmount);
+    await guestSignedDoublonContract.approve(addresses.greedStarter, guestDoublonAmount);
 
     Console.logTitle('Creating Guest Doublon for FUSD project');
     const guestDoublonProjectTx = await guestSignedGreedStarter.createProject(
-        contractAddresses.doublon, // Token address
-        contractAddresses.fusd, // Address of paying currency
+        addresses.doublon, // Token address
+        addresses.fusd, // Address of paying currency
         guestDoublonAmount, // Total Tokens
         currentBlock + 50, // Starting block
         currentBlock + 1000, // Ending block
@@ -94,12 +96,12 @@ async function main() {
     }
 
     const guestSignerHellContract = await HellTestHelpers.getHellContract(guest1Signer);
-    await guestSignerHellContract.approve(contractAddresses.greedStarter, guestHellAmount);
+    await guestSignerHellContract.approve(addresses.greedStarter, guestHellAmount);
 
     Console.logTitle('Creating Guest Hell for FUSD project');
     const guestHellProjectTx = await guestSignedGreedStarter.createProject(
-        contractAddresses.hell, // Token address
-        contractAddresses.fusd, // Address of paying currency
+        addresses.hell, // Token address
+        addresses.fusd, // Address of paying currency
         guestHellAmount, // Total Tokens
         currentBlock + 50, // Starting block
         currentBlock + 1000, // Ending block
