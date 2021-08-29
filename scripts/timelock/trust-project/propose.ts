@@ -1,10 +1,9 @@
 import {ethers} from "hardhat";
-import {BigNumber, Contract} from "ethers";
+import {Contract} from "ethers";
 import {TimelockControllerHelpers} from "../../../helpers/TimelockControllerHelpers";
 import {txConfirmation} from "../../../utils/network-utils";
-import {zeroBytes32} from "../../../utils/ether-utils";
 import {GreedStarterHelpers} from "../../../helpers/GreedStarterHelpers";
-import {callData} from "./callData";
+import {callData, predecesor, salt} from "./callData";
 
 async function propose() {
     const masterSigner = (await ethers.getSigners())[0];
@@ -16,8 +15,8 @@ async function propose() {
         greedStarterIndexer.address, // Target
         0, // Ether
         await callData(),
-        zeroBytes32, // Predecessor
-        zeroBytes32, // Salt
+        predecesor, // Predecessor
+        salt, // Salt
         minDelay
     ));
 }
