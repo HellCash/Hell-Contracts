@@ -42,9 +42,9 @@ contract AuctionHouse is Initializable, UUPSUpgradeable, OwnableUpgradeable, Ree
     // Stores all the bids made to any specific auction auction.id => user address => amount bid
     mapping(uint => mapping(address => uint)) public _auctionBids;
     ///////////////////////////////////////////////////////////////////////////////////////////
-    uint16 _auctionHouseFee;
+    uint16 public _auctionHouseFee;
     address payable private _hellTreasuryAddress;
-    uint _minimumAuctionLength;
+    uint public _minimumAuctionLength;
     ///////////////////////////////////////////////////////////////////////////////////////////
     address private _indexerAddress;
     AuctionHouseIndexer private _indexer;
