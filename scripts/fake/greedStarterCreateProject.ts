@@ -18,22 +18,22 @@ async function main() {
         addresses.fusd, // Address of paying currency
         hellAmount, // Total Tokens
         currentBlock + 25, // Starting block
-        currentBlock + 1100, // Ending block
+        currentBlock + 2100, // Ending block
         parseUnits("30000", 6), // Price per token
         parseEther("0.01"), // Minimum purchase
         parseEther("10") // Maximum Purchase
     ));
 
-    // await txConfirmation('Creating Doublon for Hell project', greedStarterContract.createProject(
-    //     addresses.doublon, // Token address
-    //     addresses.hell, // Address of paying currency
-    //     doublonAmount, // Total Tokens
-    //     currentBlock + 50, // Starting block
-    //     currentBlock + 7000, // Ending block
-    //     parseEther("0.01"), // Price per token
-    //     parseEther("1000"), // Minimum purchase
-    //     parseEther("10000") // Maximum Purchase
-    // ));
+    await txConfirmation('Creating Doublon for Hell project', greedStarterContract.createProject(
+        addresses.doublon, // Token address
+        addresses.hell, // Address of paying currency
+        doublonAmount, // Total Tokens
+        currentBlock + 50, // Starting block
+        currentBlock + 7000, // Ending block
+        parseEther("0.01"), // Price per token
+        parseEther("1000"), // Minimum purchase
+        parseEther("10000") // Maximum Purchase
+    ));
 }
 
 main()
