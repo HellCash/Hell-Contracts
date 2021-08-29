@@ -13,7 +13,6 @@ async function main() {
 
     const signers = await ethers.getSigners();
     const masterSigner: any = signers[0];
-    const guest1Signer: any = signers[1];
 
     const currentBlock: number = await ethers.provider.getBlockNumber();
     const hellContract: Contract = await HellTestHelpers.getHellContract(masterSigner);
@@ -63,58 +62,6 @@ async function main() {
         console.log('Doublon project created Successfully');
     } else {
         console.log('Failed to create Doublon project');
-    }
-
-    //////////////////////////////////////////////////////////////////
-    // Guest Auctions
-    const guestHellAmount = parseEther('50');
-    const guestDoublonAmount = parseEther('100000');
-    await doublonContract.transfer(guest1Signer.address, guestDoublonAmount);
-    await hellContract.transfer(guest1Signer.address, guestHellAmount);
-
-    const guestSignedGreedStarter = await GreedStarterHelpers.getGreedStarterContract(guest1Signer);
-    const guestSignedDoublonContract = await ContractTestHelpers.getDoublonContract(guest1Signer);
-    await guestSignedDoublonContract.approve(addresses.greedStarter, guestDoublonAmount);
-
-    Console.logTitle('Creating Guest Doublon for FUSD project');
-    const guestDoublonProjectTx = await guestSignedGreedStarter.createProject(
-        addresses.doublon, // Token address
-        addresses.fusd, // Address of paying currency
-        guestDoublonAmount, // Total Tokens
-        currentBlock + 50, // Starting block
-        currentBlock + 1000, // Ending block
-        parseEther("0.01"), // Price per token
-        parseEther("100"), // Minimum purchase
-        parseEther("100000") // Maximum Purchase
-    );
-
-    const guestDoublonProjectTxReceipt = await guestDoublonProjectTx.wait(1);
-    if (guestDoublonProjectTxReceipt.status == 1) {
-        console.log('Guest Doublon project created Successfully');
-    } else {
-        console.log('Failed to create Guest Doublon project');
-    }
-
-    const guestSignerHellContract = await HellTestHelpers.getHellContract(guest1Signer);
-    await guestSignerHellContract.approve(addresses.greedStarter, guestHellAmount);
-
-    Console.logTitle('Creating Guest Hell for FUSD project');
-    const guestHellProjectTx = await guestSignedGreedStarter.createProject(
-        addresses.hell, // Token address
-        addresses.fusd, // Address of paying currency
-        guestHellAmount, // Total Tokens
-        currentBlock + 50, // Starting block
-        currentBlock + 1000, // Ending block
-        parseUnits("16500", 6), // Price per token
-        parseEther("1"), // Minimum purchase
-        parseEther("10") // Maximum Purchase
-    );
-
-    const guestHellProjectTxReceipt = await guestHellProjectTx.wait(1);
-    if (guestHellProjectTxReceipt.status == 1) {
-        console.log('Guest Hell project created Successfully');
-    } else {
-        console.log('Failed to create Guest Hell project');
     }
 
 }
