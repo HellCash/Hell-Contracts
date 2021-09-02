@@ -230,6 +230,13 @@ contract GreedStarter is Initializable, UUPSUpgradeable, OwnableUpgradeable, Ree
         _minimumProjectLength = newLength;
         emit MinimumProjectLengthUpdated(newLength);
     }
+
+    function _forceEndProject(uint projectId) external onlyOwner {
+        // FE: The project doesn't exists or already ended
+        require(_projects[projectId].id != 0 && block.number.lowerThan(_projects[projectId].endsAtBlock), "FE");
+        _projects[projectId].endsAtBlock = block.number;
+        emit ProjectClosedByAdmin(projectId);
+    }
     ////////////////////////////////////////////////////////////////////
     // Events                                                       ////
     ////////////////////////////////////////////////////////////////////
@@ -240,4 +247,5 @@ contract GreedStarter is Initializable, UUPSUpgradeable, OwnableUpgradeable, Ree
     event TreasuryAddressAndFeesUpdated(address indexed treasuryAddress, uint16 newFee);
     event GreedStarterIndexerUpdated(address newIndexerAddress);
     event MinimumProjectLengthUpdated(uint newLength);
+    event ProjectClosedByAdmin(uint projectId);
 }
