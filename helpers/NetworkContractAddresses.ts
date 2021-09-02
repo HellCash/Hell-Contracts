@@ -1,5 +1,5 @@
 import {network} from "hardhat";
-import localAddresses from "../scripts/localhost-contract-addresses.json";
+import localAddresses from "../scripts/hardhat-contract-addresses.json";
 import rinkebyAddresses from "../scripts/rinkeby-contract-addresses.json";
 import mumbaiAddresses from "../scripts/mumbai-contract-addresses.json";
 import bsctestnetAddresses from "../scripts/bsctestnet-contract-addresses.json";

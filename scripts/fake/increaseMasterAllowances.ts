@@ -15,6 +15,9 @@ async function main() {
     await txConfirmation('Approve HELL to AH', hellContract.approve(addresses.auctionHouse, parseEther('10000000')));
     await txConfirmation('Approve DOUBLON to AH', doublonContract.approve(addresses.auctionHouse, parseEther('10000000')));
     await txConfirmation('Approve FUSD to AH', fusdContract.approve(addresses.auctionHouse, parseUnits('100000000', 6)));
+    await txConfirmation('Approve HELL to GS', hellContract.approve(addresses.greedStarter, parseEther('10000000')));
+    await txConfirmation('Approve DOUBLON to GS', doublonContract.approve(addresses.greedStarter, parseEther('10000000')));
+    await txConfirmation('Approve FUSD to GS', fusdContract.approve(addresses.greedStarter, parseUnits('100000000', 6)));
 }
 
 main()
