@@ -9,15 +9,12 @@ import {NetworkUtils} from "../../utils/network-utils";
 
 export function claimFundsTest() {
     let environment: greedStarterTestingEnvironment = new greedStarterTestingEnvironment();
-    before(async () => {
-        await environment.initialize();
-    });
-
     let hellProjectIdPaidWithFusd: BigNumber;
     let hellProjectIdPaidWithDoublon: BigNumber;
     let doublonProjectIdPaidWithEther: BigNumber;
 
     before(async() => {
+        await environment.initialize();
         //Transfer Fusd to guest 1 and Doublon to guest2
         await environment.fusdContract.transfer(environment.guest1Signer.address, parseUnits("300000",6));
         await environment.doublonContract.transfer(environment.guest2Signer.address, parseUnits('10000'));
