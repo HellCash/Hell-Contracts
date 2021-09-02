@@ -27,7 +27,7 @@ export function workflow(
         let availableSigners: any[];
         before(async () => {
             expect(payingToken).to.not.be.equal(auctionedToken);
-            await environment.initialize(lengthInBlocks / 2, 800, auctionedAmount);
+            await environment.initialize(lengthInBlocks / 2, 4000000,800, auctionedAmount);
             auctionedTokenAddress = getTokenAddress(environment, auctionedToken);
             payingTokenAddress = getTokenAddress(environment, payingToken);
             availableSigners = environment.accountSigners;

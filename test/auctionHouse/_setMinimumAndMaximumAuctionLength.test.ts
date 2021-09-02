@@ -2,7 +2,7 @@ import {expect} from "chai";
 import {auctionHouseTestingEnvironment} from "./@auctionHouseTestingEnvironment";
 import {BigNumber} from "ethers";
 
-export function _setMinimumAuctionLength() {
+export function _setMinimumAndMaximumAuctionLength() {
     let environment: auctionHouseTestingEnvironment = new auctionHouseTestingEnvironment();
     before(async () => {
         await environment.initialize();
@@ -11,14 +11,14 @@ export function _setMinimumAuctionLength() {
     it('Should fail if not called by the owner', async() => {
         await expect(environment.auctionHouseContract
             .connect(environment.guest1Signer) // <----- REVERT
-            ._setMinimumAuctionLength(BigNumber.from(50)))
+            ._setMinimumAndMaximumAuctionLength(BigNumber.from(50), BigNumber.from(150000)))
             .to.be.revertedWith("Ownable: caller is not the owner");
     });
 
-    it('Should update minimumAuctionLength', async () => {
+    it('Should update the _minimumAuctionLength and the _maximumAuctionLength', async () => {
         await expect(environment.auctionHouseContract
-            ._setMinimumAuctionLength(BigNumber.from(1000)))
-            .to.emit(environment.auctionHouseContract, "MinimumAuctionLengthUpdated")
-            .withArgs(BigNumber.from(1000));
+            ._setMinimumAndMaximumAuctionLength(BigNumber.from(1000), BigNumber.from(120000)))
+            .to.emit(environment.auctionHouseContract, "MinimumAndMaximumAuctionLengthUpdated")
+            .withArgs(BigNumber.from(1000), BigNumber.from(120000));
     });
 }

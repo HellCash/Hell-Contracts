@@ -54,6 +54,26 @@ export function createAuction() {
         ).to.be.revertedWith('CA2');
     });
 
+    it('Creating an Auction with a length higher than the maximum should fail', async() => {
+        await expect(environment.auctionHouseContract.createAuction(
+            environment.doublonContract.address, // Auction Doublon
+            parseEther("1000"), // Auction 1000 worth of Doublon
+            environment.hellContract.address, // Against Hell
+            parseEther("50"), // Starting Bid Price
+            BigNumber.from(0), // Buyout price
+            await ethers.provider.getBlockNumber() + environment.maximumAuctionLength + 2555) // <------ REVERT
+        ).to.be.revertedWith('CA5');
+
+        await expect(environment.auctionHouseContract.createAuction(
+            environment.doublonContract.address, // Auction Doublon
+            parseEther("1000"), // Auction 1000 worth of Doublon
+            environment.hellContract.address, // Against Hell
+            parseEther("50"), // Starting Bid Price
+            BigNumber.from(0), // Buyout price
+            await ethers.provider.getBlockNumber() + (environment.maximumAuctionLength * 2))) // <---- REVERT
+            .to.be.revertedWith('CA5');
+    });
+
     it('Creating an Auction against the same asset should fail', async () => {
         await expect(environment.auctionHouseContract.createAuction(
             EtherUtils.zeroAddress(), // Auction Ether   <-------- REVERT

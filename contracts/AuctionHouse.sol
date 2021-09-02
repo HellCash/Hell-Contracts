@@ -44,7 +44,8 @@ contract AuctionHouse is Initializable, UUPSUpgradeable, OwnableUpgradeable, Ree
     ///////////////////////////////////////////////////////////////////////////////////////////
     uint16 public _auctionHouseFee;
     address payable private _hellTreasuryAddress;
-    uint public _minimumAuctionLength;
+    uint32 public _minimumAuctionLength;
+    uint32 public _maximumAuctionLength;
     ///////////////////////////////////////////////////////////////////////////////////////////
     address private _indexerAddress;
     AuctionHouseIndexer private _indexer;
@@ -58,6 +59,8 @@ contract AuctionHouse is Initializable, UUPSUpgradeable, OwnableUpgradeable, Ree
         }
         // "The minimum Auction length should be of least _minimumAuctionLength blocks";
         require(block.number.lowerThan(endsAtBlock) && (endsAtBlock - block.number) >= _minimumAuctionLength, "CA2");
+        // "The auction length should be equal or lower to the _maximumAuctionLength";
+        require((endsAtBlock - block.number) <= _maximumAuctionLength, "CA5");
         // "The auctioned token address and the selling token address cannot be the same";
         require(auctionedTokenAddress != payingTokenAddress, "CA3");
         // "The Auctioned amount and the Starting price must be higher than 0"
@@ -192,15 +195,16 @@ contract AuctionHouse is Initializable, UUPSUpgradeable, OwnableUpgradeable, Ree
     ////////////////////////////////////////////////////////////////////
     // Only Owner                                                   ////
     ////////////////////////////////////////////////////////////////////
-    function initialize(uint minimumAuctionLength, address payable treasuryAddress, uint16 auctionHouseFee) initializer public {
+    function initialize(uint32 minimumAuctionLength, uint32 maximumAuctionLength, address payable treasuryAddress, uint16 auctionHouseFee) initializer public {
         __Ownable_init();
         __UUPSUpgradeable_init();
-        _setMinimumAuctionLength(minimumAuctionLength);
+        _setMinimumAndMaximumAuctionLength(minimumAuctionLength, maximumAuctionLength);
         _setTreasuryAddressAndFees(treasuryAddress, auctionHouseFee);
     }
-    function _setMinimumAuctionLength(uint newLength) public onlyOwner {
-        _minimumAuctionLength = newLength;
-        emit MinimumAuctionLengthUpdated(newLength);
+    function _setMinimumAndMaximumAuctionLength(uint32 newMinimumLength, uint32 newMaximumLength) public onlyOwner {
+        _minimumAuctionLength = newMinimumLength;
+        _maximumAuctionLength = newMaximumLength;
+        emit MinimumAndMaximumAuctionLengthUpdated(newMinimumLength, newMaximumLength);
     }
     function _authorizeUpgrade(address) internal override onlyOwner {}
     function _setTreasuryAddressAndFees(address payable treasuryAddress, uint16 newFee) public onlyOwner {
@@ -232,5 +236,5 @@ contract AuctionHouse is Initializable, UUPSUpgradeable, OwnableUpgradeable, Ree
     event ClaimUnsoldAuctionFunds(uint indexed auctionId, address indexed userAddress, address tokenAddress, uint userReceives, uint feePaid);
     event ClaimWonAuctionRewards(uint indexed auctionId, address indexed userAddress, address tokenAddress, uint userReceives, uint feePaid);
     event ClaimSoldAuctionRewards(uint indexed auctionId, address indexed userAddress, address tokenAddress, uint userReceives, uint feePaid);
-    event MinimumAuctionLengthUpdated(uint newLength);
+    event MinimumAndMaximumAuctionLengthUpdated(uint32 newMinimumLength, uint32 newMaximumLength);
 }
