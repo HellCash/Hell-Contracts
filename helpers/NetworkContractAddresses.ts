@@ -11,11 +11,11 @@ export function contractAddresses() {
         case 'mumbai':
             return mumbaiAddresses;
         case 'localhost':
+        case 'hardhat':
             return localAddresses;
         case 'bsctestnet':
             return bsctestnetAddresses;
         case 'mainnet':
-        case 'hardhat':
         default:
             throw 'Network not configured';
     }
