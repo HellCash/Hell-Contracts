@@ -3,8 +3,8 @@ import {BigNumber, Contract} from "ethers";
 import {Console} from "../../utils/console";
 
 export async function deployAuctionHouse(treasuryAddress: string,
-                                         minimumAuctionLength: number,
-                                         maximumAuctionLength: number,
+                                         minimumAuctionLength: number | BigNumber,
+                                         maximumAuctionLength: number | BigNumber,
                                          auctionHouseFee: number, printLogs: boolean = true): Promise<Contract> {
     const auctionHouseContractProxy = await upgrades.deployProxy(
         await ethers.getContractFactory("AuctionHouse"), [
@@ -13,7 +13,7 @@ export async function deployAuctionHouse(treasuryAddress: string,
         {kind: 'uups'}
     );
     if (printLogs) {
-        const feePercentage = 1 / auctionHouseFee;
+        const feePercentage = (1 / auctionHouseFee) * 100;
         Console.contractDeploymentInformation("AuctionHouse", auctionHouseContractProxy);
         console.log(`\t[Auction House Contract]: Minimum Auction Length ${minimumAuctionLength}`);
         console.log(`\t[Auction House Contract]: Set Treasury Address to ${treasuryAddress} with fees of ${feePercentage}%`);
