@@ -11,10 +11,6 @@ https://docs.hell.cash
 Tests are located inside the /test folder and can be executed with ease by using the following command within its root directory. 
 
 ```
-hell.bat test
-```
-or 
-```
 npx hardhat test --network hardhat
 ```
 
