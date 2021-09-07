@@ -2,10 +2,8 @@ import {ethers, upgrades} from "hardhat";
 import {BigNumber, Contract} from "ethers";
 import {Console} from "../../utils/console";
 
-export async function deployAuctionHouse(treasuryAddress: string,
-                                         minimumAuctionLength: number | BigNumber,
-                                         maximumAuctionLength: number | BigNumber,
-                                         auctionHouseFee: number, printLogs: boolean = true): Promise<Contract> {
+export async function deployAuctionHouse(treasuryAddress: string, minimumAuctionLength: number | BigNumber,
+  maximumAuctionLength: number | BigNumber, auctionHouseFee: number, printLogs: boolean = true): Promise<Contract> {
     const auctionHouseContractProxy = await upgrades.deployProxy(
         await ethers.getContractFactory("AuctionHouse"), [
             minimumAuctionLength, maximumAuctionLength, treasuryAddress, auctionHouseFee
