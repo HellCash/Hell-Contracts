@@ -1,7 +1,6 @@
 import {Contract} from "ethers";
 import {ethers, upgrades} from "hardhat";
 import {Console} from "../../utils/console";
-import {parseEther} from "ethers/lib/utils";
 
 export async function deployHellVault(hellContractAddress: string, hellTreasuryAddress: string): Promise<Contract> {
     const hellVaultContractProxy = await upgrades.deployProxy(
