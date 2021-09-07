@@ -12,5 +12,5 @@ hardhat.config.ts
 .idea
 artifacts
 .openzeppelin
-scripts/_wip
 hell_scripts
+hell.bat
