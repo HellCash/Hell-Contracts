@@ -11,6 +11,6 @@ _ganache-cli-db
 hardhat.config.ts
 .idea
 artifacts
-scripts/localhost-contract-addresses.json
 .openzeppelin
 scripts/_wip
+hell_scripts
