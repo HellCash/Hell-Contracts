@@ -1,16 +1,12 @@
 .idea
 artifacts
 node_modules
-learn
 #Hardhat files
 cache
 _artifacts
 _oldContracts
 _pendingContracts
 _ganache-cli-db
-hardhat.config.ts
 .idea
 artifacts
 .openzeppelin
-hell_scripts
-hell.bat
