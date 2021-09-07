@@ -6,7 +6,7 @@ export async function txConfirmation(message: string, callData: any): Promise<bo
         case 'rinkeby':
         case 'bsctestnet':
         case 'mumbai':
-            confirmationBlocks = 3;
+            confirmationBlocks = 2;
     }
     console.log(`\t [Confirmations ${confirmationBlocks}] ` + message);
     const tx = await callData;
