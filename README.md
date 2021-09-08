@@ -24,6 +24,6 @@ npm install
 
 # Discussion
 
-For any concerns, open an issue or visit us on Discord to discuss.
+For non critical concerns, open an issue or visit us on Discord to discuss.
 
 For security concerns, please email contact@hell.cash
