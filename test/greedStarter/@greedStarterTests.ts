@@ -8,7 +8,7 @@ import {_setMinimumProjectLength} from "./_setMinimumProjectLength.test";
 import {bottomEdges} from "./bottomEdges.test";
 import {workflow} from "./workflow.test";
 import {parseEther, parseUnits} from "ethers/lib/utils";
-import {_forceEndProject} from "./_forceEndProject";
+import {_forceEndProject} from "./_forceEndProject.test";
 
 export function greedStarterTests() {
     describe('function initialize', initialize);
