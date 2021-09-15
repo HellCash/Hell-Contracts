@@ -17,21 +17,36 @@ contract AuctionHouse is Initializable, UUPSUpgradeable, OwnableUpgradeable, Ree
     struct Auction {
         // Auction Details
         uint id;
+        // Token address being offered. If this value is set to the zero address 0x0000000000.... the network currency will be used.
         address auctionedTokenAddress;
+        // Total amount of tokens offered for this Auction.
         uint auctionedAmount;
+        // Address of the token used to place bids and buyouts. If this value is set to the zero address 0x0000000000.... the network currency will be used.
         address payingTokenAddress;
+        // Starting price of the Auction, this is the minimum value that users can bid at the start of the auction.
         uint startingPrice;
+        //  Buyout price of the Auction, users who bid this amount or more will have won, ending the auction immediately. If this value is set to zero, the Auction will only end by reaching the endsAtBlock.
         uint buyoutPrice;
+        // Block on which the auction ends.
         uint endsAtBlock;
+        // Block on which this Auction was created
         uint createdAt;
+        // Address of the creator of the Auction.
         address createdBy;
         // Status variables
+        // Address of the Highest bidder, It'll be the zero address if there aren't any bids set in place.
         address highestBidder;
+        // Highest bid value
         uint highestBid;
+        // Counter of all bids received.
         uint totalBids;
+        // Indicates if the winner (Highest bidder until the auction ends) withdrawn his funds.
         bool rewardsWithdrawnByWinner;
+        // Indicates if the Auction creator withdrawn his corresponding funds.
         bool fundsOrRewardsWithdrawnByCreator;
-        uint yourBid; // Added on responses only
+        // Added on responses only, displays how much the msg.sender bid.
+        uint yourBid;
+        // Treasury fees agreed upon in the creation of the auction.
         uint16 auctionHouseFee;
     }
     //////////////////////////////////////////////////////////////////////////
