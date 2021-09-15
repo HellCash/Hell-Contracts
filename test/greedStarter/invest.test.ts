@@ -112,7 +112,7 @@ export function invest() {
     it('DOUBLON/ETHER: Should perform an investment', async() => {
         const greedStarterContract: Contract = environment.greedStarterContract.connect(environment.guest1Signer);
         const amountToBuy = parseEther('3');
-        const project: Project = await greedStarterContract._projects(doublonProjectIdPaidWithEther);
+        const project: Project = (await greedStarterContract.getProjects([doublonProjectIdPaidWithEther]))[0];
         const totalPaid: BigNumber = await greedStarterContract._paidAmount(doublonProjectIdPaidWithEther, environment.guest1Signer.address);
         const totalRewards: BigNumber = await greedStarterContract._pendingRewards(doublonProjectIdPaidWithEther, environment.guest1Signer.address);
         const amountToPay: BigNumber = (project.pricePerToken.mul(amountToBuy)).div(parseEther("1"));
@@ -134,7 +134,7 @@ export function invest() {
     it('DOUBLON/ETHER: Should increase the investment', async() => {
         const greedStarterContract: Contract = environment.greedStarterContract.connect(environment.guest1Signer);
         const amountToBuy = parseEther('15');
-        const project: Project = await greedStarterContract._projects(doublonProjectIdPaidWithEther);
+        const project: Project = (await greedStarterContract.getProjects([doublonProjectIdPaidWithEther]))[0];
         const totalPaid: BigNumber = await greedStarterContract._paidAmount(doublonProjectIdPaidWithEther, environment.guest1Signer.address);
         const totalRewards: BigNumber = await greedStarterContract._pendingRewards(doublonProjectIdPaidWithEther, environment.guest1Signer.address);
         const amountToPay: BigNumber = ((project.pricePerToken).mul(amountToBuy)).div(parseEther("1"));
@@ -157,7 +157,7 @@ export function invest() {
         const greedStarterContract: Contract = environment.greedStarterContract.connect(environment.guest1Signer);
 
         const amountToBuy = parseEther('3');
-        const project: Project = await greedStarterContract._projects(hellProjectIdPaidWithFusd);
+        const project: Project = (await greedStarterContract.getProjects([hellProjectIdPaidWithFusd]))[0];
         const totalPaid: BigNumber = await greedStarterContract._paidAmount(hellProjectIdPaidWithFusd, environment.guest1Signer.address);
         const totalRewards: BigNumber = await greedStarterContract._pendingRewards(hellProjectIdPaidWithFusd, environment.guest1Signer.address);
         const amountToPay: BigNumber = (project.pricePerToken.mul(amountToBuy)).div(parseEther("1"));
@@ -182,7 +182,7 @@ export function invest() {
         const greedStarterContract: Contract = environment.greedStarterContract.connect(environment.guest1Signer);
 
         const amountToBuy = parseEther('5');
-        const project: Project = await greedStarterContract._projects(hellProjectIdPaidWithFusd);
+        const project: Project = (await greedStarterContract.getProjects([hellProjectIdPaidWithFusd]))[0];
         const totalPaid: BigNumber = await greedStarterContract._paidAmount(hellProjectIdPaidWithFusd, environment.guest1Signer.address);
         const totalRewards: BigNumber = await greedStarterContract._pendingRewards(hellProjectIdPaidWithFusd, environment.guest1Signer.address);
         const amountToPay: BigNumber = ((project.pricePerToken).mul(amountToBuy)).div(parseEther("1"));
@@ -204,7 +204,7 @@ export function invest() {
     it('HELL/DOUBLON: Should perform an investment', async() => {
         const greedStarterContract: Contract = environment.greedStarterContract.connect(environment.guest2Signer);
         const amountToBuy = parseEther('4');
-        const project: Project = await greedStarterContract._projects(hellProjectIdPaidWithDoublon);
+        const project: Project = (await greedStarterContract.getProjects([hellProjectIdPaidWithDoublon]))[0];
         const totalPaid: BigNumber = await greedStarterContract._paidAmount(hellProjectIdPaidWithDoublon, environment.guest2Signer.address);
         const totalRewards: BigNumber = await greedStarterContract._pendingRewards(hellProjectIdPaidWithDoublon, environment.guest2Signer.address);
         const amountToPay: BigNumber = (project.pricePerToken.mul(amountToBuy)).div(parseEther("1"));
@@ -227,7 +227,7 @@ export function invest() {
         const greedStarterContract: Contract = environment.greedStarterContract.connect(environment.guest2Signer);
 
         const amountToBuy = parseEther('10');
-        const project: Project = await greedStarterContract._projects(hellProjectIdPaidWithDoublon);
+        const project: Project = (await greedStarterContract.getProjects([hellProjectIdPaidWithDoublon]))[0];
         const totalPaid: BigNumber = await greedStarterContract._paidAmount(hellProjectIdPaidWithDoublon, environment.guest2Signer.address);
         const totalRewards: BigNumber = await greedStarterContract._pendingRewards(hellProjectIdPaidWithDoublon, environment.guest2Signer.address);
         const amountToPay: BigNumber = ((project.pricePerToken).mul(amountToBuy)).div(parseEther("1"));

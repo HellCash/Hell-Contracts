@@ -79,7 +79,7 @@ export function workflow(
             );
             projectId = await environment.greedStarterContract._totalProjects();
             expect(projectId).to.be.equal(totalProjects.add(1));
-            project = await environment.greedStarterContract._projects(projectId);
+            project = (await environment.greedStarterContract.getProjects([projectId]))[0];
         });
 
         let amountsPurchased: BigNumber[] = [];
@@ -98,7 +98,7 @@ export function workflow(
 
             for (let i = 0; i < availableSigners.length; i++) {
                 // Request the project
-                const latestProjectDetails: Project = await environment.greedStarterContract._projects(projectId);
+                const latestProjectDetails: Project = (await environment.greedStarterContract.getProjects([projectId]))[0];
                 const availableTokens = latestProjectDetails.totalTokens.sub(latestProjectDetails.totalSold);
 
                 const blocksRemaining = project.endsAtBlock.sub(await ethers.provider.getBlockNumber());
@@ -146,7 +146,7 @@ export function workflow(
         });
 
         it('project creator should be able to claim funds and receive the total paid by investor minus treasury fees', async () => {
-            const latestProjectDetails: Project = await environment.greedStarterContract._projects(projectId);
+            const latestProjectDetails: Project = (await environment.greedStarterContract.getProjects([projectId]))[0];
             const treasuryFees: BigNumber = await environment.greedStarterContract._hellTreasuryFee();
             const expectedFees: BigNumber = latestProjectDetails.rewardsCollected.div(treasuryFees);
             const expectedRewards: BigNumber = latestProjectDetails.rewardsCollected;
@@ -169,7 +169,7 @@ async function performInvestment(
     amountToBuy: BigNumber): Promise<BigNumber> {
 
     const greedStarterContract: Contract = environment.greedStarterContract.connect(signer);
-    const project: Project = await greedStarterContract._projects(projectId);
+    const project: Project = (await greedStarterContract.getProjects([projectId]))[0];
     const totalPaid: BigNumber = await greedStarterContract._paidAmount(projectId, signer.address);
     const totalRewards: BigNumber = await greedStarterContract._pendingRewards(projectId, signer.address);
     const amountToPay: BigNumber = (project.pricePerToken.mul(amountToBuy)).div(parseEther("1"));

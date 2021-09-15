@@ -19,9 +19,8 @@ contract GreedStarter is Initializable, UUPSUpgradeable, OwnableUpgradeable, Ree
     address public _indexerAddress;
 
     uint public _totalProjects;
-    mapping(uint => Project) public _projects;
+    mapping(uint => Project) _projects;
     // Used to verify if the Project creator has withdrawn his rewards or leftover tokens (projectId => bool)
-    mapping(uint => bool) public _projectFundsOrRewardsWithdrawnByCreator;
     mapping(uint => mapping(address => uint)) public _paidAmount;
     mapping(uint => mapping(address => uint)) public _pendingRewards;
 
@@ -53,6 +52,13 @@ contract GreedStarter is Initializable, UUPSUpgradeable, OwnableUpgradeable, Ree
         uint maximumPurchase;
         // Address of the creator of the project
         address createdBy;
+        // Indicates if the Project creator withdrawn his corresponding funds.
+        bool fundsOrRewardsWithdrawnByCreator;
+        // Added on responses only
+        // displays how much the msg.sender paid on this project
+        uint yourPaidAmount;
+        // displays the amount of pending rewards the msg.sender has.
+        uint yourPendingRewards;
     }
     ////////////////////////////////////////////////////////////////////
     // External functions                                           ////
@@ -162,9 +168,9 @@ contract GreedStarter is Initializable, UUPSUpgradeable, OwnableUpgradeable, Ree
         // If the msg.sender is the project creator
         if(msg.sender == project.createdBy) {
             // CF2: You already withdrawn your rewards and leftover tokens
-            require(_projectFundsOrRewardsWithdrawnByCreator[projectId] == false, "CF2");
+            require(project.fundsOrRewardsWithdrawnByCreator == false, "CF2");
             // Mark his project rewards as claimed
-            _projectFundsOrRewardsWithdrawnByCreator[projectId] = true;
+            _projects[projectId].fundsOrRewardsWithdrawnByCreator = true;
             uint userReceives;
             uint feePaid;
             // If the project collected more than 0 rewards, transfer the earned rewards to the project creator and pay treasury fees.
@@ -200,6 +206,8 @@ contract GreedStarter is Initializable, UUPSUpgradeable, OwnableUpgradeable, Ree
         Project[] memory projects = new Project[](ids.length);
         for(uint i = 0; i < ids.length; i++) {
             projects[i] = _projects[ids[i]];
+            projects[i].yourPaidAmount = _paidAmount[ids[i]][msg.sender];
+            projects[i].yourPendingRewards = _pendingRewards[ids[i]][msg.sender];
         }
         return projects;
     }

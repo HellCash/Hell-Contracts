@@ -43,7 +43,7 @@ export function bottomEdges() {
             endingBlock, // Ending block
             pricePerToken, // Price per token
         );
-        project = await environment.greedStarterContract._projects(totalProjects.add(1));
+        project = (await environment.greedStarterContract.getProjects([totalProjects.add(1)]))[0];
         expect(project.id).to.be.equal(totalProjects.add(1));
         expect(project.tokenAddress).to.be.equal(environment.hellContract.address);
         expect(project.paidWith).to.be.equal(environment.fusdContract.address);
@@ -80,7 +80,7 @@ export function bottomEdges() {
 
     it('HELL/FUSD: project creator should claim and receive his rewards', async () => {
         // Get the latest Project data
-        project = await environment.greedStarterContract._projects(project.id);
+        project = (await environment.greedStarterContract.getProjects([project.id]))[0];
         const blocksRemaining = project.endsAtBlock.sub(await ethers.provider.getBlockNumber()).toNumber();
         // Mine blocks until project ends
         await NetworkUtils.mineBlocks(blocksRemaining);
