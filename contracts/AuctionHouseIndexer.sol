@@ -104,6 +104,22 @@ contract AuctionHouseIndexer is Initializable, UUPSUpgradeable, OwnableUpgradeab
         return auctionIds;
     }
 
+    struct AuctionHouseUserStats {
+        uint totalCreatedAuctions;
+        uint totalParticipatedAuctions;
+        uint totalAuctionsSold;
+        uint totalAuctionsWon;
+    }
+
+    function getUserStats(address userAddress) external view returns(AuctionHouseUserStats memory) {
+        AuctionHouseUserStats memory stats;
+        stats.totalCreatedAuctions = _userTotalAuctions[userAddress];
+        stats.totalParticipatedAuctions = _userTotalParticipatedAuctions[userAddress];
+        stats.totalAuctionsSold = _userTotalAuctionsSold[userAddress];
+        stats.totalAuctionsWon = _userTotalAuctionsWon[userAddress];
+        return stats;
+    }
+
     ////////////////////////////////////////////////////////////////////
     // Only Auction House                                           ////
     ////////////////////////////////////////////////////////////////////
