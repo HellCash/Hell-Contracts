@@ -15,7 +15,7 @@ export async function deployGreedStarterIndexer(greedStarterContractAddress: str
     if (initializeImplementation) {
         // Initialize Implementation with gibberish values, so that the contract is left in an unusable state.
         // https://forum.openzeppelin.com/t/security-advisory-initialize-uups-implementation-contracts/15301
-        await ContractUtils.initializeImplementation(greedStarterIndexerSol, greedStarterIndexerContractProxy, [
+        await ContractUtils.initializeProxyImplementation(greedStarterIndexerSol, greedStarterIndexerContractProxy, [
             EtherUtils.zeroAddress(),
         ], printLogs);
     }

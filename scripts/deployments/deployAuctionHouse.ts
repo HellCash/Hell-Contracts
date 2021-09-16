@@ -23,7 +23,7 @@ export async function deployAuctionHouse(treasuryAddress: string, minimumAuction
     if (initializeImplementation) {
         // Initialize Implementation with gibberish values, so that the contract is left in an unusable state.
         // https://forum.openzeppelin.com/t/security-advisory-initialize-uups-implementation-contracts/15301
-        await ContractUtils.initializeImplementation(auctionHouseSol, auctionHouseContractProxy, [
+        await ContractUtils.initializeProxyImplementation(auctionHouseSol, auctionHouseContractProxy, [
             BigNumber.from(1), BigNumber.from(1), treasuryAddress, 1
         ], printLogs);
     }

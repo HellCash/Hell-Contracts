@@ -19,33 +19,33 @@ import greedStarterIndexerSol from "../../artifacts/contracts/GreedStarterIndexe
 export function initializedImplementations() {
     it('[Hell Implementation Contract] should be already initialized', async() => {
         const hellProxy: Contract = await deployHell('Hell', 'HELL', false);
-        const hellImpl: Contract = await ContractUtils.getContractImplementation(hellSol, hellProxy);
+        const hellImpl: Contract = await ContractUtils.getProxyImplementationContract(hellSol, hellProxy);
         await expect(hellImpl.initialize('Himp', 'HIMP')).to.be.revertedWith("Initializable: contract is already initialized");
     });
 
     it('[Auction House Implementation Contract] should be already initialized', async() => {
         const auctionHouseProxy: Contract = await deployAuctionHouse(EtherUtils.zeroAddress(), 100, 50000, 800, false);
-        const auctionHouseImpl: Contract = await ContractUtils.getContractImplementation(auctionHouseSol, auctionHouseProxy);
+        const auctionHouseImpl: Contract = await ContractUtils.getProxyImplementationContract(auctionHouseSol, auctionHouseProxy);
         await expect(auctionHouseImpl.initialize(BigNumber.from(100), BigNumber.from(4000000), EtherUtils.zeroAddress(), 600)).to.be.revertedWith("Initializable: contract is already initialized");
     });
 
     it('[Auction House Indexer Implementation Contract] should be already initialized', async() => {
         const auctionHouseIndexerProxy: Contract = await deployAuctionHouseIndexer(EtherUtils.zeroAddress(), false);
-        const auctionHouseIndexerImpl: Contract = await ContractUtils.getContractImplementation(auctionHouseIndexerSol, auctionHouseIndexerProxy);
+        const auctionHouseIndexerImpl: Contract = await ContractUtils.getProxyImplementationContract(auctionHouseIndexerSol, auctionHouseIndexerProxy);
         await expect(auctionHouseIndexerImpl.initialize(EtherUtils.zeroAddress()))
             .to.be.revertedWith("Initializable: contract is already initialized");
     });
 
     it('[Greed Starter Implementation Contract] should be already initialized', async() => {
         const greedStarterProxy: Contract = await deployGreedStarter(100, EtherUtils.zeroAddress(), 500, false);
-        const greedStarterImpl: Contract = await ContractUtils.getContractImplementation(greedStarterSol, greedStarterProxy);
+        const greedStarterImpl: Contract = await ContractUtils.getProxyImplementationContract(greedStarterSol, greedStarterProxy);
         await expect(greedStarterImpl.initialize(BigNumber.from(100), EtherUtils.zeroAddress(), 500))
             .to.be.revertedWith("Initializable: contract is already initialized");
     });
 
     it('[Greed Starter Indexer Implementation Contract] should be already initialized', async() => {
         const greedStarterIndexerProxy: Contract = await deployGreedStarterIndexer(EtherUtils.zeroAddress(), false);
-        const greedStarterIndexerImpl: Contract = await ContractUtils.getContractImplementation(greedStarterIndexerSol, greedStarterIndexerProxy);
+        const greedStarterIndexerImpl: Contract = await ContractUtils.getProxyImplementationContract(greedStarterIndexerSol, greedStarterIndexerProxy);
         await expect(greedStarterIndexerImpl.initialize(EtherUtils.zeroAddress()))
             .to.be.revertedWith("Initializable: contract is already initialized");
     });

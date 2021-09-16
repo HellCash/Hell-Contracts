@@ -14,7 +14,7 @@ export async function deployHell(name: string, symbol: string, printLogs: boolea
     if (initializeImplementation) {
         // Initialize Implementation with gibberish values, so that the contract is left in an unusable state.
         // https://forum.openzeppelin.com/t/security-advisory-initialize-uups-implementation-contracts/15301
-        await ContractUtils.initializeImplementation(hellSol, hellContractProxy, [
+        await ContractUtils.initializeProxyImplementation(hellSol, hellContractProxy, [
             "HImpl", "HIMPL"
         ], printLogs);
     }
