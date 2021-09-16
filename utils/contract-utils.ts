@@ -15,9 +15,7 @@ export class ContractUtils {
     static async getContractImplementation(contractSol: any, proxyContract: Contract): Promise<Contract> {
         const masterSigner = (await ethers.getSigners())[0];
         const implementationAddress: string = await getImplementationAddress(ethers.provider, proxyContract.address);
-        const c: Contract = await ethers.getContractAt(contractSol.abi, implementationAddress, masterSigner);
-        console.log('get implementation address: ' + c.address);
-        return c;
+        return await ethers.getContractAt(contractSol.abi, implementationAddress, masterSigner);
     }
 
 }

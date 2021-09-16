@@ -9,6 +9,7 @@ import {deployGreedStarterIndexer} from "../../scripts/deployments/deployGreedSt
 
 export class greedStarterTestingEnvironment {
     readonly PRINT_DEPLOYMENT_LOGS = false;
+    readonly INITIALIZE_IMPLEMENTATION = false;
     // Environment Variables
     minimumProjectLength: number;
     treasuryFees: number;
@@ -39,9 +40,9 @@ export class greedStarterTestingEnvironment {
         this.guest2Signer = this.accountSigners[3];
         this.guest3Signer = this.accountSigners[4];
         // Set Contracts
-        this.hellContract = await deployHell('Hell', 'HELL', this.PRINT_DEPLOYMENT_LOGS);;
-        this.greedStarterContract = await deployGreedStarter(minimumProjectLength, this.treasurySigner.address, treasuryFees, this.PRINT_DEPLOYMENT_LOGS);
-        this.greedStarterIndexerContract = await deployGreedStarterIndexer(this.greedStarterContract.address, this.PRINT_DEPLOYMENT_LOGS);
+        this.hellContract = await deployHell('Hell', 'HELL', this.PRINT_DEPLOYMENT_LOGS, this.INITIALIZE_IMPLEMENTATION);
+        this.greedStarterContract = await deployGreedStarter(minimumProjectLength, this.treasurySigner.address, treasuryFees, this.PRINT_DEPLOYMENT_LOGS, this.INITIALIZE_IMPLEMENTATION);
+        this.greedStarterIndexerContract = await deployGreedStarterIndexer(this.greedStarterContract.address, this.PRINT_DEPLOYMENT_LOGS, this.INITIALIZE_IMPLEMENTATION);
         await this.hellContract._setExcludedFromBurnList(this.greedStarterContract.address, true);
         await this.greedStarterContract._setIndexer(this.greedStarterIndexerContract.address);
         this.doublonContract = await deployDoublon(this.PRINT_DEPLOYMENT_LOGS);

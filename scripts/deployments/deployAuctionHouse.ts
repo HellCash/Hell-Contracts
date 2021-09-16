@@ -5,7 +5,8 @@ import auctionHouseSol from "../../artifacts/contracts/AuctionHouse.sol/AuctionH
 import {ContractUtils} from "../../utils/contract-utils";
 
 export async function deployAuctionHouse(treasuryAddress: string, minimumAuctionLength: number | BigNumber,
-  maximumAuctionLength: number | BigNumber, auctionHouseFee: number, printLogs: boolean = true): Promise<Contract> {
+  maximumAuctionLength: number | BigNumber, auctionHouseFee: number, printLogs: boolean = true,
+                                         initializeImplementation: boolean = true): Promise<Contract> {
     const auctionHouseContractProxy = await upgrades.deployProxy(
         await ethers.getContractFactory("AuctionHouse"), [
             minimumAuctionLength, maximumAuctionLength, treasuryAddress, auctionHouseFee
@@ -19,11 +20,13 @@ export async function deployAuctionHouse(treasuryAddress: string, minimumAuction
         console.log(`\t[Auction House Contract]: Set Treasury Address to ${treasuryAddress} with fees of ${feePercentage}%`);
     }
 
-    // Initialize Implementation with gibberish values, so that the contract is left in an unusable state.
-    // https://forum.openzeppelin.com/t/security-advisory-initialize-uups-implementation-contracts/15301
-    await ContractUtils.initializeImplementation(auctionHouseSol, auctionHouseContractProxy, [
-        BigNumber.from(1), BigNumber.from(1), treasuryAddress, 1
-    ], printLogs);
+    if (initializeImplementation) {
+        // Initialize Implementation with gibberish values, so that the contract is left in an unusable state.
+        // https://forum.openzeppelin.com/t/security-advisory-initialize-uups-implementation-contracts/15301
+        await ContractUtils.initializeImplementation(auctionHouseSol, auctionHouseContractProxy, [
+            BigNumber.from(1), BigNumber.from(1), treasuryAddress, 1
+        ], printLogs);
+    }
 
     return auctionHouseContractProxy;
 }
