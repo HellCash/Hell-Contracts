@@ -23,7 +23,7 @@ export async function deployAuctionHouse(treasuryAddress: string, minimumAuction
     // https://forum.openzeppelin.com/t/security-advisory-initialize-uups-implementation-contracts/15301
     await ContractUtils.initializeImplementation(auctionHouseSol, auctionHouseContractProxy, [
         BigNumber.from(1), BigNumber.from(1), treasuryAddress, 1
-    ]);
+    ], printLogs);
 
     return auctionHouseContractProxy;
 }

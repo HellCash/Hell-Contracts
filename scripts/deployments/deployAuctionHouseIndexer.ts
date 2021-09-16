@@ -19,7 +19,7 @@ export async function deployAuctionHouseIndexer(auctionHouseAddress: string, pri
     // https://forum.openzeppelin.com/t/security-advisory-initialize-uups-implementation-contracts/15301
     await ContractUtils.initializeImplementation(auctionHouseIndexerSol, auctionHouseIndexerContractProxy, [
         EtherUtils.zeroAddress()
-    ]);
+    ], printLogs);
 
     return auctionHouseIndexerContractProxy;
 }

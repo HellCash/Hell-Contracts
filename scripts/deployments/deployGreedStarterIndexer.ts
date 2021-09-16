@@ -16,7 +16,7 @@ export async function deployGreedStarterIndexer(greedStarterContractAddress: str
     // https://forum.openzeppelin.com/t/security-advisory-initialize-uups-implementation-contracts/15301
     await ContractUtils.initializeImplementation(greedStarterIndexerSol, greedStarterIndexerContractProxy, [
         EtherUtils.zeroAddress(),
-    ]);
+    ], printLogs);
 
     return greedStarterIndexerContractProxy;
 }

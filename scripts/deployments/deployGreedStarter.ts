@@ -22,7 +22,7 @@ export async function deployGreedStarter(minimumProjectLength: number = 1000, tr
         BigNumber.from(999999999999999),
         treasuryAddress,
         BigNumber.from(1),
-    ]);
+    ], printLogs);
 
     return greedStarterProxy;
 }

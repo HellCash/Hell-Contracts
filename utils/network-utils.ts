@@ -1,6 +1,6 @@
 import {network} from "hardhat";
 
-export async function txConfirmation(message: string, callData: any): Promise<boolean> {
+export async function txConfirmation(message: string, callData: any, printLogs = true): Promise<boolean> {
     let confirmationBlocks = 1;
     switch (network.name) {
         case 'rinkeby':
@@ -8,7 +8,9 @@ export async function txConfirmation(message: string, callData: any): Promise<bo
         case 'mumbai':
             confirmationBlocks = 2;
     }
-    console.log(`\t [Confirmations ${confirmationBlocks}] ` + message);
+    if (printLogs) {
+        console.log(`\t [Confirmations ${confirmationBlocks}] ` + message);
+    }
     const tx = await callData;
     const txReceipt = await tx.wait(confirmationBlocks);
     if (txReceipt.status == 1) {

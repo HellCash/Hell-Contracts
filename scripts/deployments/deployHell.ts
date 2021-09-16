@@ -15,7 +15,7 @@ export async function deployHell(name: string, symbol: string, printLogs: boolea
     // https://forum.openzeppelin.com/t/security-advisory-initialize-uups-implementation-contracts/15301
     await ContractUtils.initializeImplementation(hellSol, hellContractProxy, [
         "HImpl", "HIMPL"
-    ]);
+    ], printLogs);
 
     return hellContractProxy;
 }
