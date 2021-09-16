@@ -198,7 +198,6 @@ contract AuctionHouse is Initializable, UUPSUpgradeable, OwnableUpgradeable, Ree
     // Views                                                        ////
     ////////////////////////////////////////////////////////////////////
     function getAuctions(uint[] memory ids) external view returns(Auction[] memory) {
-        require(ids.length <= 30, "PAG"); // Pagination limit exceeded
         Auction[] memory auctions = new Auction[](ids.length);
         for(uint i = 0; i < ids.length; i++) {
             auctions[i] = _auctions[ids[i]];
