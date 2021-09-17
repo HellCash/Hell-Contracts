@@ -8,7 +8,7 @@ export const defaultDeploymentOptions: DeploymentOptions = {
     initializeImplementation: true
 }
 
-export const testingDeploymentOptions: DeploymentOptions = {
+export const testingEnvironmentDeploymentOptions: DeploymentOptions = {
     printLogs: false,
     initializeImplementation: false
 }
