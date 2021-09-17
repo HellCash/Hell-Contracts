@@ -4,11 +4,9 @@ pragma solidity ^0.8.7;
 import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 import "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
-import "./AuctionHouse.sol";
 import "./abstract/HellGoverned.sol";
 
 contract AuctionHouseIndexer is Initializable, UUPSUpgradeable, OwnableUpgradeable, HellGoverned {
-    AuctionHouse private _auctionHouseContract;
     address public _auctionHouseAddress;
     //////////////////////////////////////////////////////////////////////////
     // Total Trusted token auctions
@@ -175,17 +173,16 @@ contract AuctionHouseIndexer is Initializable, UUPSUpgradeable, OwnableUpgradeab
     function initialize(address hellGovernmentAddress, address auctionHouseAddress) initializer public {
         __Ownable_init();
         _setHellGovernmentContract(hellGovernmentAddress);
-        _setAuctionHouseContract(auctionHouseAddress);
+        _setAuctionHouseContractAddress(auctionHouseAddress);
     }
 
     function _authorizeUpgrade(address) internal override onlyOwner {}
-    function _setAuctionHouseContract(address contractAddress) public onlyOwner {
+    function _setAuctionHouseContractAddress(address contractAddress) public onlyOwner {
         _auctionHouseAddress = contractAddress;
-        _auctionHouseContract = AuctionHouse(contractAddress);
-        emit AuctionHouseContractUpdated(contractAddress);
+        emit AuctionHouseContractAddressUpdated(contractAddress);
     }
     ////////////////////////////////////////////////////////////////////
     // Events                                                       ////
     ////////////////////////////////////////////////////////////////////
-    event AuctionHouseContractUpdated(address newAuctionHouseContractAddress);
+    event AuctionHouseContractAddressUpdated(address newAuctionHouseContractAddress);
 }
