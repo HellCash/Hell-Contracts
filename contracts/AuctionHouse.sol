@@ -232,8 +232,6 @@ contract AuctionHouse is Initializable, UUPSUpgradeable, OwnableUpgradeable, Ree
         emit AuctionHouseIndexerUpdated(indexerAddress);
     }
     function _forceEndAuction(uint auctionId) external onlyOwner {
-        // The auction doesn't exists or already ended
-        require(_auctions[auctionId].id != 0 && _auctions[auctionId].endsAtBlock > block.number);
         _auctions[auctionId].endsAtBlock = block.number;
         emit AuctionClosedByAdmin(auctionId);
     }
