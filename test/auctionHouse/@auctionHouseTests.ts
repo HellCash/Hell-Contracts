@@ -11,9 +11,13 @@ import {workflow} from "./workflow.test";
 import {TokenName} from "../../enums/tokenName";
 import {parseEther, parseUnits} from "ethers/lib/utils";
 import {BigNumber} from "ethers";
+import {upgradeTo} from "./upgradeTo";
+import {upgradeToAndCall} from "./upgradeToAndCall";
 
 export function auctionHouseTests() {
     describe('function initialize', initialize);
+    describe('function upgradeTo', upgradeTo);
+    describe('function upgradeToAndCall', upgradeToAndCall);
     describe('function _setTreasuryAddressAndFees', _setTreasuryAddressAndFees);
     describe('function _setIndexer', _setIndexer);
     describe('function _forceEndAuction', _forceEndAuction);
