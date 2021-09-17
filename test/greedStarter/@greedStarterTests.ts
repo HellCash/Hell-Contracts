@@ -9,9 +9,13 @@ import {bottomEdges} from "./bottomEdges.test";
 import {workflow} from "./workflow.test";
 import {parseEther, parseUnits} from "ethers/lib/utils";
 import {_forceEndProject} from "./_forceEndProject.test";
+import {upgradeTo} from "./upgradeTo";
+import {upgradeToAndCall} from "./upgradeToAndCall";
 
 export function greedStarterTests() {
     describe('function initialize', initialize);
+    describe('function upgradeTo', upgradeTo);
+    describe('function upgradeToAndCall', upgradeToAndCall);
     describe('function _setIndexer', _setIndexer);
     describe('function _setTreasuryAddressAndFees', _setTreasuryAddressAndFees);
     describe('function _setMinimumProjectLength', _setMinimumProjectLength);
