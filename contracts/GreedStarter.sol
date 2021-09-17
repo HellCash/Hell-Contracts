@@ -9,8 +9,9 @@ import "@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.
 import "./libraries/HellishTransfers.sol";
 import "./libraries/HellishBlocks.sol";
 import "./GreedStarterIndexer.sol";
+import "./abstract/HellGoverned.sol";
 
-contract GreedStarter is Initializable, UUPSUpgradeable, OwnableUpgradeable, ReentrancyGuardUpgradeable {
+contract GreedStarter is Initializable, UUPSUpgradeable, OwnableUpgradeable, ReentrancyGuardUpgradeable, HellGoverned {
     using HellishTransfers for address;
     using HellishTransfers for address payable;
     using HellishBlocks for uint;
@@ -23,10 +24,6 @@ contract GreedStarter is Initializable, UUPSUpgradeable, OwnableUpgradeable, Ree
     // Used to verify if the Project creator has withdrawn his rewards or leftover tokens (projectId => bool)
     mapping(uint => mapping(address => uint)) public _paidAmount;
     mapping(uint => mapping(address => uint)) public _pendingRewards;
-
-    address payable private _hellTreasuryAddress;
-    uint16 public _hellTreasuryFee;
-    uint _minimumProjectLength;
 
     struct Project {
         // Unique identifier for this project
@@ -80,9 +77,11 @@ contract GreedStarter is Initializable, UUPSUpgradeable, OwnableUpgradeable, Ree
         // CP3: The Project Token must have 18 decimals of precision
         require(IERC20Metadata(tokenAddress).decimals() == 18, "CP3");
         // CP4: The minimum length should be of least _minimumProjectLength blocks
-        require(block.number.lowerThan(endsAtBlock) && (endsAtBlock - block.number) >= _minimumProjectLength, "CP4");
+        require(block.number.lowerThan(endsAtBlock) && (endsAtBlock - block.number) >= _hellGovernmentContract._minimumProjectLength(), "CP4");
         // CP5: The startingBlock should be higher or equal to the current block and lower than the ending block
         require(startingBlock.notElapsedOrEqualToCurrentBlock() && startingBlock.lowerThan(endsAtBlock), "CP5");
+        // CP10: The project length should be lower or equal to the _maximumProjectLength
+        require(endsAtBlock - startingBlock <= _hellGovernmentContract._maximumProjectLength(), "CP10");
         // CP6: The minimum and maximum purchase must be higher or equal to 0.01, (1e16 wei)
         // We enforce this to ensure enough precision on price calculations
         require(1e16 <= minimumPurchase  && 1e16 <= maximumPurchase, "CP6");
@@ -175,7 +174,7 @@ contract GreedStarter is Initializable, UUPSUpgradeable, OwnableUpgradeable, Ree
             uint feePaid;
             // If the project collected more than 0 rewards, transfer the earned rewards to the project creator and pay treasury fees.
             if (project.rewardsCollected > 0) {
-                (userReceives, feePaid) = payable(project.createdBy).safeTransferAssetAndPayFee(project.paidWith, project.rewardsCollected, _hellTreasuryAddress, _hellTreasuryFee);
+                (userReceives, feePaid) = payable(project.createdBy).safeTransferAssetAndPayFee(project.paidWith, project.rewardsCollected, _hellGovernmentContract._hellTreasuryAddress(), _hellGovernmentContract._greedStarterTreasuryFee());
             }
             // Calculate if there were leftover tokens
             uint unsoldAmount = project.totalTokens - project.totalSold;
@@ -215,28 +214,16 @@ contract GreedStarter is Initializable, UUPSUpgradeable, OwnableUpgradeable, Ree
     // Only Owner                                                   ////
     ////////////////////////////////////////////////////////////////////
     function _authorizeUpgrade(address) internal override onlyOwner {}
-    function initialize(uint minimumProjectLength, address payable treasuryAddress, uint16 treasuryFee) initializer public {
+    function initialize(address hellGovernmentAddress) initializer public {
         __Ownable_init();
         __UUPSUpgradeable_init();
-        _setMinimumProjectLength(minimumProjectLength);
-        _setTreasuryAddressAndFees(treasuryAddress, treasuryFee);
-    }
-
-    function _setTreasuryAddressAndFees(address payable treasuryAddress, uint16 newFee) public onlyOwner {
-        _hellTreasuryAddress = treasuryAddress;
-        _hellTreasuryFee = newFee;
-        emit TreasuryAddressAndFeesUpdated(treasuryAddress, newFee);
+        _setHellGovernmentContract(hellGovernmentAddress);
     }
 
     function _setIndexer(address indexerAddress) external onlyOwner {
         _indexerAddress = indexerAddress;
         _indexer = GreedStarterIndexer(indexerAddress);
         emit GreedStarterIndexerUpdated(indexerAddress);
-    }
-
-    function _setMinimumProjectLength(uint newLength) public onlyOwner {
-        _minimumProjectLength = newLength;
-        emit MinimumProjectLengthUpdated(newLength);
     }
 
     function _forceEndProject(uint projectId) external onlyOwner {
@@ -252,8 +239,6 @@ contract GreedStarter is Initializable, UUPSUpgradeable, OwnableUpgradeable, Ree
     event InvestedInProject(uint indexed projectId, address userAddress, uint amountPaid, uint amountRewarded, uint totalPaid, uint totalRewarded);
     event CreatorWithdrawnFunds(uint indexed projectId, address creatorAddress, uint amountRewarded, uint paidFees, uint amountRewardedAfterFees, uint amountRecovered);
     event RewardsClaimed(uint indexed projectId, address userAddress, uint amountRewarded);
-    event TreasuryAddressAndFeesUpdated(address indexed treasuryAddress, uint16 newFee);
     event GreedStarterIndexerUpdated(address newIndexerAddress);
-    event MinimumProjectLengthUpdated(uint newLength);
     event ProjectClosedByAdmin(uint projectId);
 }
