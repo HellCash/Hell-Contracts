@@ -8,8 +8,9 @@ import "@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.
 import "./libraries/HellishTransfers.sol";
 import "./AuctionHouseIndexer.sol";
 import "./libraries/HellishBlocks.sol";
+import "./abstract/HellGoverned.sol";
 
-contract AuctionHouse is Initializable, UUPSUpgradeable, OwnableUpgradeable, ReentrancyGuardUpgradeable {
+contract AuctionHouse is Initializable, UUPSUpgradeable, OwnableUpgradeable, ReentrancyGuardUpgradeable, HellGoverned {
     using HellishTransfers for address;
     using HellishTransfers for address payable;
     using HellishBlocks for uint;
@@ -57,12 +58,6 @@ contract AuctionHouse is Initializable, UUPSUpgradeable, OwnableUpgradeable, Ree
     // Stores all the bids made to any specific auction auction.id => user address => amount bid
     mapping(uint => mapping(address => uint)) public _auctionBids;
     ///////////////////////////////////////////////////////////////////////////////////////////
-    uint16 public _auctionHouseFee;
-    address payable private _hellTreasuryAddress;
-    uint32 public _minimumAuctionLength;
-    uint32 public _maximumAuctionLength;
-    ///////////////////////////////////////////////////////////////////////////////////////////
-    address private _indexerAddress;
     AuctionHouseIndexer private _indexer;
     ////////////////////////////////////////////////////////////////////
     // External functions                                           ////
@@ -73,9 +68,9 @@ contract AuctionHouse is Initializable, UUPSUpgradeable, OwnableUpgradeable, Ree
            require(startingPrice <= buyoutPrice , "CA1");
         }
         // "The minimum Auction length should be of least _minimumAuctionLength blocks";
-        require(block.number.lowerThan(endsAtBlock) && (endsAtBlock - block.number) >= _minimumAuctionLength, "CA2");
+        require(block.number.lowerThan(endsAtBlock) && (endsAtBlock - block.number) >= _hellGovernmentContract._minimumAuctionLength(), "CA2");
         // "The auction length should be equal or lower to the _maximumAuctionLength";
-        require((endsAtBlock - block.number) <= _maximumAuctionLength, "CA5");
+        require((endsAtBlock - block.number) <= _hellGovernmentContract._maximumAuctionLength(), "CA5");
         // "The auctioned token address and the selling token address cannot be the same";
         require(auctionedTokenAddress != payingTokenAddress, "CA3");
         // "The Auctioned amount and the Starting price must be higher than 0"
@@ -95,7 +90,7 @@ contract AuctionHouse is Initializable, UUPSUpgradeable, OwnableUpgradeable, Ree
         auction.createdBy = msg.sender;
         auction.endsAtBlock = endsAtBlock;
         auction.createdAt = block.number;
-        auction.auctionHouseFee = _auctionHouseFee;
+        auction.auctionHouseFee = _hellGovernmentContract._auctionHouseTreasuryFee();
         _auctions[auction.id] = auction;
 
         // Register Auction Indexes
@@ -106,38 +101,36 @@ contract AuctionHouse is Initializable, UUPSUpgradeable, OwnableUpgradeable, Ree
     }
 
     function increaseBid(uint auctionId, uint amount) external payable nonReentrant {
-        Auction memory auction = _auctions[auctionId];
         // "Auction not found"
-        require(auction.id != 0, "IB1");
+        require(_auctions[auctionId].id != 0, "IB1");
         // "This Auction has already finished"
-        require(auction.endsAtBlock.notElapsed(), "IB2");
+        require(_auctions[auctionId].endsAtBlock.notElapsed(), "IB2");
         // "The amount cannot be empty";
         require(amount > 0, "IB3");
         // You cannot place bids on your own auction
-        require(msg.sender != auction.createdBy, "IB4");
+        require(msg.sender != _auctions[auctionId].createdBy, "IB4");
         uint userTotalBid = _auctionBids[auctionId][msg.sender] + amount;
         // "Your total bid amount cannot be lower than the highest bid"
-        require(userTotalBid > auction.highestBid, "IB5");
+        require(userTotalBid > _auctions[auctionId].highestBid, "IB5");
         // "You cannot bid less than the starting price"
-        require(auction.startingPrice <= userTotalBid, "IB6");
+        require(_auctions[auctionId].startingPrice <= userTotalBid, "IB6");
         // Deposit user funds in the Auction House Contract
-        address(this).safeDepositAsset(auction.payingTokenAddress, amount);
+        address(this).safeDepositAsset(_auctions[auctionId].payingTokenAddress, amount);
 
-        auction.totalBids += 1;
-        auction.highestBid = userTotalBid;
-        auction.highestBidder = msg.sender;
+        _auctions[auctionId].totalBids += 1;
+        _auctions[auctionId].highestBid = userTotalBid;
+        _auctions[auctionId].highestBidder = msg.sender;
         _auctionBids[auctionId][msg.sender] = userTotalBid;
 
         // Mark the user as auction participant if it isn't already
         _indexer._registerUserParticipation(auctionId, msg.sender);
 
-        if (0 < auction.buyoutPrice && (userTotalBid >= auction.buyoutPrice)) {
-            auction.endsAtBlock = block.number; // END The auction right away
+        if (0 < _auctions[auctionId].buyoutPrice && (userTotalBid >= _auctions[auctionId].buyoutPrice)) {
+            _auctions[auctionId].endsAtBlock = block.number; // END The auction right away
             emit Buyout(auctionId, msg.sender, amount, userTotalBid);
         } else {
             emit BidIncreased(auctionId, msg.sender, amount, userTotalBid);
         }
-        _auctions[auctionId] = auction;
     }
 
     // While the auction is in progress, only bidders that lost against another higher bidder will be able to withdraw their funds
@@ -156,7 +149,7 @@ contract AuctionHouse is Initializable, UUPSUpgradeable, OwnableUpgradeable, Ree
                     // Set user bids back to 0, these funds are going now to the creator of the Auction
                     _auctionBids[auctionId][msg.sender] = 0;
                     // Send the earned tokens to the winner and a pay the small fee agreed upon the auction creation.
-                    (uint userReceives, uint feePaid) = payable(msg.sender).safeTransferAssetAndPayFee(_auctions[auctionId].auctionedTokenAddress, _auctions[auctionId].auctionedAmount, _hellTreasuryAddress, _auctions[auctionId].auctionHouseFee);
+                    (uint userReceives, uint feePaid) = payable(msg.sender).safeTransferAssetAndPayFee(_auctions[auctionId].auctionedTokenAddress, _auctions[auctionId].auctionedAmount, _hellGovernmentContract._hellTreasuryAddress(), _auctions[auctionId].auctionHouseFee);
                     emit ClaimWonAuctionRewards(auctionId, msg.sender, _auctions[auctionId].auctionedTokenAddress, userReceives, feePaid);
                 }
                 // if the user is the creator of the auction
@@ -169,11 +162,11 @@ contract AuctionHouse is Initializable, UUPSUpgradeable, OwnableUpgradeable, Ree
                     if(_auctions[auctionId].highestBid > 0 && _auctions[auctionId].totalBids > 0) {
                         // Register auction as sold
                         _indexer._registerAuctionSold(auctionId, msg.sender);
-                        (uint userReceives, uint feePaid) = payable(msg.sender).safeTransferAssetAndPayFee(_auctions[auctionId].payingTokenAddress, _auctions[auctionId].highestBid, _hellTreasuryAddress, _auctions[auctionId].auctionHouseFee);
+                        (uint userReceives, uint feePaid) = payable(msg.sender).safeTransferAssetAndPayFee(_auctions[auctionId].payingTokenAddress, _auctions[auctionId].highestBid, _hellGovernmentContract._hellTreasuryAddress(), _auctions[auctionId].auctionHouseFee);
                         emit ClaimSoldAuctionRewards(auctionId, msg.sender, _auctions[auctionId].payingTokenAddress, userReceives, feePaid);
                     } else {
                         // If the Auction didn't sell, pay fees and send funds back to his creator
-                        (uint userReceives, uint feePaid) = payable(msg.sender).safeTransferAssetAndPayFee(_auctions[auctionId].auctionedTokenAddress, _auctions[auctionId].auctionedAmount, _hellTreasuryAddress, _auctions[auctionId].auctionHouseFee);
+                        (uint userReceives, uint feePaid) = payable(msg.sender).safeTransferAssetAndPayFee(_auctions[auctionId].auctionedTokenAddress, _auctions[auctionId].auctionedAmount, _hellGovernmentContract._hellTreasuryAddress(), _auctions[auctionId].auctionHouseFee);
                         emit ClaimUnsoldAuctionFunds(auctionId, msg.sender, _auctions[auctionId].auctionedTokenAddress, userReceives, feePaid);
                     }
                 }
@@ -209,25 +202,13 @@ contract AuctionHouse is Initializable, UUPSUpgradeable, OwnableUpgradeable, Ree
     ////////////////////////////////////////////////////////////////////
     // Only Owner                                                   ////
     ////////////////////////////////////////////////////////////////////
-    function initialize(uint32 minimumAuctionLength, uint32 maximumAuctionLength, address payable treasuryAddress, uint16 auctionHouseFee) initializer public {
+    function initialize(address hellGovernmentAddress) initializer public {
         __Ownable_init();
         __UUPSUpgradeable_init();
-        _setMinimumAndMaximumAuctionLength(minimumAuctionLength, maximumAuctionLength);
-        _setTreasuryAddressAndFees(treasuryAddress, auctionHouseFee);
-    }
-    function _setMinimumAndMaximumAuctionLength(uint32 newMinimumLength, uint32 newMaximumLength) public onlyOwner {
-        _minimumAuctionLength = newMinimumLength;
-        _maximumAuctionLength = newMaximumLength;
-        emit MinimumAndMaximumAuctionLengthUpdated(newMinimumLength, newMaximumLength);
+        _setHellGovernmentContract(hellGovernmentAddress);
     }
     function _authorizeUpgrade(address) internal override onlyOwner {}
-    function _setTreasuryAddressAndFees(address payable treasuryAddress, uint16 newFee) public onlyOwner {
-        _hellTreasuryAddress = treasuryAddress;
-        _auctionHouseFee = newFee;
-        emit TreasuryAddressAndFeesUpdated(treasuryAddress, newFee);
-    }
     function _setIndexer(address indexerAddress) external onlyOwner {
-        _indexerAddress = indexerAddress;
         _indexer = AuctionHouseIndexer(indexerAddress);
         emit AuctionHouseIndexerUpdated(indexerAddress);
     }
@@ -243,10 +224,8 @@ contract AuctionHouse is Initializable, UUPSUpgradeable, OwnableUpgradeable, Ree
     event BidIncreased(uint indexed auctionId, address indexed bidder, uint indexed amount, uint userTotalBid);
     event Buyout(uint indexed auctionId, address indexed bidder, uint indexed amount, uint userTotalBid);
     event AuctionHouseIndexerUpdated(address newIndexerAddress);
-    event TreasuryAddressAndFeesUpdated(address indexed treasuryAddress, uint16 newFee);
     event ClaimLostBids(uint indexed auctionId, address indexed userAddress, address tokenAddress, uint userReceives);
     event ClaimUnsoldAuctionFunds(uint indexed auctionId, address indexed userAddress, address tokenAddress, uint userReceives, uint feePaid);
     event ClaimWonAuctionRewards(uint indexed auctionId, address indexed userAddress, address tokenAddress, uint userReceives, uint feePaid);
     event ClaimSoldAuctionRewards(uint indexed auctionId, address indexed userAddress, address tokenAddress, uint userReceives, uint feePaid);
-    event MinimumAndMaximumAuctionLengthUpdated(uint32 newMinimumLength, uint32 newMaximumLength);
 }

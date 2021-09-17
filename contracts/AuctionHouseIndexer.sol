@@ -5,18 +5,16 @@ import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 import "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 import "./AuctionHouse.sol";
+import "./abstract/HellGoverned.sol";
 
-contract AuctionHouseIndexer is Initializable, UUPSUpgradeable, OwnableUpgradeable {
+contract AuctionHouseIndexer is Initializable, UUPSUpgradeable, OwnableUpgradeable, HellGoverned {
     AuctionHouse private _auctionHouseContract;
     address public _auctionHouseAddress;
-    uint16 public _maxPaginationSize;
     //////////////////////////////////////////////////////////////////////////
     // Total Trusted token auctions
     uint public _totalTrustedTokenAuctions;
     // Holds the ids of the trusted Auctions ( index => auctionId )
     mapping(uint => uint) public _trustedTokenAuctions;
-    // Help us know if a specific token address was marked as trusted or not.
-    mapping(address => bool) public _tokenIsTrusted;
     //////////////////////////////////////////////////////////////////////////
     // Total auctions made for a specific token
     mapping(address => uint) public _totalTokenAuctions;
@@ -56,7 +54,7 @@ contract AuctionHouseIndexer is Initializable, UUPSUpgradeable, OwnableUpgradeab
     ////////////////////////////////////////////////////////////////////
     function getAuctionIdsCreatedByAddress(address creatorAddress, uint[] memory indexes) external view returns(uint[] memory) {
         // PAG: Exceeds pagination limit
-        require(indexes.length <= _maxPaginationSize, "PAG");
+        require(indexes.length <= _hellGovernmentContract._generalPaginationLimit(), "PAG");
         uint[] memory auctionIds = new uint[](indexes.length);
         for(uint i = 0; i < indexes.length; i++) {
             auctionIds[i] = _userAuctions[creatorAddress][indexes[i]];
@@ -66,7 +64,7 @@ contract AuctionHouseIndexer is Initializable, UUPSUpgradeable, OwnableUpgradeab
 
     function getAuctionIdsParticipatedByAddress(address participatingAddress, uint[] memory indexes) external view returns(uint[] memory) {
         // PAG: Exceeds pagination limit
-        require(indexes.length <= _maxPaginationSize, "PAG");
+        require(indexes.length <= _hellGovernmentContract._generalPaginationLimit(), "PAG");
         uint[] memory auctionIds = new uint[](indexes.length);
         for(uint i = 0; i < indexes.length; i++) {
             auctionIds[i] = _userParticipatedAuctions[participatingAddress][indexes[i]];
@@ -76,7 +74,7 @@ contract AuctionHouseIndexer is Initializable, UUPSUpgradeable, OwnableUpgradeab
 
     function getAuctionIdsByAuctionedTokenAddress(address auctionedTokenAddress, uint[] memory indexes) external view returns(uint[] memory) {
         // PAG: Exceeds pagination limit
-        require(indexes.length <= _maxPaginationSize, "PAG");
+        require(indexes.length <= _hellGovernmentContract._generalPaginationLimit(), "PAG");
         uint[] memory auctionIds = new uint[](indexes.length);
         for(uint i = 0; i < indexes.length; i++) {
             auctionIds[i] = _tokenAuctions[auctionedTokenAddress][indexes[i]];
@@ -86,7 +84,7 @@ contract AuctionHouseIndexer is Initializable, UUPSUpgradeable, OwnableUpgradeab
 
     function getAuctionIdsPaidWithTokenAddress(address paidWithTokenAddress, uint[] memory indexes) external view returns(uint[] memory) {
         // PAG: Exceeds pagination limit
-        require(indexes.length <= _maxPaginationSize, "PAG");
+        require(indexes.length <= _hellGovernmentContract._generalPaginationLimit(), "PAG");
         uint[] memory auctionIds = new uint[](indexes.length);
         for(uint i = 0; i < indexes.length; i++) {
             auctionIds[i] = _paidWithTokenAuctions[paidWithTokenAddress][indexes[i]];
@@ -96,7 +94,7 @@ contract AuctionHouseIndexer is Initializable, UUPSUpgradeable, OwnableUpgradeab
 
     function getTrustedAuctionIds(uint[] memory indexes) external view returns(uint[] memory) {
         // PAG: Exceeds pagination limit
-        require(indexes.length <= _maxPaginationSize, "PAG");
+        require(indexes.length <= _hellGovernmentContract._generalPaginationLimit(), "PAG");
         uint[] memory auctionIds = new uint[](indexes.length);
         for(uint i = 0; i < indexes.length; i++) {
             auctionIds[i] = _trustedTokenAuctions[indexes[i]];
@@ -139,7 +137,7 @@ contract AuctionHouseIndexer is Initializable, UUPSUpgradeable, OwnableUpgradeab
         _userTotalAuctions[creatorAddress] += 1;
         _userAuctions[creatorAddress][_userTotalAuctions[creatorAddress]] = auctionId;
         // If both tokens are trusted, this Auction will be stored on the list of trusted Auctions
-        if(_tokenIsTrusted[auctionedTokenAddress] && _tokenIsTrusted[paidWithTokenAddress]) {
+        if(_hellGovernmentContract._tokenIsTrusted(auctionedTokenAddress) && _hellGovernmentContract._tokenIsTrusted(paidWithTokenAddress)) {
             _totalTrustedTokenAuctions += 1;
             _trustedTokenAuctions[_totalTrustedTokenAuctions] = auctionId;
         }
@@ -174,11 +172,9 @@ contract AuctionHouseIndexer is Initializable, UUPSUpgradeable, OwnableUpgradeab
     ////////////////////////////////////////////////////////////////////
     // Only Owner                                                   ////
     ////////////////////////////////////////////////////////////////////
-    function initialize(address auctionHouseAddress) initializer public {
+    function initialize(address hellGovernmentAddress, address auctionHouseAddress) initializer public {
         __Ownable_init();
-        _maxPaginationSize = 30;
-        // By default the only trusted token will be the Network currency
-        _tokenIsTrusted[address(0)] = true;
+        _setHellGovernmentContract(hellGovernmentAddress);
         _setAuctionHouseContract(auctionHouseAddress);
     }
 
@@ -188,13 +184,8 @@ contract AuctionHouseIndexer is Initializable, UUPSUpgradeable, OwnableUpgradeab
         _auctionHouseContract = AuctionHouse(contractAddress);
         emit AuctionHouseContractUpdated(contractAddress);
     }
-    function _updateTokenTrust(address tokenAddress, bool isTrusted) external onlyOwner {
-        _tokenIsTrusted[tokenAddress] = isTrusted;
-        emit UpdatedTokenTrust(tokenAddress, isTrusted);
-    }
     ////////////////////////////////////////////////////////////////////
     // Events                                                       ////
     ////////////////////////////////////////////////////////////////////
-    event UpdatedTokenTrust(address tokenAddress, bool isTrusted);
-    event AuctionHouseContractUpdated(address newContractAddress);
+    event AuctionHouseContractUpdated(address newAuctionHouseContractAddress);
 }
