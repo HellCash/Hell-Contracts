@@ -16,13 +16,5 @@ export async function deployGreedStarterIndexer(hellGovernmentAddress: string, g
         await Console.contractDeploymentInformation("GreedStarterIndexer", greedStarterIndexerContractProxy);
     }
 
-    if (deploymentOptions.initializeImplementation) {
-        // Initialize Implementation with gibberish values, so that the contract is left in an unusable state.
-        // https://forum.openzeppelin.com/t/security-advisory-initialize-uups-implementation-contracts/15301
-        await ContractUtils.initializeProxyImplementation(greedStarterIndexerSol, greedStarterIndexerContractProxy, [
-            EtherUtils.zeroAddress(),
-        ], deploymentOptions.printLogs);
-    }
-
     return greedStarterIndexerContractProxy;
 }

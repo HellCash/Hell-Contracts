@@ -21,19 +21,5 @@ export async function deployHellGovernment(hellGovernmentInitializer: HellGovern
         Console.contractDeploymentInformation("HellGovernment", hellGovernmentContractProxy);
     }
 
-    if (deploymentOptions.initializeImplementation) {
-        // Initialize Implementation with gibberish values, so that the contract is left in an unusable state.
-        // https://forum.openzeppelin.com/t/security-advisory-initialize-uups-implementation-contracts/15301
-        await ContractUtils.initializeProxyImplementation(HellGovernmentSol, hellGovernmentContractProxy, [
-            hellGovernmentInitializer.treasuryAddress,
-            1,
-            BigNumber.from(1),
-            BigNumber.from(1),
-            1,
-            BigNumber.from(1),
-            BigNumber.from(1),
-        ], deploymentOptions.printLogs);
-    }
-
     return hellGovernmentContractProxy;
 }
