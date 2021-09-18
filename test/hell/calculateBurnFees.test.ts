@@ -1,7 +1,7 @@
 import {expect} from "chai";
 import {BigNumber} from "ethers";
-import {greedStarterTestingEnvironment} from "../greedStarter/@greedStarterTestingEnvironment";
 import {parseEther, parseUnits} from "ethers/lib/utils";
+import {hellTestingEnvironment} from "./@hellTestingEnvironment";
 
 abstract class TestScenario {
     sender: string;
@@ -10,7 +10,7 @@ abstract class TestScenario {
 }
 
 export function calculateBurnFees() {
-    let environment: greedStarterTestingEnvironment = new greedStarterTestingEnvironment();
+    let environment: hellTestingEnvironment = new hellTestingEnvironment();
     let testScenarios: TestScenario[] = [];
     before(async () => {
         await environment.initialize();

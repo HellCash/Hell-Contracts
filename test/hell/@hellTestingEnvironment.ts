@@ -1,10 +1,9 @@
 import {Contract} from "ethers";
 import {ethers} from "hardhat";
 import {deployHell} from "../../scripts/deployments/deployHell";
+import {testingEnvironmentDeploymentOptions} from "../../models/deployment-options";
 
 export class hellTestingEnvironment {
-    readonly PRINT_DEPLOYMENT_LOGS = false;
-    readonly INITIALIZE_IMPLEMENTATION = false;
     // Account signers
     accountSigners: any[];
     masterSigner: any;
@@ -24,6 +23,6 @@ export class hellTestingEnvironment {
         this.guest2Signer = this.accountSigners[3];
         this.guest3Signer = this.accountSigners[4];
         // Set Contracts
-        this.hellContract = await deployHell('Hell', 'HELL', this.PRINT_DEPLOYMENT_LOGS, this.INITIALIZE_IMPLEMENTATION);
+        this.hellContract = await deployHell('Hell', 'HELL', testingEnvironmentDeploymentOptions);
     };
 }
