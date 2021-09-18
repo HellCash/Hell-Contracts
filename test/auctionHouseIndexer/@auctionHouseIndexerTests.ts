@@ -4,7 +4,6 @@ import {_registerNewAuctionCreation} from "./_registerNewAuctionCreation.test";
 import {_registerUserParticipation} from "./_registerUserParticipation.test";
 import {_registerAuctionSold} from "./_registerAuctionSold.test";
 import {_registerAuctionWon} from "./_registerAuctionWon.test";
-import {_updateTokenTrust} from "./_updateTokenTrust.test";
 import {upgradeTo} from "./upgradeTo";
 import {upgradeToAndCall} from "./upgradeToAndCall";
 
@@ -13,7 +12,6 @@ export function auctionHouseIndexerTests() {
     describe('upgradeTo', upgradeTo);
     describe('upgradeToAndCall', upgradeToAndCall);
     describe('_setAuctionHouseContract', _setAuctionHouseContract);
-    describe('_updateTokenTrust', _updateTokenTrust);
     describe('registerNewAuctionCreation', _registerNewAuctionCreation);
     describe('registerUserParticipation', _registerUserParticipation);
     describe('registerAuctionSold', _registerAuctionSold);
