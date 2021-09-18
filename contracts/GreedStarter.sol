@@ -214,6 +214,8 @@ contract GreedStarter is Initializable, UUPSUpgradeable, OwnableUpgradeable, Ree
     // Only Owner                                                   ////
     ////////////////////////////////////////////////////////////////////
     function _authorizeUpgrade(address) internal override onlyOwner {}
+    /// @custom:oz-upgrades-unsafe-allow constructor
+    constructor() initializer {}
     function initialize(address hellGovernmentAddress) initializer public {
         __Ownable_init();
         __UUPSUpgradeable_init();

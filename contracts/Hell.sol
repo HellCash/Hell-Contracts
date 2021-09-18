@@ -10,7 +10,8 @@ contract Hell is Initializable, ERC20Upgradeable, UUPSUpgradeable, OwnableUpgrad
     uint public _burnFee;
     uint public _burntTokens;
     mapping(address => bool) public _excludedFromBurnFees;
-
+    /// @custom:oz-upgrades-unsafe-allow constructor
+    constructor() initializer {}
     function initialize(string memory name, string memory symbol) initializer public {
         __ERC20_init(name, symbol);
         __Ownable_init();

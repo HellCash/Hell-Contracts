@@ -27,6 +27,8 @@ contract HellGovernment is Initializable, UUPSUpgradeable, OwnableUpgradeable, R
     /////////////////////////////////////
     // General                      ////
     ////////////////////////////////////
+    /// @custom:oz-upgrades-unsafe-allow constructor
+    constructor() initializer {}
     function initialize(address payable treasuryAddress, uint16 auctionHouseFee, uint minimumAuctionLength, uint maximumAuctionLength, uint16 greedStarterFee, uint minimumProjectLength, uint maximumProjectLength) initializer public {
         __Ownable_init();
         __UUPSUpgradeable_init();

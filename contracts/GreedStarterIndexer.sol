@@ -52,7 +52,8 @@ contract GreedStarterIndexer is Initializable, UUPSUpgradeable, OwnableUpgradeab
     ////////////////////////////////////////////////////////////////////
     // Only Owner                                                   ////
     ////////////////////////////////////////////////////////////////////
-
+    /// @custom:oz-upgrades-unsafe-allow constructor
+    constructor() initializer {}
     function initialize(address hellGovernmentAddress, address greedStarterAddress) initializer public {
         __Ownable_init();
         __UUPSUpgradeable_init();
