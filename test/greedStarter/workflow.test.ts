@@ -34,7 +34,7 @@ export function workflow(
         let randomContract: Contract;
 
         before(async () => {
-            await environment.initialize(300);
+            await environment.initialize(BigNumber.from(300));
             randomContract = await deployRandom(totalProjectTokens, false);
             availableSigners = environment.accountSigners;
             // Remove the master signer and the treasury address from the list of available signers
@@ -64,7 +64,7 @@ export function workflow(
                 payingCurrencyAddress, // Address of paying currency
                 totalProjectTokens, // Total Tokens
                 currentBlock + 25, // Starting block
-                currentBlock + (environment.minimumProjectLength * 2), // Ending block
+                environment.minimumProjectLength.mul(2).add(currentBlock), // Ending block
                 pricePerToken, // Price per token
                 minimumPurchase, // Minimum purchase
                 maximumPurchase // Maximum Purchase
@@ -74,7 +74,7 @@ export function workflow(
                 payingCurrencyAddress, // Address of paying currency
                 totalProjectTokens, // Total Tokens
                 currentBlock + 25, // Starting block
-                currentBlock + (environment.minimumProjectLength * 2), // Ending block
+                environment.minimumProjectLength.mul(2).add(currentBlock), // Ending block
                 pricePerToken, // Price per token
             );
             projectId = await environment.greedStarterContract._totalProjects();
@@ -147,8 +147,7 @@ export function workflow(
 
         it('project creator should be able to claim funds and receive the total paid by investor minus treasury fees', async () => {
             const latestProjectDetails: Project = (await environment.greedStarterContract.getProjects([projectId]))[0];
-            const treasuryFees: BigNumber = await environment.greedStarterContract._hellTreasuryFee();
-            const expectedFees: BigNumber = latestProjectDetails.rewardsCollected.div(treasuryFees);
+            const expectedFees: BigNumber = latestProjectDetails.rewardsCollected.div(environment.treasuryFees);
             const expectedRewards: BigNumber = latestProjectDetails.rewardsCollected;
             const leftOverTokens: BigNumber = latestProjectDetails.totalTokens.sub(latestProjectDetails.totalSold);
             const rewardedAfterFees: BigNumber = expectedRewards.sub(expectedFees);

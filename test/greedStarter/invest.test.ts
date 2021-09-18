@@ -31,7 +31,7 @@ export function invest() {
             EtherUtils.zeroAddress(), // Address of paying currency
             parseEther("200"), // Total Tokens
             startingBlock + 5, // Starting block
-            currentBlock + environment.minimumProjectLength + 50, // Ending block
+            environment.minimumProjectLength.mul(2).add(currentBlock), // Ending block
             parseEther("0.02"), // Price per token
             parseEther("2"), // Minimum purchase
             parseEther("50"), // Maximum Purchase
@@ -45,7 +45,7 @@ export function invest() {
             environment.fusdContract.address, // Address of paying currency
             parseEther("50"), // Total Tokens
             startingBlock + 5, // Starting block
-            currentBlock + environment.minimumProjectLength + 50, // Ending block
+            environment.minimumProjectLength.mul(2).add(currentBlock), // Ending block
             parseUnits("5000",6), // Price per token
             parseEther("2"), // Minimum purchase
             parseEther("45"), // Maximum Purchase
@@ -59,7 +59,7 @@ export function invest() {
             environment.doublonContract.address, // Address of paying currency
             parseEther("40"), // Total Tokens
             startingBlock + 5, // Starting block
-            currentBlock + environment.minimumProjectLength + 50, // Ending block
+            environment.minimumProjectLength.mul(2).add(currentBlock), // Ending block
             parseEther("500"), // Price per token
             parseEther("2"), // Minimum purchase
             parseEther("30"), // Maximum Purchase

@@ -1,4 +1,4 @@
-import {ethers} from "hardhat";
+import env, {ethers} from "hardhat";
 import {BigNumber} from "ethers";
 import {parseEther, parseUnits} from "ethers/lib/utils";
 import {expect} from "chai";
@@ -28,7 +28,7 @@ export function claimFundsTest() {
             environment.fusdContract.address, // Address of paying currency
             parseEther("60"), // Total Tokens
             currentBlock + 5, // Starting block
-            currentBlock + environment.minimumProjectLength + 50, // Ending block
+            environment.minimumProjectLength.add(currentBlock + 50), // Ending block
             parseUnits("16500",6), // Price per token
             parseEther("2"), // Minimum purchase
             parseEther("50"), // Maximum Purchase
@@ -40,7 +40,7 @@ export function claimFundsTest() {
             environment.doublonContract.address, // Address of paying currency
             parseEther("40"), // Total Tokens
             currentBlock + 5, // Starting block
-            currentBlock + environment.minimumProjectLength + 150, // Ending block
+            environment.minimumProjectLength.add(currentBlock + 150), // Ending block
             parseEther("500"), // Price per token
             parseEther("2"), // Minimum purchase
             parseEther("30"), // Maximum Purchase
@@ -53,7 +53,7 @@ export function claimFundsTest() {
             EtherUtils.zeroAddress(), // Address of paying currency
             parseEther("200"), // Total Tokens
             currentBlock + 5, // Starting block
-            currentBlock + environment.minimumProjectLength + 250, // Ending block
+            environment.minimumProjectLength.add(currentBlock + 250), // Ending block
             parseEther("0.5"), // Price per token
             parseEther("2"), // Minimum purchase
             parseEther("50"), // Maximum Purchase
@@ -80,8 +80,7 @@ export function claimFundsTest() {
         // Mine blocks until project ends
         await NetworkUtils.mineBlocks(blocksRemaining);
         // Execute assertion
-        const treasuryFees: BigNumber = await environment.greedStarterContract._hellTreasuryFee();
-        const expectedFees: BigNumber = project.rewardsCollected.div(treasuryFees);
+        const expectedFees: BigNumber = project.rewardsCollected.div(environment.treasuryFees);
         const expectedRewards: BigNumber = project.rewardsCollected;
         const leftOverTokens: BigNumber  = project.totalTokens.sub(project.totalSold);
         const rewardedAfterFees: BigNumber = expectedRewards.sub(expectedFees);
@@ -103,8 +102,7 @@ export function claimFundsTest() {
         // Mine blocks until project ends
         await NetworkUtils.mineBlocks(blocksRemaining);
           // Execute assertion
-        const treasuryFees: BigNumber = await environment.greedStarterContract._hellTreasuryFee();
-        const expectedFees: BigNumber = project.rewardsCollected.div(treasuryFees);
+        const expectedFees: BigNumber = project.rewardsCollected.div(environment.treasuryFees);
         const expectedRewards: BigNumber = project.rewardsCollected;
         const leftOverTokens: BigNumber  = project.totalTokens.sub(project.totalSold);
         const rewardedAfterFees: BigNumber = expectedRewards.sub(expectedFees);
@@ -126,8 +124,7 @@ export function claimFundsTest() {
         // Mine blocks until project ends
         await NetworkUtils.mineBlocks(blocksRemaining);
         // Execute assertion
-        const treasuryFees: BigNumber = await environment.greedStarterContract._hellTreasuryFee();
-        const expectedFees: BigNumber = project.rewardsCollected.div(treasuryFees);
+        const expectedFees: BigNumber = project.rewardsCollected.div(environment.treasuryFees);
         const expectedRewards: BigNumber = project.rewardsCollected;
         const leftOverTokens: BigNumber  = project.totalTokens.sub(project.totalSold);
         const rewardedAfterFees: BigNumber = expectedRewards.sub(expectedFees);

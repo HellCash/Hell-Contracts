@@ -17,7 +17,7 @@ export function _forceEndProject() {
             environment.fusdContract.address, // Address of paying currency
             parseEther("60"), // Total Tokens
             currentBlock + 5, // Starting block
-            currentBlock + environment.minimumProjectLength + 50, // Ending block
+            environment.minimumProjectLength.add(currentBlock + 50), // Ending block
             parseUnits("16500",6), // Price per token
             parseEther("2"), // Minimum purchase
             parseEther("50"), // Maximum Purchase

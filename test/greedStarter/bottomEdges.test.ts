@@ -20,7 +20,7 @@ export function bottomEdges() {
         const currentBlock = await ethers.provider.getBlockNumber();
         const totalTokens = parseUnits('1', 16);
         const startingBlock = currentBlock + 1;
-        const endingBlock = currentBlock + (environment.minimumProjectLength + 1);
+        const endingBlock = environment.minimumProjectLength.add(currentBlock + 1);
         const pricePerToken = parseUnits('1', 6);
         const minimumPurchase = parseUnits('1', 16);
         const maximumPurchase = parseUnits('1', 16);
@@ -85,8 +85,7 @@ export function bottomEdges() {
         // Mine blocks until project ends
         await NetworkUtils.mineBlocks(blocksRemaining);
 
-        const treasuryFees: BigNumber = await environment.greedStarterContract._hellTreasuryFee();
-        const expectedFees: BigNumber = project.rewardsCollected.div(treasuryFees);
+        const expectedFees: BigNumber = project.rewardsCollected.div(environment.treasuryFees);
         const expectedRewards: BigNumber = project.rewardsCollected;
         const leftOverTokens: BigNumber  = project.totalTokens.sub(project.totalSold);
         const rewardedAfterFees: BigNumber = expectedRewards.sub(expectedFees);

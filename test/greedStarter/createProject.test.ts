@@ -18,7 +18,7 @@ export function createProject() {
             environment.hellContract.address, // Address of paying currency
             parseEther("20"), // Total Tokens
             currentBlock + 25, // Starting block
-            currentBlock + (environment.minimumProjectLength * 2), // Ending block
+            environment.minimumProjectLength.mul(2).add(currentBlock), // Ending block
             parseEther("0.02"), // Price per token
             parseEther("2"), // Minimum purchase
             parseEther("10") // Maximum Purchase
@@ -32,7 +32,7 @@ export function createProject() {
             environment.doublonContract.address, // Address of paying currency
             parseEther("50"), // Total Tokens
             currentBlock + 25, // Starting block
-            currentBlock + (environment.minimumProjectLength * 2), // Ending block
+            environment.minimumProjectLength.mul(2).add(currentBlock), // Ending block
             parseEther("0.02"), // Price per token
             parseEther("0"), // Minimum purchase    <--- REVERT
             parseEther("20") // Maximum Purchase
@@ -43,7 +43,7 @@ export function createProject() {
             environment.doublonContract.address, // Address of paying currency
             parseEther("50"), // Total Tokens
             currentBlock + 25, // Starting block
-            currentBlock + (environment.minimumProjectLength * 2), // Ending block
+            environment.minimumProjectLength.mul(2).add(currentBlock), // Ending block
             parseEther("0.02"), // Price per token
             parseEther("0.01"), // Minimum purchase
             parseEther("0") // Maximum Purchase   <--- REVERT
@@ -57,7 +57,7 @@ export function createProject() {
             environment.hellContract.address, // Address of paying currency  <--- REVERT
             parseEther("200"), // Total Tokens
             currentBlock + 25, // Starting block
-            currentBlock + (environment.minimumProjectLength * 2), // Ending block
+            environment.minimumProjectLength.mul(2).add(currentBlock), // Ending block
             parseEther("0.02"), // Price per token
             parseEther("5"), // Minimum purchase
             parseEther("10") // Maximum Purchase
@@ -71,7 +71,7 @@ export function createProject() {
             environment.fusdContract.address, // Address of paying currency
             parseEther("200"), // Total Tokens
             currentBlock + 5, // Starting block
-            currentBlock + (environment.minimumProjectLength / 2), // Ending block  <--- REVERT
+            environment.minimumProjectLength.div(2).add(currentBlock), // Ending block  <--- REVERT
             parseEther("0.02"), // Price per token
             parseEther("5"), // Minimum purchase
             parseEther("10") // Maximum Purchase
@@ -85,7 +85,7 @@ export function createProject() {
             environment.fusdContract.address, // Address of paying currency
             parseEther("200"), // Total Tokens
             currentBlock + 12000, // Starting block     <--- REVERT
-            currentBlock + (environment.minimumProjectLength * 2), // Ending block
+            environment.minimumProjectLength.mul(2).add(currentBlock), // Ending block
             parseEther("0.02"), // Price per token
             parseEther("5"), // Minimum purchase
             parseEther("10") // Maximum Purchase
@@ -99,7 +99,7 @@ export function createProject() {
             EtherUtils.zeroAddress(), // Address of paying currency
             parseEther("200"), // Total Tokens
             currentBlock - 1, // Starting block     <--- REVERT
-            currentBlock + (environment.minimumProjectLength * 2), // Ending block
+            environment.minimumProjectLength.mul(2).add(currentBlock), // Ending block
             parseEther("0.02"), // Price per token
             parseEther("5"), // Minimum purchase
             parseEther("10") // Maximum Purchase
@@ -113,7 +113,7 @@ export function createProject() {
             EtherUtils.zeroAddress(), // Address of paying currency
             parseEther("200"), // Total Tokens
             currentBlock + 25, // Starting block
-            currentBlock + (environment.minimumProjectLength * 2), // Ending block
+            environment.minimumProjectLength.mul(2).add(currentBlock), // Ending block
             parseEther("0.02"), // Price per token
             parseEther("5"), // Minimum purchase
             parseEther("10") // Maximum Purchase
@@ -127,7 +127,7 @@ export function createProject() {
             EtherUtils.zeroAddress(), // Address of paying currency
             parseEther("200"), // Total Tokens
             currentBlock + 25, // Starting block
-            currentBlock + (environment.minimumProjectLength * 2), // Ending block
+            environment.minimumProjectLength.mul(2).add(currentBlock), // Ending block
             parseEther("0.02"), // Price per token
             parseEther("20"), // Minimum purchase  <--- REVERT
             parseEther("2") // Maximum Purchase
@@ -141,7 +141,7 @@ export function createProject() {
             EtherUtils.zeroAddress(), // Address of paying currency
             parseEther("200"), // Total Tokens
             currentBlock + 25, // Starting block
-            currentBlock + (environment.minimumProjectLength * 2), // Ending block
+            environment.minimumProjectLength.mul(2).add(currentBlock), // Ending block
             BigNumber.from('10000'), // Price per token  <--- REVERT
             parseEther("1"), // Minimum purchase
             parseEther("10") // Maximum Purchase
@@ -152,7 +152,7 @@ export function createProject() {
             EtherUtils.zeroAddress(), // Address of paying currency
             parseEther("200"), // Total Tokens
             currentBlock + 25, // Starting block
-            currentBlock + (environment.minimumProjectLength * 2), // Ending block
+            environment.minimumProjectLength.mul(2).add(currentBlock), // Ending block
             BigNumber.from('1000000').sub(1), // Price per token  <--- REVERT
             parseEther("1"), // Minimum purchase
             parseEther("10") // Maximum Purchase
@@ -166,7 +166,7 @@ export function createProject() {
             EtherUtils.zeroAddress(), // Address of paying currency
             parseEther("4"), // Total Tokens  <--- REVERT
             currentBlock + 25, // Starting block
-            currentBlock + (environment.minimumProjectLength * 2), // Ending block
+            environment.minimumProjectLength.mul(2).add(currentBlock), // Ending block
             parseEther("0.02"), // Price per token
             parseEther("5"), // Minimum purchase
             parseEther("10") // Maximum Purchase
@@ -181,7 +181,7 @@ export function createProject() {
             EtherUtils.zeroAddress(), // Address of paying currency
             parseEther("200"), // Total Tokens  <---- REVERT
             currentBlock + 25, // Starting block
-            currentBlock + (environment.minimumProjectLength * 2), // Ending block
+            environment.minimumProjectLength.mul(2).add(currentBlock), // Ending block
             parseEther("0.02"), // Price per token
             parseEther("5"), // Minimum purchase
             parseEther("10") // Maximum Purchase
@@ -197,7 +197,7 @@ export function createProject() {
             EtherUtils.zeroAddress(), // address of paying currency
             parseEther("200"), // total Tokens  <--- REVERT
             currentBlock + 5, // Starting block
-            currentBlock + (environment.minimumProjectLength * 2), // Ending block
+            environment.minimumProjectLength.mul(2).add(currentBlock), // Ending block
             parseEther("0.02"), // Price per token
             parseEther("5"), // Minimum purchase
             parseEther("10") // Maximum Purchase
@@ -214,7 +214,7 @@ export function createProject() {
             EtherUtils.zeroAddress(), // address of paying currency
             parseEther("100"), // total Tokens  <---- REVERT
             currentBlock + 5, // Starting block
-            currentBlock + (environment.minimumProjectLength * 2), // Ending block
+            environment.minimumProjectLength.mul(2).add(currentBlock), // Ending block
             parseEther("0.002"), // Price per token
             parseEther("5"), // Minimum purchase
             parseEther("10") // Maximum Purchase
@@ -231,7 +231,7 @@ export function createProject() {
             EtherUtils.zeroAddress(), // Address of paying currency
             parseEther("200"), // Total Tokens
             currentBlock + 25, // Starting block
-            currentBlock + (environment.minimumProjectLength * 2), // Ending block
+            environment.minimumProjectLength.mul(2).add(currentBlock), // Ending block
             parseEther("20"), // Price per token
             parseEther("5"), // Minimum purchase
             parseEther("10") // Maximum Purchase
@@ -241,7 +241,7 @@ export function createProject() {
             EtherUtils.zeroAddress(), // Address of paying currency
             parseEther("200"), // Total Tokens
             currentBlock + 25, // Starting block
-            currentBlock + (environment.minimumProjectLength * 2), // Ending block
+            environment.minimumProjectLength.mul(2).add(currentBlock), // Ending block
             parseEther("20"), // Price per token
         );
         const afterTotalProjects: BigNumber = await environment.greedStarterContract._totalProjects();
@@ -260,7 +260,7 @@ export function createProject() {
             environment.fusdContract.address, // Address of paying currency
             projectTotalTokens, // Total Tokens
             currentBlock + 25, // Starting block
-            currentBlock + (environment.minimumProjectLength * 2), // Ending block
+            environment.minimumProjectLength.mul(2).add(currentBlock), // Ending block
             parseUnits("500",6), // Price per token
             parseEther("5"), // Minimum purchase
             parseEther("10") // Maximum Purchase
@@ -270,7 +270,7 @@ export function createProject() {
             environment.fusdContract.address, // Address of paying currency
             projectTotalTokens, // Total Tokens
             currentBlock + 25, // Starting block
-            currentBlock + (environment.minimumProjectLength * 2), // Ending block
+            environment.minimumProjectLength.mul(2).add(currentBlock), // Ending block
             parseUnits("500",6), // Price per token
         );
 
@@ -288,7 +288,7 @@ export function createProject() {
             environment.doublonContract.address, // Address of paying currency
             parseEther("100"), // Total Tokens
             currentBlock + 15, // Starting block
-            currentBlock + (environment.minimumProjectLength * 2), // Ending block
+            environment.minimumProjectLength.mul(2).add(currentBlock), // Ending block
             parseEther("20"), // Price per token
             parseEther("5"), // Minimum purchase
             parseEther("10") // Maximum Purchase
@@ -298,7 +298,7 @@ export function createProject() {
             environment.doublonContract.address, // Address of paying currency
             parseEther("100"), // Total Tokens
             currentBlock + 15, // Starting block
-            currentBlock + (environment.minimumProjectLength * 2), // Ending block
+            environment.minimumProjectLength.mul(2).add(currentBlock), // Ending block
             parseEther("20"), // Price per token
         );
         const afterTotalProjects: BigNumber = await environment.greedStarterContract._totalProjects();

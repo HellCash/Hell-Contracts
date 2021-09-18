@@ -1,17 +1,18 @@
 import {deployHell} from "../../scripts/deployments/deployHell";
-import {Contract} from "ethers";
+import {BigNumber, Contract} from "ethers";
 import {ethers} from "hardhat";
 import {deployDoublon} from "../../scripts/deployments/deployDoublon";
 import {deployFUSD} from "../../scripts/deployments/deployFUSD";
 import {deployBDoublon} from "../../scripts/deployments/deployBDoublon";
 import {deployGreedStarter} from "../../scripts/deployments/deployGreedStarter";
 import {deployGreedStarterIndexer} from "../../scripts/deployments/deployGreedStarterIndexer";
+import {testingEnvironmentDeploymentOptions} from "../../models/deployment-options";
+import {deployHellGovernment} from "../../scripts/deployments/deployHellGovernment";
 
 export class greedStarterTestingEnvironment {
-    readonly PRINT_DEPLOYMENT_LOGS = false;
-    readonly INITIALIZE_IMPLEMENTATION = false;
     // Environment Variables
-    minimumProjectLength: number;
+    minimumProjectLength: BigNumber;
+    maximumProjectLength: BigNumber;
     treasuryFees: number;
     // Account signers
     accountSigners: any[];
@@ -22,15 +23,17 @@ export class greedStarterTestingEnvironment {
     guest3Signer: any;
     // Proxy Contracts
     hellContract: Contract;
+    hellGovernment: Contract;
     doublonContract: Contract;
     fusdContract: Contract;
     greedStarterContract: Contract;
     greedStarterIndexerContract: Contract;
     bDoublonContract: Contract;
     // Initialize this testing environment
-    async initialize(minimumProjectLength: number = 100, treasuryFees: number = 800) {
+    async initialize(minimumProjectLength = BigNumber.from(100), maximumProjectLength = BigNumber.from(40000), treasuryFees: number = 100) {
         // Set Environment Variables
         this.minimumProjectLength = minimumProjectLength;
+        this.maximumProjectLength = maximumProjectLength;
         this.treasuryFees = treasuryFees;
         // Set Signers
         this.accountSigners = await ethers.getSigners();
@@ -40,13 +43,22 @@ export class greedStarterTestingEnvironment {
         this.guest2Signer = this.accountSigners[3];
         this.guest3Signer = this.accountSigners[4];
         // Set Contracts
-        this.hellContract = await deployHell('Hell', 'HELL', this.PRINT_DEPLOYMENT_LOGS, this.INITIALIZE_IMPLEMENTATION);
-        this.greedStarterContract = await deployGreedStarter(minimumProjectLength, this.treasurySigner.address, treasuryFees, this.PRINT_DEPLOYMENT_LOGS, this.INITIALIZE_IMPLEMENTATION);
-        this.greedStarterIndexerContract = await deployGreedStarterIndexer(this.greedStarterContract.address, this.PRINT_DEPLOYMENT_LOGS, this.INITIALIZE_IMPLEMENTATION);
+        this.hellContract = await deployHell('Hell', 'HELL', testingEnvironmentDeploymentOptions);
+        this.hellGovernment = await deployHellGovernment({
+            treasuryAddress: this.treasurySigner.address,
+            auctionHouseFee: BigNumber.from(800),
+            greedStarterFee: treasuryFees, // 1%
+            minimumAuctionLength: BigNumber.from(5000),
+            maximumAuctionLength: BigNumber.from(16000000),
+            minimumProjectLength: minimumProjectLength,
+            maximumProjectLength: maximumProjectLength,
+        }, testingEnvironmentDeploymentOptions);
+        this.greedStarterContract = await deployGreedStarter(this.hellGovernment.address, testingEnvironmentDeploymentOptions);
+        this.greedStarterIndexerContract = await deployGreedStarterIndexer(this.hellGovernment.address, this.greedStarterContract.address, testingEnvironmentDeploymentOptions);
         await this.hellContract._setExcludedFromBurnList(this.greedStarterContract.address, true);
         await this.greedStarterContract._setIndexer(this.greedStarterIndexerContract.address);
-        this.doublonContract = await deployDoublon(this.PRINT_DEPLOYMENT_LOGS);
-        this.fusdContract = await deployFUSD(this.PRINT_DEPLOYMENT_LOGS);
-        this.bDoublonContract = await deployBDoublon(this.PRINT_DEPLOYMENT_LOGS);
+        this.doublonContract = await deployDoublon(testingEnvironmentDeploymentOptions);
+        this.fusdContract = await deployFUSD(testingEnvironmentDeploymentOptions);
+        this.bDoublonContract = await deployBDoublon(testingEnvironmentDeploymentOptions);
     };
 }
