@@ -3,8 +3,6 @@ import {createProject} from "./createProject.test";
 import {invest} from "./invest.test";
 import {claimFundsTest} from "./claimFunds.test";
 import {_setIndexer} from "./_setIndexer.test";
-import {_setTreasuryAddressAndFees} from "./_setTreasuryAddressAndFees";
-import {_setMinimumProjectLength} from "./_setMinimumProjectLength.test";
 import {bottomEdges} from "./bottomEdges.test";
 import {workflow} from "./workflow.test";
 import {parseEther, parseUnits} from "ethers/lib/utils";
@@ -17,8 +15,6 @@ export function greedStarterTests() {
     describe('function upgradeTo', upgradeTo);
     describe('function upgradeToAndCall', upgradeToAndCall);
     describe('function _setIndexer', _setIndexer);
-    describe('function _setTreasuryAddressAndFees', _setTreasuryAddressAndFees);
-    describe('function _setMinimumProjectLength', _setMinimumProjectLength);
     describe('function _forceEndProject', _forceEndProject);
     describe('function createProject', createProject);
     describe('function invest', invest);
