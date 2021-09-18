@@ -16,7 +16,8 @@ export function bottomEdges() {
     let auctionId: BigNumber;
     it('HELL/FUSD: Create an auction with Starting price, Auctioned amount, Buyout price of 1 wei', async ()  => {
         const currentTotalAuctions: BigNumber = await environment.auctionHouseContract._totalAuctions();
-        const auctionLength = await ethers.provider.getBlockNumber() + (environment.minimumAuctionLength * 2);
+        const auctionLength = environment.minimumAuctionLength.mul(2)
+            .add(await ethers.provider.getBlockNumber());
         // Define variables
         const auctionedAmount = BigNumber.from(1);
         const bidPrice = BigNumber.from(1);

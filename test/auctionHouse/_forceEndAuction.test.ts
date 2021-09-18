@@ -19,7 +19,8 @@ export function _forceEndAuction() {
             EtherUtils.zeroAddress(), // Against Ether
             parseEther('2'), // Starting Bid Price
             parseEther('25'), // Buyout price
-            await ethers.provider.getBlockNumber() + (environment.minimumAuctionLength * 2));
+            environment.minimumAuctionLength.mul(2)
+                .add(await ethers.provider.getBlockNumber()));
         auctionId = currentTotalAuctions.add(1);
     });
 

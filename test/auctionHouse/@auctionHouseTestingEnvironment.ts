@@ -8,13 +8,13 @@ import {deployFUSD} from "../../scripts/deployments/deployFUSD";
 import {deployBDoublon} from "../../scripts/deployments/deployBDoublon";
 import {deployRandom} from "../../scripts/deployments/deployRandom";
 import {parseEther} from "ethers/lib/utils";
+import {deployHellGovernment} from "../../scripts/deployments/deployHellGovernment";
+import {testingEnvironmentDeploymentOptions} from "../../models/deployment-options";
 
 export class auctionHouseTestingEnvironment {
-    readonly PRINT_DEPLOYMENT_LOGS = false;
-    readonly INITIALIZE_IMPLEMENTATION = false;
     // Environment Variables
-    minimumAuctionLength: number;
-    maximumAuctionLength: number;
+    minimumAuctionLength: BigNumber;
+    maximumAuctionLength: BigNumber;
     treasuryFees: number;
     // Account signers
     accountSigners: any[];
@@ -25,6 +25,7 @@ export class auctionHouseTestingEnvironment {
     guest3Signer: any;
     // Proxy Contracts
     hellContract: Contract;
+    hellGovernment: Contract;
     doublonContract: Contract;
     fusdContract: Contract;
     auctionHouseContract: Contract;
@@ -32,7 +33,7 @@ export class auctionHouseTestingEnvironment {
     bDoublonContract: Contract;
     randomContract: Contract;
     // Initialize this testing environment
-    async initialize(minimumAuctionLength: number = 100, maximumAuctionLength = 4000000,  treasuryFees: number = 800, randomTokenSupply: BigNumber = parseEther('100000')) {
+    async initialize(minimumAuctionLength = BigNumber.from(100), maximumAuctionLength = BigNumber.from(4000000), treasuryFees: number = 800, randomTokenSupply: BigNumber = parseEther('100000')) {
         // Set Environment Variables
         this.minimumAuctionLength = minimumAuctionLength;
         this.maximumAuctionLength = maximumAuctionLength;
@@ -45,14 +46,23 @@ export class auctionHouseTestingEnvironment {
         this.guest2Signer = this.accountSigners[3];
         this.guest3Signer = this.accountSigners[4];
         // Set Contracts
-        this.hellContract = await deployHell('Hell', 'HELL', this.PRINT_DEPLOYMENT_LOGS, this.INITIALIZE_IMPLEMENTATION);
-        this.auctionHouseContract = await deployAuctionHouse(this.treasurySigner.address, this.minimumAuctionLength, this.maximumAuctionLength,this.treasuryFees, this.PRINT_DEPLOYMENT_LOGS, this.INITIALIZE_IMPLEMENTATION);
-        this.auctionHouseIndexerContract = await deployAuctionHouseIndexer(this.auctionHouseContract.address, this.PRINT_DEPLOYMENT_LOGS, this.INITIALIZE_IMPLEMENTATION);
+        this.hellContract = await deployHell('Hell', 'HELL', testingEnvironmentDeploymentOptions);
+        this.hellGovernment = await deployHellGovernment({
+            treasuryAddress: this.treasurySigner.address,
+            auctionHouseFee: treasuryFees,
+            greedStarterFee: 100, // 1%
+            minimumAuctionLength: minimumAuctionLength,
+            maximumAuctionLength: maximumAuctionLength,
+            minimumProjectLength: BigNumber.from(1000),
+            maximumProjectLength: BigNumber.from(16000000),
+        }, testingEnvironmentDeploymentOptions);
+        this.auctionHouseContract = await deployAuctionHouse(this.hellGovernment.address, testingEnvironmentDeploymentOptions);
+        this.auctionHouseIndexerContract = await deployAuctionHouseIndexer(this.hellGovernment.address, this.auctionHouseContract.address, testingEnvironmentDeploymentOptions);
         await this.hellContract._setExcludedFromBurnList(this.auctionHouseContract.address, true);
         await this.auctionHouseContract._setIndexer(this.auctionHouseIndexerContract.address);
-        this.doublonContract = await deployDoublon(this.PRINT_DEPLOYMENT_LOGS);
-        this.fusdContract = await deployFUSD(this.PRINT_DEPLOYMENT_LOGS);
-        this.bDoublonContract = await deployBDoublon(this.PRINT_DEPLOYMENT_LOGS);
+        this.doublonContract = await deployDoublon(testingEnvironmentDeploymentOptions);
+        this.fusdContract = await deployFUSD(testingEnvironmentDeploymentOptions);
+        this.bDoublonContract = await deployBDoublon(testingEnvironmentDeploymentOptions);
         this.randomContract = await deployRandom(randomTokenSupply, false);
     };
 }

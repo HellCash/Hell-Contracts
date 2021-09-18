@@ -18,7 +18,7 @@ export function createAuction() {
             environment.hellContract.address, // Against Hell
             parseEther("50"), // Starting Bid Price
             parseEther("15"), // Buyout price  <------ REVERT
-            await ethers.provider.getBlockNumber() + environment.minimumAuctionLength + 5) // Auction length
+            environment.minimumAuctionLength.add(await ethers.provider.getBlockNumber() + 5)) // Auction length
         ).to.be.revertedWith('CA1');
     });
 
@@ -40,7 +40,8 @@ export function createAuction() {
             environment.hellContract.address, // Against Hell
             parseEther("50"), // Starting Bid Price
             BigNumber.from(0), // Buyout price
-            await ethers.provider.getBlockNumber() + (environment.minimumAuctionLength / 2))) // <---- REVERT
+            environment.minimumAuctionLength.div(2)
+                .add(await ethers.provider.getBlockNumber()))) // <---- REVERT
             .to.be.revertedWith('CA2');
 
         // Attempt with minimum length - 1
@@ -50,7 +51,8 @@ export function createAuction() {
             environment.hellContract.address, // Against Hell
             parseEther("50"), // Starting Bid Price
             BigNumber.from(0), // Buyout price
-            await ethers.provider.getBlockNumber() + environment.minimumAuctionLength - 1) // <----- REVERT
+            environment.minimumAuctionLength.sub(1)
+                .add(await ethers.provider.getBlockNumber())) // <----- REVERT
         ).to.be.revertedWith('CA2');
     });
 
@@ -61,7 +63,8 @@ export function createAuction() {
             environment.hellContract.address, // Against Hell
             parseEther("50"), // Starting Bid Price
             BigNumber.from(0), // Buyout price
-            await ethers.provider.getBlockNumber() + environment.maximumAuctionLength + 2555) // <------ REVERT
+            environment.maximumAuctionLength
+                .add(await ethers.provider.getBlockNumber() + 2555)) // <------ REVERT
         ).to.be.revertedWith('CA5');
 
         await expect(environment.auctionHouseContract.createAuction(
@@ -70,7 +73,8 @@ export function createAuction() {
             environment.hellContract.address, // Against Hell
             parseEther("50"), // Starting Bid Price
             BigNumber.from(0), // Buyout price
-            await ethers.provider.getBlockNumber() + (environment.maximumAuctionLength * 2))) // <---- REVERT
+            environment.maximumAuctionLength.mul(2)
+                .add(await ethers.provider.getBlockNumber()))) // <---- REVERT
             .to.be.revertedWith('CA5');
 
         await expect(environment.auctionHouseContract.createAuction(
@@ -79,7 +83,7 @@ export function createAuction() {
             environment.hellContract.address, // Against Hell
             parseEther("50"), // Starting Bid Price
             BigNumber.from(0), // Buyout price
-            await ethers.provider.getBlockNumber() + environment.maximumAuctionLength + 2)) // <---- REVERT
+            environment.maximumAuctionLength.add(await ethers.provider.getBlockNumber() + 2))) // <---- REVERT
             .to.be.revertedWith('CA5');
     });
 
@@ -90,8 +94,8 @@ export function createAuction() {
             EtherUtils.zeroAddress(), // Against Ether <-------- REVERT
             parseEther("25"), // Starting Bid Price
             parseEther("50"), // Buyout price
-            await ethers.provider.getBlockNumber() + (environment.minimumAuctionLength * 2)),
-            )
+            environment.minimumAuctionLength.mul(2)
+                .add(await ethers.provider.getBlockNumber())))
             .to.be.revertedWith('CA3');
 
         await expect(environment.auctionHouseContract.createAuction(
@@ -100,8 +104,8 @@ export function createAuction() {
             environment.doublonContract.address, // Against Doublon <-------- REVERT
             parseEther("500"), // Starting Bid Price
             parseEther("1500"), // Buyout price
-            await ethers.provider.getBlockNumber() + (environment.minimumAuctionLength * 2)),
-            )
+            environment.minimumAuctionLength.mul(2)
+                .add(await ethers.provider.getBlockNumber())))
             .to.be.revertedWith('CA3');
     });
 
@@ -113,7 +117,7 @@ export function createAuction() {
             environment.hellContract.address, // Against Hell
             parseEther("5"), // Starting Bid Price
             parseEther("10"), // Buyout price
-            await ethers.provider.getBlockNumber() + (environment.minimumAuctionLength * 2), {
+            environment.minimumAuctionLength.mul(2).add(await ethers.provider.getBlockNumber()), {
                 value: parseEther("19") // <---------- REVERT, Signer sent less than 20
             })).to.be.revertedWith('DA1');
         // Attempt with ERC20
@@ -125,7 +129,8 @@ export function createAuction() {
             environment.hellContract.address, // Against Hell
             parseEther("5"), // Starting Bid Price
             parseEther("10"), // Buyout price
-            await ethers.provider.getBlockNumber() + 3500))
+            environment.minimumAuctionLength.mul(2)
+                .add(await ethers.provider.getBlockNumber())))
             .to.be.revertedWith('DA4');
     });
 
@@ -137,7 +142,8 @@ export function createAuction() {
             environment.hellContract.address, // Against Hell
             parseEther("5"), // Starting Bid Price
             parseEther("10"), // Buyout price
-            await ethers.provider.getBlockNumber() + (environment.minimumAuctionLength * 2)))
+            environment.minimumAuctionLength.mul(2)
+                .add(await ethers.provider.getBlockNumber())))
             .to.be.revertedWith('DA3');
     });
 
@@ -155,7 +161,8 @@ export function createAuction() {
             environment.hellContract.address, // Against Hell
             parseEther("5"), // Starting Bid Price
             parseEther("10"), // Buyout price
-            await ethers.provider.getBlockNumber() + (environment.minimumAuctionLength * 2)))
+            environment.minimumAuctionLength.mul(2)
+                .add(await ethers.provider.getBlockNumber())))
             .to.be.revertedWith('DA2');  // DA2: Not enough Balance
     });
 
@@ -167,7 +174,8 @@ export function createAuction() {
             environment.hellContract.address, // Against Hell
             BigNumber.from(0), // Starting Bid Price  <----- REVERT : Must be higher than 0
             parseEther("10"), // Buyout price
-            await ethers.provider.getBlockNumber() + (environment.minimumAuctionLength * 2)))
+            environment.minimumAuctionLength.mul(2)
+                .add(await ethers.provider.getBlockNumber())))
             .to.be.revertedWith('CA4');  // CA4: The Auctioned amount and the Starting price must be higher than 0
     });
 
@@ -179,7 +187,8 @@ export function createAuction() {
             environment.hellContract.address, // Against Hell
             parseUnits("1", 6), // Starting Bid Price
             parseEther("10"), // Buyout price
-            await ethers.provider.getBlockNumber() + (environment.minimumAuctionLength * 2)))
+            environment.minimumAuctionLength.mul(2)
+                .add(await ethers.provider.getBlockNumber())))
             .to.be.revertedWith('CA4');  // CA4: The Auctioned amount and the Starting price must be higher than 0
     });
 
@@ -187,7 +196,8 @@ export function createAuction() {
         // Request the current total auctions
         const currentTotalAuctions: BigNumber = await environment.auctionHouseContract._totalAuctions();
         // Define variables
-        const auctionLength = await ethers.provider.getBlockNumber() + (environment.minimumAuctionLength * 2);
+        const auctionLength = environment.minimumAuctionLength.mul(2)
+            .add(await ethers.provider.getBlockNumber());
         const auctionedAmount = parseEther("16");
         const bidPrice = parseEther("5");
         const buyoutPrice = parseEther("15");
@@ -216,7 +226,8 @@ export function createAuction() {
 
     it('Should create HELL/ETHER Auction Successfully',async () => {
         const currentTotalAuctions: BigNumber = await environment.auctionHouseContract._totalAuctions();
-        const auctionLength = await ethers.provider.getBlockNumber() + (environment.minimumAuctionLength * 2);
+        const auctionLength = environment.minimumAuctionLength.mul(2)
+            .add(await ethers.provider.getBlockNumber());
         // Define variables
         const auctionedAmount = parseEther("10");
         const bidPrice = parseEther("5");
@@ -248,7 +259,8 @@ export function createAuction() {
 
     it('Should create HELL/FUSD Auction Successfully',async () => {
         const currentTotalAuctions: BigNumber = await environment.auctionHouseContract._totalAuctions();
-        const auctionLength = await ethers.provider.getBlockNumber() + (environment.minimumAuctionLength * 2);
+        const auctionLength = environment.minimumAuctionLength.mul(2)
+            .add(await ethers.provider.getBlockNumber());
         // Define variables
         const auctionedAmount = parseEther("10");
         const bidPrice = parseUnits("500",6);

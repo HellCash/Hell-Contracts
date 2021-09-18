@@ -1,6 +1,6 @@
 import {expect} from "chai";
 import {auctionHouseTestingEnvironment} from "./@auctionHouseTestingEnvironment";
-import {BigNumber} from "ethers";
+import {EtherUtils} from "../../utils/ether-utils";
 
 export function initialize() {
     let environment: auctionHouseTestingEnvironment = new auctionHouseTestingEnvironment();
@@ -10,7 +10,7 @@ export function initialize() {
 
     it('Should already be initialized', async() => {
         await expect(environment.auctionHouseContract.connect(environment.guest1Signer)
-            .initialize(BigNumber.from(100), BigNumber.from(4000000), environment.guest1Signer.address, 600))
+            .initialize(EtherUtils.zeroAddress()))
             .to.be.revertedWith("Initializable: contract is already initialized");
     });
 }
