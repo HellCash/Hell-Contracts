@@ -1,5 +1,5 @@
 import {initialize} from "./initialize.test";
-import {_setAuctionHouseContract} from "./_setAuctionHouseContract.test";
+import {_setAuctionHouseContractAddress} from "./_setAuctionHouseContract.test";
 import {_registerNewAuctionCreation} from "./_registerNewAuctionCreation.test";
 import {_registerUserParticipation} from "./_registerUserParticipation.test";
 import {_registerAuctionSold} from "./_registerAuctionSold.test";
@@ -11,7 +11,7 @@ export function auctionHouseIndexerTests() {
     describe('initialize', initialize);
     describe('upgradeTo', upgradeTo);
     describe('upgradeToAndCall', upgradeToAndCall);
-    describe('_setAuctionHouseContract', _setAuctionHouseContract);
+    describe('_setAuctionHouseContract', _setAuctionHouseContractAddress);
     describe('registerNewAuctionCreation', _registerNewAuctionCreation);
     describe('registerUserParticipation', _registerUserParticipation);
     describe('registerAuctionSold', _registerAuctionSold);

@@ -8,7 +8,7 @@ export function _registerAuctionSold() {
         await environment.initialize();
         // We'll use the master signer as the AH
         await environment.auctionHouseIndexerContract
-            ._setAuctionHouseContract(environment.masterSigner.address);
+            ._setAuctionHouseContractAddress(environment.masterSigner.address);
     });
 
     it('Should fail if not called by the Auction House', async() => {

@@ -1,5 +1,6 @@
 import {expect} from "chai";
 import {auctionHouseTestingEnvironment} from "../auctionHouse/@auctionHouseTestingEnvironment";
+import {EtherUtils} from "../../utils/ether-utils";
 
 export function initialize() {
     let environment: auctionHouseTestingEnvironment = new auctionHouseTestingEnvironment();
@@ -9,6 +10,6 @@ export function initialize() {
 
     it('Should already be initialized', async() => {
         await expect(environment.auctionHouseIndexerContract.connect(environment.guest1Signer)
-            .initialize(environment.guest1Signer.address)).to.be.revertedWith("Initializable: contract is already initialized");
+            .initialize(EtherUtils.zeroAddress(), EtherUtils.zeroAddress())).to.be.revertedWith("Initializable: contract is already initialized");
     });
 }

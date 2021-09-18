@@ -9,10 +9,7 @@ export function _registerNewAuctionCreation() {
         await environment.initialize();
         // We'll use the master signer as the AH
         await environment.auctionHouseIndexerContract
-            ._setAuctionHouseContract(environment.masterSigner.address);
-        // Set HELL as trusted
-        await environment.auctionHouseIndexerContract
-            ._updateTokenTrust(environment.hellContract.address, true);
+            ._setAuctionHouseContractAddress(environment.masterSigner.address);
     });
 
     it('Should fail if not called by the Auction House', async() => {

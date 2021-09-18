@@ -56,6 +56,8 @@ export class auctionHouseTestingEnvironment {
             minimumProjectLength: BigNumber.from(1000),
             maximumProjectLength: BigNumber.from(16000000),
         }, testingEnvironmentDeploymentOptions);
+        // Set HELL as a trusted token
+        await this.hellGovernment._setTokenTrust(this.hellContract.address, true);
         this.auctionHouseContract = await deployAuctionHouse(this.hellGovernment.address, testingEnvironmentDeploymentOptions);
         this.auctionHouseIndexerContract = await deployAuctionHouseIndexer(this.hellGovernment.address, this.auctionHouseContract.address, testingEnvironmentDeploymentOptions);
         await this.hellContract._setExcludedFromBurnList(this.auctionHouseContract.address, true);
