@@ -10,11 +10,15 @@ import {deployGreedStarter} from "../../scripts/deployments/deployGreedStarter";
 import {deployGreedStarterIndexer} from "../../scripts/deployments/deployGreedStarterIndexer";
 import {EtherUtils, zeroBytes32} from "../../utils/ether-utils";
 import auctionHouseSol from "../../artifacts/contracts/AuctionHouse.sol/AuctionHouse.json";
+import hellGovernmentSol from "../../artifacts/contracts/HellGovernment.sol/HellGovernment.json";
 import auctionHouseIndexerSol from "../../artifacts/contracts/AuctionHouseIndexer.sol/AuctionHouseIndexer.json";
 import greedStarterSol from "../../artifacts/contracts/GreedStarter.sol/GreedStarter.json";
 import greedStarterIndexerSol from "../../artifacts/contracts/GreedStarterIndexer.sol/GreedStarterIndexer.json";
 import {Provider} from "@ethersproject/providers";
 import {SignerWithAddress} from "@nomiclabs/hardhat-ethers/dist/src/signers";
+import {deployHellGovernment} from "../../scripts/deployments/deployHellGovernment";
+import {testingEnvironmentDeploymentOptions} from "../../models/deployment-options";
+import {HellGovernmentInitializer} from "../../models/hell-government-initializer";
 
 /**
 
@@ -29,6 +33,9 @@ import {SignerWithAddress} from "@nomiclabs/hardhat-ethers/dist/src/signers";
 export function uupsProxiesImplementations() {
     let hellProxy: Contract;
     let hellImpl: Contract;
+    let hellGovernmentInitializer: HellGovernmentInitializer;
+    let hellGovernmentProxy: Contract;
+    let hellGovernmentImpl: Contract;
     let auctionHouseProxy: Contract;
     let auctionHouseImpl: Contract;
     let auctionHouseIndexerProxy: Contract;
@@ -40,16 +47,29 @@ export function uupsProxiesImplementations() {
     let guestSigner: string | Signer | Provider | SignerWithAddress;
 
     before(async() => {
-        guestSigner = (await ethers.getSigners())[10];
-        hellProxy = await deployHell('Hell', 'HELL', false);
+        const signers = await ethers.getSigners();
+        const treasurySigner = signers[2];
+        guestSigner = signers[10];
+        hellProxy = await deployHell('Hell', 'HELL', testingEnvironmentDeploymentOptions);
         hellImpl = await ContractUtils.getProxyImplementationContract(hellSol, hellProxy);
-        auctionHouseProxy = await deployAuctionHouse(EtherUtils.zeroAddress(), 100, 50000, 800, false);
+        hellGovernmentInitializer = {
+            treasuryAddress: treasurySigner.address,
+            auctionHouseFee: 800, // 0.125%
+            greedStarterFee: 100, // 1%
+            minimumAuctionLength: BigNumber.from(100),
+            maximumAuctionLength: BigNumber.from(4000000),
+            minimumProjectLength: BigNumber.from(1000),
+            maximumProjectLength: BigNumber.from(16000000),
+        };
+        hellGovernmentProxy = await deployHellGovernment(hellGovernmentInitializer, testingEnvironmentDeploymentOptions);
+        hellGovernmentImpl = await ContractUtils.getProxyImplementationContract(hellGovernmentSol, hellGovernmentProxy);
+        auctionHouseProxy = await deployAuctionHouse(hellGovernmentProxy.address, testingEnvironmentDeploymentOptions);
         auctionHouseImpl = await ContractUtils.getProxyImplementationContract(auctionHouseSol, auctionHouseProxy);
-        auctionHouseIndexerProxy= await deployAuctionHouseIndexer(EtherUtils.zeroAddress(), false);
+        auctionHouseIndexerProxy= await deployAuctionHouseIndexer(hellGovernmentProxy.address, EtherUtils.zeroAddress(), testingEnvironmentDeploymentOptions);
         auctionHouseIndexerImpl = await ContractUtils.getProxyImplementationContract(auctionHouseIndexerSol, auctionHouseIndexerProxy);
-        greedStarterProxy = await deployGreedStarter(100, EtherUtils.zeroAddress(), 500, false);
+        greedStarterProxy = await deployGreedStarter(hellGovernmentProxy.address, testingEnvironmentDeploymentOptions);
         greedStarterImpl = await ContractUtils.getProxyImplementationContract(greedStarterSol, greedStarterProxy);
-        greedStarterIndexerProxy = await deployGreedStarterIndexer(EtherUtils.zeroAddress(), false);
+        greedStarterIndexerProxy = await deployGreedStarterIndexer(hellGovernmentProxy.address, EtherUtils.zeroAddress(), testingEnvironmentDeploymentOptions);
         greedStarterIndexerImpl = await ContractUtils.getProxyImplementationContract(greedStarterIndexerSol, greedStarterIndexerProxy);
     });
 
@@ -57,93 +77,95 @@ export function uupsProxiesImplementations() {
         await expect(hellImpl.initialize('Himp', 'HIMP')).to.be.revertedWith("Initializable: contract is already initialized");
     });
 
-    it('[Hell Implementation Contract] upgradeTo Should fail if not called by the owner', async() => {
-        await expect(hellImpl
-            .connect(guestSigner) // <----- REVERT
-            .upgradeTo(EtherUtils.zeroAddress()))
-            .to.be.revertedWith("Ownable: caller is not the owner");
-    });
-
-    it('[Hell Implementation Contract] upgradeToAndCall Should fail if not called by the owner', async() => {
-        await expect(hellImpl
-            .connect(guestSigner) // <----- REVERT
-            .upgradeToAndCall(EtherUtils.zeroAddress(), zeroBytes32))
-            .to.be.revertedWith("Ownable: caller is not the owner");
+    it('[Hell Government Implementation Contract] Should be already initialized', async() => {
+        await expect(hellGovernmentImpl.initialize(
+            hellGovernmentInitializer.treasuryAddress,
+            hellGovernmentInitializer.auctionHouseFee,
+            hellGovernmentInitializer.minimumAuctionLength,
+            hellGovernmentInitializer.maximumAuctionLength,
+            hellGovernmentInitializer.greedStarterFee,
+            hellGovernmentInitializer.minimumProjectLength,
+            hellGovernmentInitializer.maximumProjectLength,
+        )).to.be.revertedWith("Initializable: contract is already initialized");
     });
 
     it('[Auction House Implementation Contract] should be already initialized', async() => {
-        await expect(auctionHouseImpl.initialize(BigNumber.from(100), BigNumber.from(4000000), EtherUtils.zeroAddress(), 600)).to.be.revertedWith("Initializable: contract is already initialized");
-    });
-
-    it('[Auction House Implementation Contract] upgradeTo Should fail if not called by the owner', async() => {
-        await expect(auctionHouseImpl
-            .connect(guestSigner) // <----- REVERT
-            .upgradeTo(EtherUtils.zeroAddress()))
-            .to.be.revertedWith("Ownable: caller is not the owner");
-    });
-
-    it('[Auction House Implementation Contract] upgradeToAndCall Should fail if not called by the owner', async() => {
-        await expect(auctionHouseImpl
-            .connect(guestSigner) // <----- REVERT
-            .upgradeToAndCall(EtherUtils.zeroAddress(), zeroBytes32))
-            .to.be.revertedWith("Ownable: caller is not the owner");
+        await expect(auctionHouseImpl.initialize(EtherUtils.zeroAddress())).to.be.revertedWith("Initializable: contract is already initialized");
     });
 
     it('[Auction House Indexer Implementation Contract] should be already initialized', async() => {
-        await expect(auctionHouseIndexerImpl.initialize(EtherUtils.zeroAddress()))
+        await expect(auctionHouseIndexerImpl.initialize(EtherUtils.zeroAddress(), EtherUtils.zeroAddress()))
             .to.be.revertedWith("Initializable: contract is already initialized");
-    });
-
-    it('[Auction House Indexer Implementation Contract] upgradeTo Should fail if not called by the owner', async() => {
-        await expect(auctionHouseIndexerImpl
-            .connect(guestSigner) // <----- REVERT
-            .upgradeTo(EtherUtils.zeroAddress()))
-            .to.be.revertedWith("Ownable: caller is not the owner");
-    });
-
-    it('[Auction House Indexer Implementation Contract] upgradeToAndCall Should fail if not called by the owner', async() => {
-        await expect(auctionHouseIndexerImpl
-            .connect(guestSigner) // <----- REVERT
-            .upgradeToAndCall(EtherUtils.zeroAddress(), zeroBytes32))
-            .to.be.revertedWith("Ownable: caller is not the owner");
     });
 
     it('[Greed Starter Implementation Contract] should be already initialized', async() => {
-        await expect(greedStarterImpl.initialize(BigNumber.from(100), EtherUtils.zeroAddress(), 500))
+        await expect(greedStarterImpl.initialize(EtherUtils.zeroAddress()))
             .to.be.revertedWith("Initializable: contract is already initialized");
-    });
-
-    it('[Greed Starter Implementation Contract] upgradeTo Should fail if not called by the owner', async() => {
-        await expect(greedStarterImpl
-            .connect(guestSigner) // <----- REVERT
-            .upgradeTo(EtherUtils.zeroAddress()))
-            .to.be.revertedWith("Ownable: caller is not the owner");
-    });
-
-    it('[Greed Starter Implementation Contract] upgradeToAndCall Should fail if not called by the owner', async() => {
-        await expect(greedStarterImpl
-            .connect(guestSigner) // <----- REVERT
-            .upgradeToAndCall(EtherUtils.zeroAddress(), zeroBytes32))
-            .to.be.revertedWith("Ownable: caller is not the owner");
     });
 
     it('[Greed Starter Indexer Implementation Contract] should be already initialized', async() => {
-        await expect(greedStarterIndexerImpl.initialize(EtherUtils.zeroAddress()))
+        await expect(greedStarterIndexerImpl.initialize(EtherUtils.zeroAddress(), EtherUtils.zeroAddress()))
             .to.be.revertedWith("Initializable: contract is already initialized");
     });
 
-    it('[Greed Starter Indexer Implementation Contract] upgradeTo Should fail if not called by the owner', async() => {
-        await expect(greedStarterIndexerImpl
-            .connect(guestSigner) // <----- REVERT
-            .upgradeTo(EtherUtils.zeroAddress()))
-            .to.be.revertedWith("Ownable: caller is not the owner");
+    it('[Hell Implementation Contract] upgradeTo must be called through delegatecall', async() => {
+        await expect(hellImpl.upgradeTo(EtherUtils.zeroAddress()))
+            .to.be.revertedWith("Function must be called through delegatecall");
     });
 
-    it('[Greed Starter Indexer Implementation Contract] upgradeToAndCall Should fail if not called by the owner', async() => {
-        await expect(greedStarterIndexerImpl
-            .connect(guestSigner) // <----- REVERT
-            .upgradeToAndCall(EtherUtils.zeroAddress(), zeroBytes32))
-            .to.be.revertedWith("Ownable: caller is not the owner");
+    it('[Hell Implementation Contract] upgradeToAndCall must be called through delegatecall', async() => {
+        await expect(hellImpl.upgradeToAndCall(EtherUtils.zeroAddress(), zeroBytes32))
+            .to.be.revertedWith("Function must be called through delegatecall");
+    });
+
+    it('[Hell Government Implementation Contract] upgradeTo must be called through delegatecall', async() => {
+        await expect(hellGovernmentImpl.upgradeTo(EtherUtils.zeroAddress()))
+            .to.be.revertedWith("Function must be called through delegatecall");
+    });
+
+    it('[Hell Government Implementation Contract] upgradeToAndCall must be called through delegatecall', async() => {
+        await expect(hellGovernmentImpl.upgradeToAndCall(EtherUtils.zeroAddress(), zeroBytes32))
+            .to.be.revertedWith("Function must be called through delegatecall");
+    });
+
+    it('[Auction House Implementation Contract] upgradeTo must be called through delegatecall', async() => {
+        await expect(auctionHouseImpl.upgradeTo(EtherUtils.zeroAddress()))
+            .to.be.revertedWith("Function must be called through delegatecall");
+    });
+
+    it('[Auction House Implementation Contract] upgradeToAndCall must be called through delegatecall', async() => {
+        await expect(auctionHouseImpl.upgradeToAndCall(EtherUtils.zeroAddress(), zeroBytes32))
+            .to.be.revertedWith("Function must be called through delegatecall");
+    });
+
+    it('[Auction House Indexer Implementation Contract] upgradeTo must be called through delegatecall', async() => {
+        await expect(auctionHouseIndexerImpl.upgradeTo(EtherUtils.zeroAddress()))
+            .to.be.revertedWith("Function must be called through delegatecall");
+    });
+
+    it('[Auction House Indexer Implementation Contract] upgradeToAndCall must be called through delegatecall', async() => {
+        await expect(auctionHouseIndexerImpl.upgradeToAndCall(EtherUtils.zeroAddress(), zeroBytes32))
+            .to.be.revertedWith("Function must be called through delegatecall");
+    });
+
+    it('[Greed Starter Implementation Contract] upgradeTo must be called through delegatecall', async() => {
+        await expect(greedStarterImpl.upgradeTo(EtherUtils.zeroAddress()))
+            .to.be.revertedWith("Function must be called through delegatecall");
+    });
+
+    it('[Greed Starter Implementation Contract] upgradeToAndCall must be called through delegatecall', async() => {
+        await expect(greedStarterImpl.upgradeToAndCall(EtherUtils.zeroAddress(), zeroBytes32))
+            .to.be.revertedWith("Function must be called through delegatecall");
+    });
+
+    it('[Greed Starter Indexer Implementation Contract] upgradeTo must be called through delegatecall', async() => {
+        await expect(greedStarterIndexerImpl.upgradeTo(EtherUtils.zeroAddress()))
+            .to.be.revertedWith("Function must be called through delegatecall");
+    });
+
+    it('[Greed Starter Indexer Implementation Contract] upgradeToAndCall must be called through delegatecall', async() => {
+        await expect(greedStarterIndexerImpl.upgradeToAndCall(EtherUtils.zeroAddress(), zeroBytes32))
+            .to.be.revertedWith("Function must be called through delegatecall");
     });
 
 }
