@@ -1,7 +1,5 @@
 import {expect} from "chai";
-import {EtherUtils} from "../../utils/ether-utils";
 import {hellGovernmentTestingEnvironment} from "./@hellGovernmentTestingEnvironment";
-import {BigNumber} from "ethers";
 
 export function _setGreedStarterTreasuryFees() {
     let environment: hellGovernmentTestingEnvironment = new hellGovernmentTestingEnvironment();

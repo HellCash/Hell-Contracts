@@ -20,6 +20,5 @@ export function hellGovernmentTests() {
     describe('function _setGreedStarterTreasuryFees', _setGreedStarterTreasuryFees);
     describe('function _setMinimumAndMaximumAuctionLength', _setMinimumAndMaximumAuctionLength);
     describe('function _setMinimumAndMaximumProjectLength', _setMinimumAndMaximumProjectLength);
-    describe('function _setMinimumAndMaximumProjectLength', _setMinimumAndMaximumProjectLength);
 
 }
