@@ -76,7 +76,7 @@ contract GreedStarter is Initializable, UUPSUpgradeable, OwnableUpgradeable, Ree
         require(tokenAddress != paidWith, "CP2");
         // CP3: The Project Token must have 18 decimals of precision
         require(IERC20Metadata(tokenAddress).decimals() == 18, "CP3");
-        // CP4: The minimum length should be of least _minimumProjectLength blocks
+        // CP4: The minimum length should be of at least _minimumProjectLength blocks
         require(block.number.lowerThan(endsAtBlock) && (endsAtBlock - block.number) >= _hellGovernmentContract._minimumProjectLength(), "CP4");
         // CP5: The startingBlock should be higher or equal to the current block and lower than the ending block
         require(startingBlock.notElapsedOrEqualToCurrentBlock() && startingBlock.lowerThan(endsAtBlock), "CP5");
