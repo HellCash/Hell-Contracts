@@ -3,29 +3,26 @@ import {BigNumber, Contract} from "ethers";
 import {Console} from "../../utils/console";
 import auctionHouseSol from "../../artifacts/contracts/AuctionHouse.sol/AuctionHouse.json";
 import {ContractUtils} from "../../utils/contract-utils";
+import {defaultDeploymentOptions} from "../../models/deployment-options";
+import {EtherUtils} from "../../utils/ether-utils";
 
-export async function deployAuctionHouse(treasuryAddress: string, minimumAuctionLength: number | BigNumber,
-  maximumAuctionLength: number | BigNumber, auctionHouseFee: number, printLogs: boolean = true,
-                                         initializeImplementation: boolean = true): Promise<Contract> {
+export async function deployAuctionHouse(hellGovernmentAddress: string, deploymentOptions = defaultDeploymentOptions): Promise<Contract> {
     const auctionHouseContractProxy = await upgrades.deployProxy(
         await ethers.getContractFactory("AuctionHouse"), [
-            minimumAuctionLength, maximumAuctionLength, treasuryAddress, auctionHouseFee
+            hellGovernmentAddress
         ],
         {kind: 'uups'}
     );
-    if (printLogs) {
-        const feePercentage = (1 / auctionHouseFee) * 100;
+    if (deploymentOptions.printLogs) {
         Console.contractDeploymentInformation("AuctionHouse", auctionHouseContractProxy);
-        console.log(`\t[Auction House Contract]: Minimum Auction Length ${minimumAuctionLength}`);
-        console.log(`\t[Auction House Contract]: Set Treasury Address to ${treasuryAddress} with fees of ${feePercentage}%`);
     }
 
-    if (initializeImplementation) {
+    if (deploymentOptions.initializeImplementation) {
         // Initialize Implementation with gibberish values, so that the contract is left in an unusable state.
         // https://forum.openzeppelin.com/t/security-advisory-initialize-uups-implementation-contracts/15301
         await ContractUtils.initializeProxyImplementation(auctionHouseSol, auctionHouseContractProxy, [
-            BigNumber.from(1), BigNumber.from(1), treasuryAddress, 1
-        ], printLogs);
+            EtherUtils.zeroAddress()
+        ], deploymentOptions.printLogs);
     }
 
     return auctionHouseContractProxy;
