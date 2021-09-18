@@ -205,6 +205,7 @@ contract AuctionHouse is Initializable, UUPSUpgradeable, OwnableUpgradeable, Ree
     function initialize(address hellGovernmentAddress) initializer public {
         __Ownable_init();
         __UUPSUpgradeable_init();
+        __ReentrancyGuard_init();
         _setHellGovernmentContract(hellGovernmentAddress);
     }
     function _authorizeUpgrade(address) internal override onlyOwner {}

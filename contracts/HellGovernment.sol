@@ -30,6 +30,7 @@ contract HellGovernment is Initializable, UUPSUpgradeable, OwnableUpgradeable, R
     function initialize(address payable treasuryAddress, uint16 auctionHouseFee, uint minimumAuctionLength, uint maximumAuctionLength, uint16 greedStarterFee, uint minimumProjectLength, uint maximumProjectLength) initializer public {
         __Ownable_init();
         __UUPSUpgradeable_init();
+        __ReentrancyGuard_init();
         _generalPaginationLimit = 40;
         _setTreasuryAddress(treasuryAddress);
         // Initialize Auction House Variables
