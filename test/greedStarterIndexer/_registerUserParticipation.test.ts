@@ -8,7 +8,7 @@ export function _registerUserParticipation() {
         await environment.initialize();
         // We'll use the master signer as the Greed Starter contract
         await environment.greedStarterIndexerContract
-            ._setGreedStarterContract(environment.masterSigner.address);
+            ._setGreedStarterContractAddress(environment.masterSigner.address);
     });
 
     it('Should fail if not called by the Greed Starter Contract', async() => {
