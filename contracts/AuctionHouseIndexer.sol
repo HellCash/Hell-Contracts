@@ -174,6 +174,7 @@ contract AuctionHouseIndexer is Initializable, UUPSUpgradeable, OwnableUpgradeab
     constructor() initializer {}
     function initialize(address hellGovernmentAddress, address auctionHouseAddress) initializer public {
         __Ownable_init();
+        __UUPSUpgradeable_init();
         _setHellGovernmentContract(hellGovernmentAddress);
         _setAuctionHouseContractAddress(auctionHouseAddress);
     }
