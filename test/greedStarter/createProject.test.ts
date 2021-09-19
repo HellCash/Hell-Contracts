@@ -106,6 +106,31 @@ export function createProject() {
         )).to.be.revertedWith("CP5"); // Starting block lower than current block
     });
 
+    it('Should fail if the project length is higher than the _maximumProjectLength', async () => {
+        const currentBlock = await ethers.provider.getBlockNumber();
+        await expect(environment.greedStarterContract.createProject(
+            environment.hellContract.address, // Token address
+            EtherUtils.zeroAddress(), // Address of paying currency
+            parseEther("200"), // Total Tokens
+            currentBlock + 50, // Starting block
+            environment.maximumProjectLength.add(currentBlock + 52), // Ending block <--- REVERT
+            parseEther("0.02"), // Price per token
+            parseEther("5"), // Minimum purchase
+            parseEther("10") // Maximum Purchase
+        )).to.be.revertedWith("CP10"); // Starting block lower than current block
+
+        await expect(environment.greedStarterContract.createProject(
+            environment.hellContract.address, // Token address
+            EtherUtils.zeroAddress(), // Address of paying currency
+            parseEther("200"), // Total Tokens
+            currentBlock + 50, // Starting block
+            environment.maximumProjectLength.mul(2).add(currentBlock), // Ending block <--- REVERT
+            parseEther("0.02"), // Price per token
+            parseEther("5"), // Minimum purchase
+            parseEther("10") // Maximum Purchase
+        )).to.be.revertedWith("CP10"); // Starting block lower than current block
+    });
+
     it('The Project Token must have 18 decimals of precision', async () => {
         const currentBlock = await ethers.provider.getBlockNumber();
         await expect(environment.greedStarterContract.createProject(
