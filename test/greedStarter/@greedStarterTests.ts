@@ -9,12 +9,14 @@ import {parseEther, parseUnits} from "ethers/lib/utils";
 import {_forceEndProject} from "./_forceEndProject.test";
 import {upgradeTo} from "./upgradeTo";
 import {upgradeToAndCall} from "./upgradeToAndCall";
+import {_setHellGovernmentContract} from "./_setHellGovernmentContract";
 
 export function greedStarterTests() {
     describe('function initialize', initialize);
     describe('function upgradeTo', upgradeTo);
     describe('function upgradeToAndCall', upgradeToAndCall);
     describe('function _setIndexer', _setIndexer);
+    describe('function _setHellGovernmentContract', _setHellGovernmentContract);
     describe('function _forceEndProject', _forceEndProject);
     describe('function createProject', createProject);
     describe('function invest', invest);
