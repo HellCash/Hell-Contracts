@@ -6,14 +6,16 @@ import {_registerAuctionSold} from "./_registerAuctionSold.test";
 import {_registerAuctionWon} from "./_registerAuctionWon.test";
 import {upgradeTo} from "./upgradeTo";
 import {upgradeToAndCall} from "./upgradeToAndCall";
+import {_setHellGovernmentContract} from "./_setHellGovernmentContract";
 
 export function auctionHouseIndexerTests() {
-    describe('initialize', initialize);
-    describe('upgradeTo', upgradeTo);
-    describe('upgradeToAndCall', upgradeToAndCall);
-    describe('_setAuctionHouseContract', _setAuctionHouseContractAddress);
-    describe('registerNewAuctionCreation', _registerNewAuctionCreation);
-    describe('registerUserParticipation', _registerUserParticipation);
-    describe('registerAuctionSold', _registerAuctionSold);
-    describe('registerAuctionWon', _registerAuctionWon);
+    describe('function initialize', initialize);
+    describe('function upgradeTo', upgradeTo);
+    describe('function upgradeToAndCall', upgradeToAndCall);
+    describe('function _setAuctionHouseContract', _setAuctionHouseContractAddress);
+    describe('function _setHellGovernmentContract', _setHellGovernmentContract);
+    describe('function registerNewAuctionCreation', _registerNewAuctionCreation);
+    describe('function registerUserParticipation', _registerUserParticipation);
+    describe('function registerAuctionSold', _registerAuctionSold);
+    describe('function registerAuctionWon', _registerAuctionWon);
 }
