@@ -1,8 +1,6 @@
 import {ethers, upgrades} from "hardhat";
 import {Console} from "../../utils/console";
-import {BigNumber, Contract} from "ethers";
-import {ContractUtils} from "../../utils/contract-utils";
-import HellGovernmentSol from "../../artifacts/contracts/HellGovernment.sol/HellGovernment.json";
+import {Contract} from "ethers";
 import {HellGovernmentInitializer} from "../../models/hell-government-initializer";
 import {defaultDeploymentOptions} from "../../models/deployment-options";
 
