@@ -11,6 +11,7 @@ import {parseEther, parseUnits} from "ethers/lib/utils";
 import {BigNumber} from "ethers";
 import {upgradeTo} from "./upgradeTo";
 import {upgradeToAndCall} from "./upgradeToAndCall";
+import {_setHellGovernmentContract} from "./_setHellGovernmentContract";
 
 export function auctionHouseTests() {
     describe('function initialize', initialize);
@@ -18,6 +19,7 @@ export function auctionHouseTests() {
     describe('function upgradeToAndCall', upgradeToAndCall);
     describe('function _setIndexer', _setIndexer);
     describe('function _forceEndAuction', _forceEndAuction);
+    describe('function _setHellGovernmentContract', _setHellGovernmentContract);
     describe('function createAuction', createAuction);
     describe('function increaseBid', increaseBid);
     describe('function claimFunds', claimFunds);
