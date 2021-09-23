@@ -14,13 +14,22 @@ Tests are located inside the /test folder and can be executed with ease by using
 npx hardhat test --network hardhat
 ```
 
-Keep in mind that you'll have to install its dependencies with npm.
+Keep in mind that you'll have to install its dependencies with npm and also to compile our contracts.
 
 ```
 git clone https://github.com/jccrlz/HellContracts
 cd HellContracts
 npm install
+npx hardhat compile
 ```
+
+# Audits 
+
+Though we heavily tested our contracts to ensure they are secure, we haven't been audited yet from any reputable source, so manage your risks accordingly until this gets addressed.
+
+# Licensing
+
+HELL Core smart contracts are licensed under the Business Source License 1.1 (BUSL-1.1), see LICENSE.
 
 # Discussion
 
