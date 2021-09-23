@@ -29,7 +29,12 @@ Though we heavily tested our contracts to ensure they are secure, we haven't bee
 
 # Licensing
 
-HELL Core smart contracts are licensed under the Business Source License 1.1 (BUSL-1.1), see LICENSE.
+The primary license for HELL Core smart contracts is the Business Source License 1.1 (BUSL-1.1), see LICENSE.
+
+## Exceptions
+
+- All files on ```contracts/external``` were created for testing purposes and are licensed under ```MIT```
+- All files on ```contracts/libraries``` are licensed under ```BSD 3-Clause```
 
 # Discussion
 
