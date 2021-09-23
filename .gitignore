@@ -1,12 +1,8 @@
 .idea
 artifacts
 node_modules
-#Hardhat files
 cache
 _artifacts
-_oldContracts
-_pendingContracts
-_ganache-cli-db
 .idea
 artifacts
 .openzeppelin
