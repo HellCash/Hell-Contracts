@@ -6,7 +6,7 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 
 /*
     @dev This contract will be used to test against transactions with flexible decimals
-         In this case we have 4 decimals
+         In this case we have 6 decimals
 */
 contract FUSD is ERC20, Ownable {
     constructor () ERC20("FUSD", "FUSD") {

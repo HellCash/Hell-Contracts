@@ -99,7 +99,6 @@ export function invest() {
             )).to.be.revertedWith('I6');
     });
 
-    // TODO: Attempt on the scenario that the user purchases more for the second time
     it('Should fail if the user already purchased the maximum amount available per wallet', async() => {
         await expect(environment.greedStarterContract.connect(environment.guest1Signer)
             .invest(
