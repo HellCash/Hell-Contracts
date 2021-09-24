@@ -5,8 +5,10 @@ export async function txConfirmation(message: string, callData: any, printLogs =
     switch (network.name) {
         case 'rinkeby':
         case 'bsctestnet':
+        case 'bsc':
+        case 'mainnet':
         case 'mumbai':
-            confirmationBlocks = 2;
+            confirmationBlocks = 3;
     }
     if (printLogs) {
         console.log(`\t [Confirmations ${confirmationBlocks}] ` + message);
