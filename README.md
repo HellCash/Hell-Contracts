@@ -8,7 +8,7 @@ https://docs.hell.cash
 
 # Testing
 
-Tests are located inside the /test folder and can be executed with ease by using the following command within its root directory. 
+We currently have more than 224 automated test, these are located inside the /test folder and can be executed with ease by using the following command within its root directory. 
 
 ```
 npx hardhat test --network hardhat
@@ -29,7 +29,8 @@ Though we heavily tested our contracts to ensure they are secure, we haven't bee
 
 # Licensing
 
-The primary license for HELL Core smart contracts is the Business Source License 1.1 (BUSL-1.1), see LICENSE.
+The primary license for HELL Core smart contracts is the Business Source License 1.1 (```BUSL-1.1```), see [LICENSE](https://github.com/HellCash/Hell-Contracts/blob/main/LICENSE), keep in mind that (```BUSL-1.1```) is not an Open Source license. However, the Licensed Work will eventually be made available
+under an Open Source License, as stated in this License.
 
 ## Exceptions
 
