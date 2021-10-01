@@ -3,6 +3,4 @@ artifacts
 node_modules
 cache
 _artifacts
-.idea
-artifacts
 .openzeppelin
