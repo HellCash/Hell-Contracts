@@ -1,14 +1,11 @@
 import {network} from "hardhat";
 
 export async function txConfirmation(message: string, callData: any, printLogs = true): Promise<boolean> {
-    let confirmationBlocks = 1;
+    let confirmationBlocks = 3;
     switch (network.name) {
-        case 'rinkeby':
-        case 'bsctestnet':
-        case 'bsc':
-        case 'mainnet':
-        case 'mumbai':
-            confirmationBlocks = 3;
+        case 'hardhat':
+        case 'localhost':
+            confirmationBlocks = 1;
     }
     if (printLogs) {
         console.log(`\t [Confirmations ${confirmationBlocks}] ` + message);
