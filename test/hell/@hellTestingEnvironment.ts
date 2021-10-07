@@ -1,7 +1,7 @@
 import {Contract} from "ethers";
 import {ethers} from "hardhat";
 import {deployHell} from "../../scripts/deployments/deployHell";
-import {testingEnvironmentDeploymentOptions} from "../../models/deployment-options";
+import {testingEnvironmentDeploymentOptions} from "../../models/deploymentOptions";
 
 export class hellTestingEnvironment {
     // Account signers

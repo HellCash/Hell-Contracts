@@ -1,6 +1,6 @@
 import {expect} from "chai";
 import {greedStarterTestingEnvironment} from "./@greedStarterTestingEnvironment";
-import {EtherUtils} from "../../utils/ether-utils";
+import {EtherUtils} from "../../utils/etherUtils";
 
 export function initialize() {
     let environment: greedStarterTestingEnvironment = new greedStarterTestingEnvironment();

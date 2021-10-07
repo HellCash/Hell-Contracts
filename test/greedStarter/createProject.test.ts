@@ -2,7 +2,7 @@ import {ethers} from "hardhat";
 import {BigNumber} from "ethers";
 import {parseEther, parseUnits} from "ethers/lib/utils";
 import {expect} from "chai";
-import {EtherUtils} from "../../utils/ether-utils";
+import {EtherUtils} from "../../utils/etherUtils";
 import {greedStarterTestingEnvironment} from "./@greedStarterTestingEnvironment";
 
 export function createProject() {

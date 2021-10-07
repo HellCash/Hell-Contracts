@@ -2,12 +2,12 @@ import {greedStarterTestingEnvironment} from "./@greedStarterTestingEnvironment"
 import {BigNumber, Contract} from "ethers";
 import {ethers} from "hardhat";
 import {expect} from "chai";
-import {EtherUtils} from "../../utils/ether-utils";
+import {EtherUtils} from "../../utils/etherUtils";
 import {Project} from "../../models/project";
 import {formatEther, formatUnits, parseEther} from "ethers/lib/utils";
 import erc20Sol from "../../artifacts/@openzeppelin/contracts/token/ERC20/ERC20.sol/ERC20.json";
 import {Random} from "../../utils/random";
-import {NetworkUtils} from "../../utils/network-utils";
+import {NetworkUtils} from "../../utils/networkUtils";
 import {deployRandom} from "../../scripts/deployments/deployRandom";
 
 /*

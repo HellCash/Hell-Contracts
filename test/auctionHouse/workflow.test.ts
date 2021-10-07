@@ -2,7 +2,7 @@ import {BigNumber, Contract} from "ethers";
 import {auctionHouseTestingEnvironment} from "./@auctionHouseTestingEnvironment";
 import {ethers} from "hardhat";
 import {expect} from "chai";
-import {EtherUtils} from "../../utils/ether-utils";
+import {EtherUtils} from "../../utils/etherUtils";
 import erc20Sol from "../../artifacts/@openzeppelin/contracts/token/ERC20/ERC20.sol/ERC20.json";
 import {TokenName} from "../../enums/tokenName";
 import {formatUnits} from "ethers/lib/utils";

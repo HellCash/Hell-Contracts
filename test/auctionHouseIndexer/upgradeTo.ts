@@ -1,5 +1,5 @@
 import {expect} from "chai";
-import {EtherUtils} from "../../utils/ether-utils";
+import {EtherUtils} from "../../utils/etherUtils";
 import {auctionHouseTestingEnvironment} from "../auctionHouse/@auctionHouseTestingEnvironment";
 
 export function upgradeTo() {

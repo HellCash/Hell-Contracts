@@ -1,5 +1,5 @@
 import {expect} from "chai";
-import {EtherUtils, zeroBytes32} from "../../utils/ether-utils";
+import {EtherUtils, zeroBytes32} from "../../utils/etherUtils";
 import {greedStarterTestingEnvironment} from "../greedStarter/@greedStarterTestingEnvironment";
 
 export function upgradeToAndCall() {

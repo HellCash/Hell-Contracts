@@ -9,7 +9,7 @@ import {deployBDoublon} from "../../scripts/deployments/deployBDoublon";
 import {deployRandom} from "../../scripts/deployments/deployRandom";
 import {parseEther} from "ethers/lib/utils";
 import {deployHellGovernment} from "../../scripts/deployments/deployHellGovernment";
-import {testingEnvironmentDeploymentOptions} from "../../models/deployment-options";
+import {testingEnvironmentDeploymentOptions} from "../../models/deploymentOptions";
 
 export class auctionHouseTestingEnvironment {
     // Environment Variables

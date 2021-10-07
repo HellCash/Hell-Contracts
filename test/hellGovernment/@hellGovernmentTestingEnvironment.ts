@@ -1,7 +1,7 @@
 import {BigNumber, Contract} from "ethers";
 import {ethers} from "hardhat";
 import {deployHellGovernment} from "../../scripts/deployments/deployHellGovernment";
-import {testingEnvironmentDeploymentOptions} from "../../models/deployment-options";
+import {testingEnvironmentDeploymentOptions} from "../../models/deploymentOptions";
 
 export class hellGovernmentTestingEnvironment {
     // Account signers

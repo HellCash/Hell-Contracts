@@ -1,7 +1,7 @@
 import {ethers} from "hardhat";
 import {getImplementationAddress} from "@openzeppelin/upgrades-core";
 import {Contract} from "ethers";
-import {txConfirmation} from "./network-utils";
+import {txConfirmation} from "./networkUtils";
 
 export class ContractUtils {
     // Initialize Implementation with gibberish values, so that the contract is left in an unusable state.

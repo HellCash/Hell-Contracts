@@ -1,6 +1,6 @@
 import {expect} from "chai";
 import {BigNumber} from "ethers";
-import {EtherUtils} from "../../utils/ether-utils";
+import {EtherUtils} from "../../utils/etherUtils";
 import {parseEther} from "ethers/lib/utils";
 import {hellTestingEnvironment} from "./@hellTestingEnvironment";
 

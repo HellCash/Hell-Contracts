@@ -1,7 +1,7 @@
 import {expect} from "chai";
 import {auctionHouseTestingEnvironment} from "../auctionHouse/@auctionHouseTestingEnvironment";
 import {BigNumber} from "ethers";
-import {EtherUtils} from "../../utils/ether-utils";
+import {EtherUtils} from "../../utils/etherUtils";
 
 export function _registerNewAuctionCreation() {
     let environment: auctionHouseTestingEnvironment = new auctionHouseTestingEnvironment();

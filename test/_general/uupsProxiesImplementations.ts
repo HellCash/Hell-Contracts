@@ -1,14 +1,14 @@
 import {expect} from "chai";
 import {BigNumber, Contract, Signer} from "ethers";
 import {ethers} from "hardhat";
-import {ContractUtils} from "../../utils/contract-utils";
+import {ContractUtils} from "../../utils/contractUtils";
 import hellSol from "../../artifacts/contracts/Hell.sol/Hell.json";
 import {deployHell} from "../../scripts/deployments/deployHell";
 import {deployAuctionHouse} from "../../scripts/deployments/deployAuctionHouse";
 import {deployAuctionHouseIndexer} from "../../scripts/deployments/deployAuctionHouseIndexer";
 import {deployGreedStarter} from "../../scripts/deployments/deployGreedStarter";
 import {deployGreedStarterIndexer} from "../../scripts/deployments/deployGreedStarterIndexer";
-import {EtherUtils, zeroBytes32} from "../../utils/ether-utils";
+import {EtherUtils, zeroBytes32} from "../../utils/etherUtils";
 import auctionHouseSol from "../../artifacts/contracts/AuctionHouse.sol/AuctionHouse.json";
 import hellGovernmentSol from "../../artifacts/contracts/HellGovernment.sol/HellGovernment.json";
 import auctionHouseIndexerSol from "../../artifacts/contracts/AuctionHouseIndexer.sol/AuctionHouseIndexer.json";
@@ -17,8 +17,8 @@ import greedStarterIndexerSol from "../../artifacts/contracts/GreedStarterIndexe
 import {Provider} from "@ethersproject/providers";
 import {SignerWithAddress} from "@nomiclabs/hardhat-ethers/dist/src/signers";
 import {deployHellGovernment} from "../../scripts/deployments/deployHellGovernment";
-import {testingEnvironmentDeploymentOptions} from "../../models/deployment-options";
-import {HellGovernmentInitializer} from "../../models/hell-government-initializer";
+import {testingEnvironmentDeploymentOptions} from "../../models/deploymentOptions";
+import {HellGovernmentInitializer} from "../../models/hellGovernmentInitializer";
 
 /**
 

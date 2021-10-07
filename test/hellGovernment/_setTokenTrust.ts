@@ -1,5 +1,5 @@
 import {expect} from "chai";
-import {EtherUtils} from "../../utils/ether-utils";
+import {EtherUtils} from "../../utils/etherUtils";
 import {hellGovernmentTestingEnvironment} from "./@hellGovernmentTestingEnvironment";
 
 export function _setTokenTrust() {

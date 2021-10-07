@@ -6,7 +6,7 @@ import {deployFUSD} from "../../scripts/deployments/deployFUSD";
 import {deployBDoublon} from "../../scripts/deployments/deployBDoublon";
 import {deployGreedStarter} from "../../scripts/deployments/deployGreedStarter";
 import {deployGreedStarterIndexer} from "../../scripts/deployments/deployGreedStarterIndexer";
-import {testingEnvironmentDeploymentOptions} from "../../models/deployment-options";
+import {testingEnvironmentDeploymentOptions} from "../../models/deploymentOptions";
 import {deployHellGovernment} from "../../scripts/deployments/deployHellGovernment";
 
 export class greedStarterTestingEnvironment {

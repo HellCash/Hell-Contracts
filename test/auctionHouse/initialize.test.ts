@@ -1,6 +1,6 @@
 import {expect} from "chai";
 import {auctionHouseTestingEnvironment} from "./@auctionHouseTestingEnvironment";
-import {EtherUtils} from "../../utils/ether-utils";
+import {EtherUtils} from "../../utils/etherUtils";
 
 export function initialize() {
     let environment: auctionHouseTestingEnvironment = new auctionHouseTestingEnvironment();

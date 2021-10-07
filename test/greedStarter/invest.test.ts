@@ -3,9 +3,9 @@ import {BigNumber, Contract} from "ethers";
 import {parseEther, parseUnits} from "ethers/lib/utils";
 import {expect} from "chai";
 import {Project} from "../../models/project";
-import {EtherUtils} from "../../utils/ether-utils";
+import {EtherUtils} from "../../utils/etherUtils";
 import {greedStarterTestingEnvironment} from "./@greedStarterTestingEnvironment";
-import {NetworkUtils} from "../../utils/network-utils";
+import {NetworkUtils} from "../../utils/networkUtils";
 
 export function invest() {
     let doublonProjectIdPaidWithEther: BigNumber;

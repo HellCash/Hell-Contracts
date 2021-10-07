@@ -4,7 +4,7 @@ import {parseEther, parseUnits} from "ethers/lib/utils";
 import {ethers} from "hardhat";
 import {BigNumber, Contract} from "ethers";
 import {Project} from "../../models/project";
-import {NetworkUtils} from "../../utils/network-utils";
+import {NetworkUtils} from "../../utils/networkUtils";
 
 export function bottomEdges() {
     let environment: greedStarterTestingEnvironment = new greedStarterTestingEnvironment();

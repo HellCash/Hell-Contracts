@@ -1,8 +1,8 @@
 import {ethers, upgrades} from "hardhat";
 import {Console} from "../../utils/console";
 import {Contract} from "ethers";
-import {HellGovernmentInitializer} from "../../models/hell-government-initializer";
-import {defaultDeploymentOptions} from "../../models/deployment-options";
+import {HellGovernmentInitializer} from "../../models/hellGovernmentInitializer";
+import {defaultDeploymentOptions} from "../../models/deploymentOptions";
 
 export async function deployHellGovernment(hellGovernmentInitializer: HellGovernmentInitializer, deploymentOptions = defaultDeploymentOptions): Promise<Contract> {
     const hellGovernmentContractProxy = await upgrades.deployProxy(
