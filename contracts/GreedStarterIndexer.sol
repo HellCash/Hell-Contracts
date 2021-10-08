@@ -53,6 +53,13 @@ contract GreedStarterIndexer is Initializable, UUPSUpgradeable, OwnableUpgradeab
         }
     }
 
+    function _registerNewProjectCreation(uint projectId, address creatorAddress, address offeredTokenAddress, address paidWithTokenAddress) external onlyGreedStarter returns(bool) {
+        // Register the ProjectIndex for the creator
+        _userTotalProjects[creatorAddress] += 1;
+        _userProjects[creatorAddress][_userTotalProjects[creatorAddress]] = projectId;
+        return true;
+    }
+
     ////////////////////////////////////////////////////////////////////
     // Only Owner                                                   ////
     ////////////////////////////////////////////////////////////////////

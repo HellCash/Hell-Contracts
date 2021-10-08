@@ -114,6 +114,8 @@ contract GreedStarter is Initializable, UUPSUpgradeable, OwnableUpgradeable, Ree
         project.maximumPurchase = maximumPurchase;
         // Save the project
         _projects[_totalProjects] = project;
+        // Register project indexes
+        _indexer._registerNewProjectCreation(_totalProjects, project.createdBy, project.tokenAddress, project.paidWith);
         // Logs a ProjectCreated event
         emit ProjectCreated(project.id, project.tokenAddress, project.paidWith, project.totalTokens, project.startingBlock, project.endsAtBlock, project.pricePerToken);
      }
