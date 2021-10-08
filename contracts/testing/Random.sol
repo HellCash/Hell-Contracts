@@ -1,4 +1,8 @@
 // SPDX-License-Identifier: MIT
+// HellCash
+// https://hell.cash
+//////////////////////////////////////////
+
 pragma solidity ^0.8.7;
 
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
