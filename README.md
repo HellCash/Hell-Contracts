@@ -34,7 +34,7 @@ under an Open Source License, as stated in this License.
 
 ## Exceptions
 
-- All files on ```contracts/external``` were created for testing purposes and are licensed under ```MIT```
+- All files on ```contracts/testing``` were created for testing purposes and are licensed under ```MIT```
 - All files on ```contracts/libraries``` are licensed under ```BSD 3-Clause```
 
 # Discussion
