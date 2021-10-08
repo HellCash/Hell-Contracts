@@ -201,7 +201,6 @@ contract GreedStarter is Initializable, UUPSUpgradeable, OwnableUpgradeable, Ree
     // Views                                                        ////
     ////////////////////////////////////////////////////////////////////
     function getProjects(uint[] memory ids) external view returns(Project[] memory) {
-        require(ids.length <= 30, "PAG"); // PAG: Pagination limit exceeded
         Project[] memory projects = new Project[](ids.length);
         for(uint i = 0; i < ids.length; i++) {
             projects[i] = _projects[ids[i]];
@@ -230,8 +229,6 @@ contract GreedStarter is Initializable, UUPSUpgradeable, OwnableUpgradeable, Ree
     }
 
     function _forceEndProject(uint projectId) external onlyOwner {
-        // FE: The project doesn't exists or already ended
-        require(_projects[projectId].id != 0 && block.number.lowerThan(_projects[projectId].endsAtBlock), "FE");
         _projects[projectId].endsAtBlock = block.number;
         emit ProjectClosedByAdmin(projectId);
     }

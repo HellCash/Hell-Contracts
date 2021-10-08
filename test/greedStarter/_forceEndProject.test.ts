@@ -37,9 +37,4 @@ export function _forceEndProject() {
             .emit(environment.greedStarterContract, "ProjectClosedByAdmin")
             .withArgs(projectId);
     });
-
-    it('Should fail if the project already ended', async() => {
-        await expect(environment.greedStarterContract._forceEndProject(projectId)).to
-            .be.revertedWith("FE")
-    });
 }
