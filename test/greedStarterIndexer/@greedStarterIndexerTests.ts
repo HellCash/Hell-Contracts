@@ -6,6 +6,7 @@ import {_removeFromTrustedProjects} from "./_removeFromTrustedProjects.test";
 import {upgradeTo} from "./upgradeTo";
 import {upgradeToAndCall} from "./upgradeToAndCall";
 import {_setHellGovernmentContract} from "./_setHellGovernmentContract";
+import {_registerNewProjectCreation} from "./_registerNewProjectCreation.test";
 
 export function greedStarterIndexerTests() {
     describe('function initialize', initialize);
@@ -16,4 +17,5 @@ export function greedStarterIndexerTests() {
     describe('function _registerUserParticipation', _registerUserParticipation);
     describe('function _setGreedStarterContractAddress', _setGreedStarterContractAddress);
     describe('function _removeFromTrustedProjects', _removeFromTrustedProjects);
+    describe('function _registerNewProjectCreation', _registerNewProjectCreation);
 }
