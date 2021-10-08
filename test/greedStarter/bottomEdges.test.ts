@@ -22,8 +22,8 @@ export function bottomEdges() {
         const startingBlock = currentBlock + 1;
         const endingBlock = environment.minimumProjectLength.add(currentBlock + 1);
         const pricePerToken = parseUnits('1', 6);
-        const minimumPurchase = parseUnits('1', 16);
-        const maximumPurchase = parseUnits('1', 16);
+        const minimumPurchase = parseUnits('1', 15);
+        const maximumPurchase = parseUnits('1', 15);
 
         await expect(environment.greedStarterContract.createProject(
             environment.hellContract.address, // Token address
