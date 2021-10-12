@@ -77,6 +77,8 @@ contract UniswapV2LiquidityProvider is Ownable, AccessControl {
         require(initialOfferedTokenLiquidity > 0, "You must provide some tokens for Liquidity");
         // Deposit offeredTokens in the Provider
         payable(address(this)).safeDepositAsset(offeredTokenAddress, (totalTokens + initialOfferedTokenLiquidity));
+        // Increase the offered token allowance
+        IERC20(offeredTokenAddress).approve(address(_greedStarter), totalTokens);
         // Create a new Project on Greed Starter
         _projectId = _greedStarter.createProject(offeredTokenAddress, paidWith, totalTokens, startingBlock, endsAtBlock, pricePerToken, minimumPurchase, maximumPurchase);
         _pricePerToken = pricePerToken;
