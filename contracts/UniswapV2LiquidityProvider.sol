@@ -17,8 +17,8 @@ import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 contract UniswapV2LiquidityProvider is Ownable, AccessControl {
     GreedStarterInterface public immutable _greedStarter;
     GreedStarterIndexer public immutable _indexer;
-    IUniswapV2Factory public immutable _factory;
-    IUniswapV2Router02 public immutable _router;
+    IUniswapV2Factory public immutable _uniswapV2Factory;
+    IUniswapV2Router02 public immutable _uniswapV2Router;
 
     using HellishTransfers for address;
     using HellishTransfers for address payable;
@@ -42,8 +42,8 @@ contract UniswapV2LiquidityProvider is Ownable, AccessControl {
     ) {
         _greedStarter = GreedStarterInterface(greedStarterContractAddress);
         _indexer = GreedStarterIndexer(greedStarterIndexerContractAddress);
-        _factory = IUniswapV2Factory(uniswapV2FactoryContractAddress);
-        _router = IUniswapV2Router02(uniswapV2Router02ContractAddress);
+        _uniswapV2Factory = IUniswapV2Factory(uniswapV2FactoryContractAddress);
+        _uniswapV2Router = IUniswapV2Router02(uniswapV2Router02ContractAddress);
     }
 
     /*
@@ -78,9 +78,7 @@ contract UniswapV2LiquidityProvider is Ownable, AccessControl {
         // Deposit offeredTokens in the Provider
         payable(address(this)).safeDepositAsset(offeredTokenAddress, (totalTokens + initialOfferedTokenLiquidity));
         // Create a new Project on Greed Starter
-        _greedStarter.createProject(offeredTokenAddress, paidWith, totalTokens, startingBlock, endsAtBlock, pricePerToken, minimumPurchase, maximumPurchase);
-        // The projectId will be the latest one registered by the user.
-        _projectId = _indexer._userTotalProjects(msg.sender);
+        _projectId = _greedStarter.createProject(offeredTokenAddress, paidWith, totalTokens, startingBlock, endsAtBlock, pricePerToken, minimumPurchase, maximumPurchase);
         _pricePerToken = pricePerToken;
         _minimumPurchase = minimumPurchase;
         _maximumPurchase = maximumPurchase;
