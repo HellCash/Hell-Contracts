@@ -73,7 +73,7 @@ contract GreedStarter is Initializable, UUPSUpgradeable, OwnableUpgradeable, Ree
         uint pricePerToken,
         uint minimumPurchase,
         uint maximumPurchase
-    ) external nonReentrant {
+    ) external nonReentrant returns(uint) {
         // CP1: Cannot create a project of the network currency
         require(tokenAddress != address(0), "CP1");
         // CP2: Cannot create a project and sell it for the same currency
@@ -118,6 +118,7 @@ contract GreedStarter is Initializable, UUPSUpgradeable, OwnableUpgradeable, Ree
         _indexer._registerNewProjectCreation(project.id, project.createdBy);
         // Logs a ProjectCreated event
         emit ProjectCreated(project.id, project.tokenAddress, project.paidWith, project.totalTokens, project.startingBlock, project.endsAtBlock, project.pricePerToken);
+        return project.id;
      }
 
      function invest(uint projectId, uint amountToBuy) external payable nonReentrant {
