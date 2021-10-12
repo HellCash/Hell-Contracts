@@ -15,7 +15,7 @@ interface GreedStarterInterface {
         uint pricePerToken,
         uint minimumPurchase,
         uint maximumPurchase
-    ) external;
+    ) external returns(uint);
     function invest(uint projectId, uint amountToBuy) external;
     function claimFunds(uint projectId) external;
 }
