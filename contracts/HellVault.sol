@@ -49,6 +49,8 @@ contract HellVault is Initializable, UUPSUpgradeable, OwnableUpgradeable, Reentr
     function deposit(uint amount) external payable nonReentrant {
         // D1: Deposit must be >= 1e12 (0.000001) HELL
         require(amount >= 1e12, "D1");
+        // Update the vault, Making all unrealized rewards realized.
+        // TODO: updateVault
         // Transfer the user funds to the Hell Vault Contract
         // safeDepositAsset: Validates for enough: balance, allowance and if the HellVault Contract received the expected amount
         address(this).safeDepositAsset(address(_hellContract), amount);
@@ -56,6 +58,21 @@ contract HellVault is Initializable, UUPSUpgradeable, OwnableUpgradeable, Reentr
         _userInfo[msg.sender].hellDeposited += amount;
         _totalAmountDeposited += amount;
         emit Deposit(msg.sender, amount);
+    }
+
+    function withdraw(uint amount) public nonReentrant {
+        // W1: You're trying to withdraw more HELL than what you have available
+        require(_userInfo[msg.sender].hellDeposited >= amount, "W1");
+        // Update the vault, Making all unrealized rewards realized.
+        // TODO: updateVault
+        // Claim user pending rewards, avoiding the usage of an additional transaction.
+        // TODO: claimRewards
+        // Update withdrawn amounts
+        _userInfo[msg.sender].hellDeposited -= amount;
+        _totalAmountDeposited -= amount;
+        // Send the user his funds back
+        (msg.sender).safeTransferAsset(address(_hellContract), amount);
+        emit Withdraw(msg.sender, amount);
     }
     
     ////////////////////////////////////////////////////////////////////
@@ -84,4 +101,5 @@ contract HellVault is Initializable, UUPSUpgradeable, OwnableUpgradeable, Reentr
     // Events                                                       ////
     ////////////////////////////////////////////////////////////////////
     event Deposit(address indexed user, uint amount);
+    event Withdraw(address indexed user, uint amount);
 }
