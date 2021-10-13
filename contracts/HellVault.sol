@@ -44,6 +44,21 @@ contract HellVault is Initializable, UUPSUpgradeable, OwnableUpgradeable, Reentr
     }
     mapping(address => UserInfo) internal _userInfo;
     ////////////////////////////////////////////////////////////////////
+    // External functions                                           ////
+    ////////////////////////////////////////////////////////////////////
+    function deposit(uint amount) external payable nonReentrant {
+        // D1: Deposit must be >= 1e12 (0.000001) HELL
+        require(amount >= 1e12, "D1");
+        // Transfer the user funds to the Hell Vault Contract
+        // safeDepositAsset: Validates for enough: balance, allowance and if the HellVault Contract received the expected amount
+        address(this).safeDepositAsset(address(_hellContract), amount);
+        // Update deposited amounts
+        _userInfo[msg.sender].hellDeposited += amount;
+        _totalAmountDeposited += amount;
+        emit Deposit(msg.sender, amount);
+    }
+    
+    ////////////////////////////////////////////////////////////////////
     // Only Owner                                                   ////
     ////////////////////////////////////////////////////////////////////
     /// @custom:oz-upgrades-unsafe-allow constructor
@@ -65,5 +80,8 @@ contract HellVault is Initializable, UUPSUpgradeable, OwnableUpgradeable, Reentr
             _dividendPeriods.push(dividendPeriods[i]);
         }
     }
-
+    ////////////////////////////////////////////////////////////////////
+    // Events                                                       ////
+    ////////////////////////////////////////////////////////////////////
+    event Deposit(address indexed user, uint amount);
 }
