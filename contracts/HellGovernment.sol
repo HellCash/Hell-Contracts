@@ -24,6 +24,8 @@ contract HellGovernment is Initializable, UUPSUpgradeable, OwnableUpgradeable, R
     uint16 public _greedStarterTreasuryFee;
     uint public _minimumProjectLength;
     uint public _maximumProjectLength;
+    // Hell Vault
+    uint16 public _hellVaultTreasuryFee;
     ////////////////////////////////////////////////////////////////////
     // Only Owner                                                   ////
     ////////////////////////////////////////////////////////////////////
@@ -33,7 +35,16 @@ contract HellGovernment is Initializable, UUPSUpgradeable, OwnableUpgradeable, R
     ////////////////////////////////////
     /// @custom:oz-upgrades-unsafe-allow constructor
     constructor() initializer {}
-    function initialize(address payable treasuryAddress, uint16 auctionHouseFee, uint minimumAuctionLength, uint maximumAuctionLength, uint16 greedStarterFee, uint minimumProjectLength, uint maximumProjectLength) initializer public {
+    function initialize(
+        address payable treasuryAddress,
+        uint16 auctionHouseFee,
+        uint minimumAuctionLength,
+        uint maximumAuctionLength,
+        uint16 greedStarterFee,
+        uint minimumProjectLength,
+        uint maximumProjectLength,
+        uint16 hellVaultTreasuryFee
+    ) initializer public {
         __Ownable_init();
         __UUPSUpgradeable_init();
         __ReentrancyGuard_init();
@@ -45,6 +56,8 @@ contract HellGovernment is Initializable, UUPSUpgradeable, OwnableUpgradeable, R
         // Initialize Greed Starter Variables
         _setGreedStarterTreasuryFees(greedStarterFee);
         _setMinimumAndMaximumProjectLength(minimumProjectLength, maximumProjectLength);
+        // Initialize Hell Vault Variables
+        _setHellVaultTreasuryFee(hellVaultTreasuryFee);
         // By default the only trusted token will be the Network currency
         _tokenIsTrusted[address(0)] = true;
     }
@@ -89,6 +102,13 @@ contract HellGovernment is Initializable, UUPSUpgradeable, OwnableUpgradeable, R
         _greedStarterTreasuryFee = newFee;
         emit GreedStarterTreasuryFeesUpdated(newFee);
     }
+    /////////////////////////////////////
+    // Hell Vault                   ////
+    ////////////////////////////////////
+    function _setHellVaultTreasuryFee(uint16 newFee) public onlyOwner {
+        _hellVaultTreasuryFee = newFee;
+        emit HellVaultTreasuryFeesUpdated(newFee);
+    }
     ////////////////////////////////////////////////////////////////////
     // Events                                                       ////
     ////////////////////////////////////////////////////////////////////
@@ -101,4 +121,6 @@ contract HellGovernment is Initializable, UUPSUpgradeable, OwnableUpgradeable, R
     // Greed Starter
     event GreedStarterTreasuryFeesUpdated(uint16 newFee);
     event MinimumAndMaximumProjectLengthUpdated(uint newMinimumLength, uint newMaximumLength);
+    // Hell Vault
+    event HellVaultTreasuryFeesUpdated(uint16 newFee);
 }
