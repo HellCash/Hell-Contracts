@@ -1,16 +1,19 @@
 import {Contract} from "ethers";
 import {ethers, upgrades} from "hardhat";
 import {Console} from "../../utils/console";
+import {defaultDeploymentOptions} from "../../models/deploymentOptions";
 
-export async function deployHellVault(hellContractAddress: string, hellGovernmentAddress: string): Promise<Contract> {
+export async function deployHellVault(hellContractAddress: string, hellGovernmentAddress: string, deploymentOptions = defaultDeploymentOptions): Promise<Contract> {
     const hellVaultContractProxy = await upgrades.deployProxy(
         await ethers.getContractFactory("HellVault"),[
             hellContractAddress, hellGovernmentAddress
         ], {
             kind: 'uups',
         });
-    await Console.contractDeploymentInformation("Hell Vault", hellVaultContractProxy);
-    console.log("Hell Vault Contract: Setting up dividend periods");
+    if (deploymentOptions.printLogs) {
+        await Console.contractDeploymentInformation("Hell Vault", hellVaultContractProxy);
+        console.log("Hell Vault Contract: Setting up dividend periods");
+    }
     await hellVaultContractProxy._setDividendPeriods([
         { from: 0,   to: 199, rewardPerBlock:  6335616438},
         { from: 200, to: 250, rewardPerBlock:  4892774698},
