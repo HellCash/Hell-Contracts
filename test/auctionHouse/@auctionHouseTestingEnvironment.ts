@@ -55,6 +55,7 @@ export class auctionHouseTestingEnvironment {
             maximumAuctionLength: maximumAuctionLength,
             minimumProjectLength: BigNumber.from(1000),
             maximumProjectLength: BigNumber.from(16000000),
+            hellVaultTreasuryFee: 16, // 6.25%
         }, testingEnvironmentDeploymentOptions);
         // Set HELL as a trusted token
         await this.hellGovernment._setTokenTrust(this.hellContract.address, true);

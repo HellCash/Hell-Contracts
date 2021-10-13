@@ -8,4 +8,5 @@ export abstract class HellGovernmentInitializer {
     greedStarterFee: number | BigNumber;
     minimumProjectLength: BigNumber;
     maximumProjectLength: BigNumber;
+    hellVaultTreasuryFee: number | BigNumber;
 }

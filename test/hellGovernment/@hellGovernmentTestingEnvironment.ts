@@ -31,6 +31,7 @@ export class hellGovernmentTestingEnvironment {
             maximumAuctionLength: BigNumber.from(4000000),
             minimumProjectLength: BigNumber.from(1000),
             maximumProjectLength: BigNumber.from(16000000),
+            hellVaultTreasuryFee: 16, // 6.25%
         }, testingEnvironmentDeploymentOptions);
     };
 }
