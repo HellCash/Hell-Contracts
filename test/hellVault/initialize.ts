@@ -7,7 +7,7 @@ export function initialize() {
         await environment.initialize();
     });
 
-    it('should already be initialized', async() => {
+    it('Should already be initialized', async() => {
         await expect(environment.hellVaultContract.connect(environment.guest1Signer)
             .initialize(
                 environment.hellContract.address,
