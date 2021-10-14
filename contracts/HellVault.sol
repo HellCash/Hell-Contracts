@@ -29,7 +29,7 @@ contract HellVault is Initializable, UUPSUpgradeable, OwnableUpgradeable, Reentr
     // Last block were a dividend was given
     uint public _lastDividendBlock;
     // Available Dividend Periods
-    DividendPeriod[] private _dividendPeriods;
+    DividendPeriod[] public _dividendPeriods;
     // Number of blocks rewarded overall periods
     uint[] public _distributedDividends;
     // Total Amount deposited without considering user rewards
@@ -41,22 +41,30 @@ contract HellVault is Initializable, UUPSUpgradeable, OwnableUpgradeable, Reentr
         uint hellDeposited; // The Amount of Hell that the user Staked inside the HellVault
         uint lastDividendBlock; // Last block since the user claimed his rewards
         uint[] distributedDividendsSinceLastPayment; // Dividends data since the last deposit
+        // Used on responses only
+        uint hellRewarded;
+        uint hellRewardWithdrawFee;
     }
     mapping(address => UserInfo) internal _userInfo;
     ////////////////////////////////////////////////////////////////////
-    // External functions                                           ////
+    // Public and external functions                                ////
     ////////////////////////////////////////////////////////////////////
     function deposit(uint amount) external payable nonReentrant {
         // D1: Deposit must be >= 1e12 (0.000001) HELL
         require(amount >= 1e12, "D1");
         // Update the vault, Making all unrealized rewards realized.
-        // TODO: updateVault
+        _updateVault();
+        // Claim user pending rewards, avoiding the usage of an additional transaction.
+        // Since the user is performing a deposit, we'll deposit his rewards back in the vault.
+        _claimRewards(ClaimMode.SendToVault);
         // Transfer the user funds to the Hell Vault Contract
         // safeDepositAsset: Validates for enough: balance, allowance and if the HellVault Contract received the expected amount
         address(this).safeDepositAsset(address(_hellContract), amount);
         // Update deposited amounts
         _userInfo[msg.sender].hellDeposited += amount;
         _totalAmountDeposited += amount;
+
+
         emit Deposit(msg.sender, amount);
     }
 
@@ -64,17 +72,174 @@ contract HellVault is Initializable, UUPSUpgradeable, OwnableUpgradeable, Reentr
         // W1: You're trying to withdraw more HELL than what you have available
         require(_userInfo[msg.sender].hellDeposited >= amount, "W1");
         // Update the vault, Making all unrealized rewards realized.
-        // TODO: updateVault
+        _updateVault();
         // Claim user pending rewards, avoiding the usage of an additional transaction.
-        // TODO: claimRewards
+        // Since the user is performing a withdraw, we'll send his rewards to his wallet.
+        _claimRewards(ClaimMode.SendToWallet);
         // Update withdrawn amounts
         _userInfo[msg.sender].hellDeposited -= amount;
         _totalAmountDeposited -= amount;
         // Send the user his funds back
-        (msg.sender).safeTransferAsset(address(_hellContract), amount);
+        payable(msg.sender).safeTransferAsset(address(_hellContract), amount);
         emit Withdraw(msg.sender, amount);
     }
-    
+
+    enum ClaimMode {
+        SendToVault,
+        SendToWallet
+    }
+
+    function claimRewards(ClaimMode claimMode) external nonReentrant {
+        if (calculateUserRewards(msg.sender) > 0) {
+            _claimRewards(claimMode);
+        } else {
+            // CR1: No rewards available to claim
+            revert("CR1");
+        }
+    }
+
+    ////////////////////////////////////////////////////////////////////
+    // Views                                                        ////
+    ////////////////////////////////////////////////////////////////////
+    function _dividendPeriodIndex() public view returns (PeriodIndexStatus, uint) {
+        uint wholeNumberCurrentSupply = (_hellContract.totalSupply() / 1e18);
+
+        // Check if Higher than last period "to" value
+        if(_dividendPeriods[_dividendPeriods.length - 1].to < wholeNumberCurrentSupply) {
+            return (PeriodIndexStatus.HigherThanLastToPeriod, 0);
+        }
+
+        // Find the period Index
+        for(uint i = 0; i < _dividendPeriods.length; i++) {
+            if((_dividendPeriods[i].from <= wholeNumberCurrentSupply) &&
+                (wholeNumberCurrentSupply <= _dividendPeriods[i].to )) {
+                return (PeriodIndexStatus.WithinRange, i);
+            }
+        }
+        // Index not found
+        return (PeriodIndexStatus.UndefinedIndex, 0);
+    }
+
+    function calculateUserRewards(address userAddress) public view returns(uint totalRewards) {
+        UserInfo storage user = _userInfo[userAddress];
+        // If the user doesn't have anything deposited
+        if (user.distributedDividendsSinceLastPayment.length == 0 || user.lastDividendBlock == 0) {
+            return 0;
+        }
+        // If not enough blocks have passed
+        if(block.number <= user.lastDividendBlock) {
+            return 0;
+        }
+
+        uint stakeToReward = user.hellDeposited / 1e12;
+        // If user doesn't have enough staked funds
+        if(stakeToReward == 0) {
+            return 0;
+        }
+
+        // Calculate Realized Rewards
+        uint realizedRewards = 0;
+        for(uint i = 0; i < _distributedDividends.length; i++) {
+            if (_distributedDividends[i] > user.distributedDividendsSinceLastPayment[i]) {
+                uint blocksEarned = _distributedDividends[i] - user.distributedDividendsSinceLastPayment[i];
+                if(blocksEarned > 0) {
+                    // Calculate the realized interest.
+                    realizedRewards += (stakeToReward * blocksEarned) * _dividendPeriods[i].rewardPerBlock;
+                }
+            }
+        }
+        totalRewards += realizedRewards;
+
+        // Calculate unrealized Rewards, which are the ones from this period
+        (, uint periodIndex) = _dividendPeriodIndex();
+        uint unrealizedRewards = 0;
+        DividendPeriod storage currentDividendPeriod = _dividendPeriods[periodIndex];
+        uint elapsedBlocks = block.number - _lastDividendBlock;
+        if(elapsedBlocks > 0) {
+            // Calculate the unrealized interest.
+            unrealizedRewards = (stakeToReward * elapsedBlocks) * currentDividendPeriod.rewardPerBlock;
+        }
+        totalRewards += unrealizedRewards;
+
+        return totalRewards;
+    }
+
+    function getUserInfo(address userAddress) public view returns (UserInfo memory) {
+        UserInfo memory user = _userInfo[userAddress];
+        user.hellRewarded = calculateUserRewards(userAddress);
+        user.hellRewardWithdrawFee = user.hellRewarded / uint(_hellGovernmentContract._hellVaultTreasuryFee());
+        return user;
+    }
+
+    ////////////////////////////////////////////////////////////////////
+    // Internal Functions                                           ////
+    ////////////////////////////////////////////////////////////////////
+    enum PeriodIndexStatus {
+        WithinRange,
+        HigherThanLastToPeriod,
+        UndefinedIndex
+    }
+
+    function _updateVault() internal {
+        // Make sure the block number is higher than the _lastDividendBlock
+        // And that the _totalAmountDeposited is higher than 0
+        if (block.number <= _lastDividendBlock || _totalAmountDeposited == 0) {
+            return;
+        }
+        // Obtain the current period Index
+        (PeriodIndexStatus periodIndexStatus, uint periodIndex) = _dividendPeriodIndex();
+        if(periodIndexStatus == PeriodIndexStatus.UndefinedIndex) {
+            revert("Undefined Period Index");
+        }
+        // If there are no periods left we reached the maximum and no rewards will be given.
+        if(periodIndexStatus == PeriodIndexStatus.HigherThanLastToPeriod) {
+            return;
+        }
+        // If this period doesn't provide rewards
+        if (_dividendPeriods[periodIndex].rewardPerBlock == 0) {
+            return;
+        }
+
+        // Calculate the number of elapsedBlocks since the last dividend
+        uint elapsedBlocks = block.number - _lastDividendBlock;
+        // Calculate the stakeToReward.
+        uint stakeToReward = _totalAmountDeposited / 1e12;
+        _lastDividendBlock = block.number;
+        _distributedDividends[periodIndex] += elapsedBlocks;
+        // Calculate the amount to be minted
+        uint amountToMint = (stakeToReward * elapsedBlocks) * _dividendPeriods[periodIndex].rewardPerBlock;
+        _hellContract.mintVaultRewards(amountToMint);
+    }
+
+    function _claimRewards(ClaimMode claimMode) internal {
+        uint rewards = calculateUserRewards(msg.sender);
+        // Reset Timestamps
+        _userInfo[msg.sender].lastDividendBlock = block.number;
+        // Copy the current dividends Data
+        _userInfo[msg.sender].distributedDividendsSinceLastPayment = _distributedDividends;
+        if (rewards > 0) {
+            // Calculate treasuryFee
+            uint treasuryFee = rewards / uint(_hellGovernmentContract._hellVaultTreasuryFee());
+            if (treasuryFee > 0) {
+                rewards -= treasuryFee;
+                // Pay treasuryFee
+                (_hellGovernmentContract._hellTreasuryAddress()).safeTransferAsset(address(_hellContract), treasuryFee);
+            }
+            // If user wishes to compound his rewards, send them to the vault again
+            if (claimMode == ClaimMode.SendToVault) {
+                // Update the amount the user has deposited
+                _userInfo[msg.sender].hellDeposited += rewards;
+                // Update _totalAmountDeposited in the HellVault
+                _totalAmountDeposited += rewards;
+            }
+            // If user wishes to have his rewards sent to his wallet
+            if (claimMode == ClaimMode.SendToWallet) {
+                payable(msg.sender).safeTransferAsset(address(_hellContract), rewards);
+            }
+
+            emit ClaimRewards(msg.sender, claimMode, rewards, treasuryFee);
+        }
+    }
     ////////////////////////////////////////////////////////////////////
     // Only Owner                                                   ////
     ////////////////////////////////////////////////////////////////////
@@ -102,4 +267,6 @@ contract HellVault is Initializable, UUPSUpgradeable, OwnableUpgradeable, Reentr
     ////////////////////////////////////////////////////////////////////
     event Deposit(address indexed user, uint amount);
     event Withdraw(address indexed user, uint amount);
+    event ClaimRewards(address indexed user, ClaimMode claimMode, uint rewardedAmount, uint treasuryFee);
+    event ReceivedTokens(address operator, address from, address to, uint amount, bytes userData, bytes operatorData);
 }

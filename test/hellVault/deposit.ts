@@ -1,6 +1,9 @@
 import {HellVaultTestingEnvironment} from "./@hellVaultTestingEnvironment";
 import {expect} from "chai";
 import {parseEther, parseUnits} from "ethers/lib/utils";
+import {BigNumber} from "ethers";
+import {NetworkUtils} from "../../utils/networkUtils";
+import {HellVaultTestingUtils} from "./@hellVaultTestingUtils";
 
 export function deposit() {
     let environment: HellVaultTestingEnvironment = new HellVaultTestingEnvironment();
@@ -28,11 +31,54 @@ export function deposit() {
 
     it('Should perform a successful deposit with 1e12', async() => {
         const amount = parseUnits("1", 12);
+        const vaultBalance: BigNumber = await environment.hellContract.balanceOf(environment.masterSigner.address);
+        // Increase allowance
         await environment.hellContract.approve(environment.hellVaultContract.address, amount);
+        // perform a deposit
         await expect(environment.hellVaultContract
             .deposit(amount))
             .to.emit(environment.hellVaultContract, "Deposit")
             .withArgs(environment.masterSigner.address, amount);
         // TODO: Verify that the userInfo was updated successfully
     });
+
+    it('Should perform a second deposit of 1 HELL after 100 blocks', async () => {
+        const amount = parseEther("1");
+        await HellVaultTestingUtils.logVaultAndUserInfo(environment);
+        // Mine 100 blocks
+        await NetworkUtils.mineBlocks(100);
+        // Increase allowance
+        await environment.hellContract.approve(environment.hellVaultContract.address, amount);
+        // Calculate current rewards
+        const currentRewards = await environment.hellVaultContract
+            .calculateUserRewards(environment.masterSigner.address);
+        await HellVaultTestingUtils.logVaultAndUserInfo(environment);
+        // Perform a deposit, by doing so the currentRewards should increase as well since 1 more block will be mined.
+        await expect(environment.hellVaultContract
+            .deposit(amount))
+            .to.emit(environment.hellVaultContract, "Deposit")
+            .withArgs(environment.masterSigner.address, amount);
+        await HellVaultTestingUtils.logVaultAndUserInfo(environment);
+    });
+
+    it('Should perform a third deposit of 1 HELL after 100 blocks', async () => {
+        const amount = parseEther("1");
+        await HellVaultTestingUtils.logVaultAndUserInfo(environment);
+        // Mine 100 blocks
+        await NetworkUtils.mineBlocks(100);
+        // Increase allowance
+        await environment.hellContract.approve(environment.hellVaultContract.address, amount);
+        // Calculate current rewards
+        const currentRewards = await environment.hellVaultContract
+            .calculateUserRewards(environment.masterSigner.address);
+        await HellVaultTestingUtils.logVaultAndUserInfo(environment);
+        // Perform a deposit, by doing so the currentRewards should increase as well since 1 more block will be mined.
+        await expect(environment.hellVaultContract
+            .deposit(amount))
+            .to.emit(environment.hellVaultContract, "Deposit")
+            .withArgs(environment.masterSigner.address, amount);
+        await HellVaultTestingUtils.logVaultAndUserInfo(environment);
+    });
+
+
 }

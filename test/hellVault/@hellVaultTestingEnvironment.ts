@@ -39,5 +39,6 @@ export class HellVaultTestingEnvironment {
             hellVaultTreasuryFee: 16, // 6.25%
         }, testingEnvironmentDeploymentOptions);
         this.hellVaultContract = await deployHellVault(this.hellContract.address, this.hellGovernmentContract.address, testingEnvironmentDeploymentOptions);
+        await this.hellContract._setHellVaultAddress(this.hellVaultContract.address);
     };
 }
