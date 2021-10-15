@@ -90,7 +90,7 @@ contract HellVault is Initializable, UUPSUpgradeable, OwnableUpgradeable, Reentr
     }
 
     function claimRewards(ClaimMode claimMode) external nonReentrant {
-        if (getUserRewards(msg.sender) > 0) {
+        if (getUserRewards(msg.sender, 0) > 0) {
             _claimRewards(claimMode);
         } else {
             // CR1: No rewards available to claim
@@ -128,14 +128,19 @@ contract HellVault is Initializable, UUPSUpgradeable, OwnableUpgradeable, Reentr
         return _dividendPeriods;
     }
 
-    function getUserRewards(address userAddress) public view returns(uint totalRewards) {
+    /*
+     @param userAddress: public wallet address of the user
+     @param offset: Show users rewards in the future by adding additional blocks.
+    */
+    function getUserRewards(address userAddress, uint offset) public view returns(uint totalRewards) {
         UserInfo storage user = _userInfo[userAddress];
         // If the user doesn't have anything deposited
         if (user.distributedDividendsSinceLastPayment.length == 0 || user.lastDividendBlock == 0) {
             return 0;
         }
+        uint blockNumber = block.number + offset;
         // If not enough blocks have passed
-        if(block.number <= user.lastDividendBlock) {
+        if(blockNumber <= user.lastDividendBlock) {
             return 0;
         }
 
@@ -162,7 +167,7 @@ contract HellVault is Initializable, UUPSUpgradeable, OwnableUpgradeable, Reentr
         (, uint periodIndex) = getDividendPeriodIndex();
         uint unrealizedRewards = 0;
         DividendPeriod storage currentDividendPeriod = _dividendPeriods[periodIndex];
-        uint elapsedBlocks = block.number - _lastDividendBlock;
+        uint elapsedBlocks = blockNumber - _lastDividendBlock;
         if(elapsedBlocks > 0) {
             // Calculate the unrealized interest.
             unrealizedRewards = (stakeToReward * elapsedBlocks) * currentDividendPeriod.rewardPerBlock;
@@ -174,7 +179,7 @@ contract HellVault is Initializable, UUPSUpgradeable, OwnableUpgradeable, Reentr
 
     function getUserInfo(address userAddress) public view returns (UserInfo memory) {
         UserInfo memory user = _userInfo[userAddress];
-        user.hellRewarded = getUserRewards(userAddress);
+        user.hellRewarded = getUserRewards(userAddress, 0);
         user.hellRewardWithdrawFee = user.hellRewarded / uint(_hellGovernmentContract._hellVaultTreasuryFee());
         return user;
     }
@@ -220,7 +225,7 @@ contract HellVault is Initializable, UUPSUpgradeable, OwnableUpgradeable, Reentr
     }
 
     function _claimRewards(ClaimMode claimMode) internal {
-        uint rewards = getUserRewards(msg.sender);
+        uint rewards = getUserRewards(msg.sender, 0);
         // Reset Timestamps
         _userInfo[msg.sender].lastDividendBlock = block.number;
         // Copy the current dividends Data
