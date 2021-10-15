@@ -90,7 +90,7 @@ contract HellVault is Initializable, UUPSUpgradeable, OwnableUpgradeable, Reentr
     }
 
     function claimRewards(ClaimMode claimMode) external nonReentrant {
-        if (calculateUserRewards(msg.sender) > 0) {
+        if (getUserRewards(msg.sender) > 0) {
             _claimRewards(claimMode);
         } else {
             // CR1: No rewards available to claim
@@ -101,7 +101,7 @@ contract HellVault is Initializable, UUPSUpgradeable, OwnableUpgradeable, Reentr
     ////////////////////////////////////////////////////////////////////
     // Views                                                        ////
     ////////////////////////////////////////////////////////////////////
-    function _dividendPeriodIndex() public view returns (PeriodIndexStatus, uint) {
+    function getDividendPeriodIndex() public view returns (PeriodIndexStatus, uint) {
         uint wholeNumberCurrentSupply = (_hellContract.totalSupply() / 1e18);
 
         // Check if Higher than last period "to" value
@@ -120,11 +120,15 @@ contract HellVault is Initializable, UUPSUpgradeable, OwnableUpgradeable, Reentr
         return (PeriodIndexStatus.UndefinedIndex, 0);
     }
 
-    function distributedDividends() public view returns(uint[] memory) {
+    function getDistributedDividends() public view returns(uint[] memory) {
         return _distributedDividends;
     }
 
-    function calculateUserRewards(address userAddress) public view returns(uint totalRewards) {
+    function getDividendPeriods() public view returns(DividendPeriod[] memory) {
+        return _dividendPeriods;
+    }
+
+    function getUserRewards(address userAddress) public view returns(uint totalRewards) {
         UserInfo storage user = _userInfo[userAddress];
         // If the user doesn't have anything deposited
         if (user.distributedDividendsSinceLastPayment.length == 0 || user.lastDividendBlock == 0) {
@@ -155,7 +159,7 @@ contract HellVault is Initializable, UUPSUpgradeable, OwnableUpgradeable, Reentr
         totalRewards += realizedRewards;
 
         // Calculate unrealized Rewards, which are the ones from this period
-        (, uint periodIndex) = _dividendPeriodIndex();
+        (, uint periodIndex) = getDividendPeriodIndex();
         uint unrealizedRewards = 0;
         DividendPeriod storage currentDividendPeriod = _dividendPeriods[periodIndex];
         uint elapsedBlocks = block.number - _lastDividendBlock;
@@ -170,7 +174,7 @@ contract HellVault is Initializable, UUPSUpgradeable, OwnableUpgradeable, Reentr
 
     function getUserInfo(address userAddress) public view returns (UserInfo memory) {
         UserInfo memory user = _userInfo[userAddress];
-        user.hellRewarded = calculateUserRewards(userAddress);
+        user.hellRewarded = getUserRewards(userAddress);
         user.hellRewardWithdrawFee = user.hellRewarded / uint(_hellGovernmentContract._hellVaultTreasuryFee());
         return user;
     }
@@ -191,7 +195,7 @@ contract HellVault is Initializable, UUPSUpgradeable, OwnableUpgradeable, Reentr
             return;
         }
         // Obtain the current period Index
-        (PeriodIndexStatus periodIndexStatus, uint periodIndex) = _dividendPeriodIndex();
+        (PeriodIndexStatus periodIndexStatus, uint periodIndex) = getDividendPeriodIndex();
         if(periodIndexStatus == PeriodIndexStatus.UndefinedIndex) {
             revert("Undefined Period Index");
         }
@@ -216,7 +220,7 @@ contract HellVault is Initializable, UUPSUpgradeable, OwnableUpgradeable, Reentr
     }
 
     function _claimRewards(ClaimMode claimMode) internal {
-        uint rewards = calculateUserRewards(msg.sender);
+        uint rewards = getUserRewards(msg.sender);
         // Reset Timestamps
         _userInfo[msg.sender].lastDividendBlock = block.number;
         // Copy the current dividends Data

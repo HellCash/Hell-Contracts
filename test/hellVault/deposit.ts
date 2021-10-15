@@ -51,7 +51,7 @@ export function deposit() {
         await environment.hellContract.approve(environment.hellVaultContract.address, amount);
         // Calculate current rewards
         const currentRewards = await environment.hellVaultContract
-            .calculateUserRewards(environment.masterSigner.address);
+            .getUserRewards(environment.masterSigner.address);
         await HellVaultTestingUtils.logVaultAndUserInfo(environment);
         // Perform a deposit, by doing so the currentRewards should increase as well since 1 more block will be mined.
         await expect(environment.hellVaultContract
@@ -69,7 +69,7 @@ export function deposit() {
         await environment.hellContract.approve(environment.hellVaultContract.address, amount);
         // Calculate current rewards
         const currentRewards = await environment.hellVaultContract
-            .calculateUserRewards(environment.masterSigner.address);
+            .getUserRewards(environment.masterSigner.address);
         await HellVaultTestingUtils.logVaultAndUserInfo(environment);
         // Perform a deposit, by doing so the currentRewards should increase as well since 1 more block will be mined.
         await expect(environment.hellVaultContract
