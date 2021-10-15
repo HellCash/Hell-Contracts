@@ -31,7 +31,7 @@ contract HellVault is Initializable, UUPSUpgradeable, OwnableUpgradeable, Reentr
     // Available Dividend Periods
     DividendPeriod[] public _dividendPeriods;
     // Number of blocks rewarded overall periods
-    uint[] public _distributedDividends;
+    uint[] private _distributedDividends;
     // Total Amount deposited without considering user rewards
     uint public _totalAmountDeposited;
     ////////////////////////////////////////////////////////////////////
@@ -118,6 +118,10 @@ contract HellVault is Initializable, UUPSUpgradeable, OwnableUpgradeable, Reentr
         }
         // Index not found
         return (PeriodIndexStatus.UndefinedIndex, 0);
+    }
+
+    function distributedDividends() public view returns(uint[] memory) {
+        return _distributedDividends;
     }
 
     function calculateUserRewards(address userAddress) public view returns(uint totalRewards) {

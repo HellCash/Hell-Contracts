@@ -34,6 +34,7 @@ export function deposit() {
         const vaultBalance: BigNumber = await environment.hellContract.balanceOf(environment.masterSigner.address);
         // Increase allowance
         await environment.hellContract.approve(environment.hellVaultContract.address, amount);
+        await HellVaultTestingUtils.logVaultAndUserInfo(environment);
         // perform a deposit
         await expect(environment.hellVaultContract
             .deposit(amount))
@@ -44,7 +45,6 @@ export function deposit() {
 
     it('Should perform a second deposit of 1 HELL after 100 blocks', async () => {
         const amount = parseEther("1");
-        await HellVaultTestingUtils.logVaultAndUserInfo(environment);
         // Mine 100 blocks
         await NetworkUtils.mineBlocks(100);
         // Increase allowance
@@ -63,7 +63,6 @@ export function deposit() {
 
     it('Should perform a third deposit of 1 HELL after 100 blocks', async () => {
         const amount = parseEther("1");
-        await HellVaultTestingUtils.logVaultAndUserInfo(environment);
         // Mine 100 blocks
         await NetworkUtils.mineBlocks(100);
         // Increase allowance
