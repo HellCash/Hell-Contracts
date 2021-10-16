@@ -55,6 +55,7 @@ export class HellVaultTestingEnvironment {
         console.log(`\t\t\t_distributedDividends: ${await this.hellVaultContract.getDistributedDividends()}`);
         const totalAmountDeposited = await this.hellVaultContract._totalAmountDeposited();
         console.log(`\t\t\t_totalAmountDeposited: ${formatEther(totalAmountDeposited)} (${totalAmountDeposited} wei)`);
+        console.log(`\t\t\tbalance: ${await this.hellContract.balanceOf(this.hellVaultContract.address)}`);
     }
 
     async logUserData(signer: any | null = null) {
@@ -96,28 +97,64 @@ export class HellVaultTestingEnvironment {
 
     async expectDeposit(amount: BigNumber, signer: any | null = null) {
         signer = signer ? signer : this.masterSigner;
-        // Retrieve current user balances
-        const userBalance: BigNumber = await this.hellContract.balanceOf(signer.address);
+        // Retrieve current user balance
+        const beforeUserBalance: BigNumber = await this.hellContract.balanceOf(signer.address);
+        // Retrieve current vault balances
+        // const beforeVaultBalance: BigNumber = await this.hellContract.balanceOf(this.hellVaultContract.address);
+        // const beforeTotalAmountDeposited: BigNumber = await this.hellVaultContract._totalAmountDeposited();
         // Check if the user enough balance
-        if (userBalance.lt(amount)) {
+        if (beforeUserBalance.lt(amount)) {
             throw `User: ${signer.address} doesn't have enough balance`;
         }
         // Retrieve the HellVault userInfo state before deposits
-        const userInfoBefore: HellVaultUserInfo = await this.hellVaultContract.getUserInfo(signer.address);
+        const beforeUserInfo: HellVaultUserInfo = await this.hellVaultContract.getUserInfo(signer.address);
         // Calculate expected rewards on the next transaction by adding an offset of 1 block.
         const expectedRewards: HellVaultExpectedRewards = await this.getExpectedRewards(1, signer);
         // Perform a deposit and expect that the Deposit event triggers with his corresponding params
         await expect(this.hellVaultContract.connect(signer)
             .deposit(amount)).to.emit(this.hellVaultContract, "Deposit")
             .withArgs(signer.address, amount);
-        // Retrieve the HellVault userInfo after deposits
-        const userInfoAfter: HellVaultUserInfo = await this.hellVaultContract.getUserInfo(signer.address);
+        // Retrieve the HellVault userInfo after the deposit
+        const afterUserInfo: HellVaultUserInfo = await this.hellVaultContract.getUserInfo(signer.address);
+        // Retrieve after user balance
+        const afterUserBalance: BigNumber = await this.hellContract.balanceOf(signer.address);
         // Expect that the amount deposited had increased by the deposited amount and the pending RewardsAfterFees
-        expect(userInfoAfter.hellDeposited).to.be
-            .equal(userInfoBefore.hellDeposited.add(amount).add(expectedRewards.expectedRewardsAfterFees));
+        expect(afterUserInfo.hellDeposited).to.be
+            .equal(beforeUserInfo.hellDeposited.add(amount).add(expectedRewards.expectedRewardsAfterFees));
         // Expect that the user balance had decreased by the deposited amount
-        expect(userBalance.sub(amount)).to.be.equal(await this.hellContract.balanceOf(signer.address));
-        // TODO: Expect Vault balance increase
+        expect(beforeUserBalance.sub(amount)).to.be.equal(afterUserBalance);
+
+        // Retrieve Hell vault balances after the deposit
+        // const afterVaultBalance: BigNumber = await this.hellContract.balanceOf(this.hellVaultContract.address);
+        // const afterTotalAmountDeposited: BigNumber = await this.hellVaultContract._totalAmountDeposited();
+        // Expect that the vault balance registered on the Hell Contract had Increased by the amount and any pending rewards
+        // expect(afterVaultBalance).to.be
+        //    .equal(beforeVaultBalance.add(amount).add(expectedRewards.expectedRewardsAfterFees));
+        // // Expect that the vault balance _totalAmountDeposited had increased by the amount and any pending rewards
+        // expect(afterTotalAmountDeposited).to.be
+        //     .equal(beforeTotalAmountDeposited.add(amount).add(expectedRewards.expectedRewardsAfterFees));
     }
 
-}
+    async expectWithdraw(amount: BigNumber, signer: any | null = null) {
+        signer = signer ? signer : this.masterSigner;
+        // Retrieve current user balance
+        const beforeUserBalance: BigNumber = await this.hellContract.balanceOf(signer.address);
+        // Retrieve the HellVault userInfo state before withdraws
+        const beforeUserInfo: HellVaultUserInfo = await this.hellVaultContract.getUserInfo(signer.address);
+        // Calculate expected rewards on the next transaction by adding an offset of 1 block.
+        const expectedRewards: HellVaultExpectedRewards = await this.getExpectedRewards(1, signer);
+        // Perform a withdraw and expect that the Withdraw event triggers with his corresponding params
+        await expect(this.hellVaultContract.connect(signer)
+            .withdraw(amount)).to.emit(this.hellVaultContract, "Withdraw")
+            .withArgs(signer.address, amount);
+        // Retrieve user balance after withdraw
+        const afterUserBalance: BigNumber = await this.hellContract.balanceOf(signer.address);
+        expect(afterUserBalance).to.be.equal(beforeUserBalance
+            .add(amount).add(expectedRewards.expectedRewardsAfterFees));
+        // Retrieve the HellVault userInfo state after withdraws
+        const afterUserInfo: HellVaultUserInfo = await this.hellVaultContract.getUserInfo(signer.address);
+        // Expect that the hell deposited for the user had be reduced by the amount
+        expect(beforeUserInfo.hellDeposited.sub(amount)).to.be.equal(afterUserInfo.hellDeposited);
+    }
+
+    }

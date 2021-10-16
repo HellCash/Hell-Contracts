@@ -32,7 +32,7 @@ contract HellVault is Initializable, UUPSUpgradeable, OwnableUpgradeable, Reentr
     DividendPeriod[] public _dividendPeriods;
     // Number of blocks rewarded overall periods
     uint[] private _distributedDividends;
-    // Total Amount deposited without considering user rewards
+    // Total Amount deposited without considering user pending rewards
     uint public _totalAmountDeposited;
     ////////////////////////////////////////////////////////////////////
     // User Variables                                               ////
@@ -63,8 +63,6 @@ contract HellVault is Initializable, UUPSUpgradeable, OwnableUpgradeable, Reentr
         // Update deposited amounts
         _userInfo[msg.sender].hellDeposited += amount;
         _totalAmountDeposited += amount;
-
-
         emit Deposit(msg.sender, amount);
     }
 
