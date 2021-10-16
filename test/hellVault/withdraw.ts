@@ -67,13 +67,13 @@ export function withdraw() {
 
     it('(HellVault) Should have a remaining balance of 0', async() => {
         const vaultBalance: BigNumber = await environment.hellContract.balanceOf(environment.hellVaultContract.address);
-        console.log(`Vault Balance: ${formatEther(vaultBalance)} | ${vaultBalance}`);
+        console.log(`\tVault Balance: ${formatEther(vaultBalance)} | ${vaultBalance}`);
         expect(vaultBalance).to.be.equal(BigNumber.from(0));
     });
 
     it('(HellVault) Should have a Total Amount Deposited of 0', async() => {
         const totalAmountDeposited: BigNumber = await environment.hellVaultContract._totalAmountDeposited();
-        console.log(`Total amount Deposited: ${formatEther(totalAmountDeposited)} | ${totalAmountDeposited}`);
+        console.log(`\tTotal amount Deposited: ${formatEther(totalAmountDeposited)} | ${totalAmountDeposited}`);
         expect(totalAmountDeposited).to.be.equal(BigNumber.from(0));
     });
 }

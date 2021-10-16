@@ -106,6 +106,8 @@ export class HellVaultTestingEnvironment {
         if (beforeUserBalance.lt(amount)) {
             throw `User: ${signer.address} doesn't have enough balance`;
         }
+        // Retrieve the Treasury Address balance
+        const beforeTreasuryBalance: BigNumber = await this.hellContract.balanceOf(this.treasurySigner.address);
         // Retrieve the HellVault userInfo state before deposits
         const beforeUserInfo: HellVaultUserInfo = await this.hellVaultContract.getUserInfo(signer.address);
         // Calculate expected rewards on the next transaction by adding an offset of 1 block.
@@ -118,12 +120,15 @@ export class HellVaultTestingEnvironment {
         const afterUserInfo: HellVaultUserInfo = await this.hellVaultContract.getUserInfo(signer.address);
         // Retrieve after user balance
         const afterUserBalance: BigNumber = await this.hellContract.balanceOf(signer.address);
+        // Retrieve the Treasury Address after the deposit
+        const afterTreasuryBalance: BigNumber = await this.hellContract.balanceOf(this.treasurySigner.address);
         // Expect that the amount deposited had increased by the deposited amount and the pending RewardsAfterFees
         expect(afterUserInfo.hellDeposited).to.be
             .equal(beforeUserInfo.hellDeposited.add(amount).add(expectedRewards.expectedRewardsAfterFees));
         // Expect that the user balance had decreased by the deposited amount
         expect(beforeUserBalance.sub(amount)).to.be.equal(afterUserBalance);
-
+        // Expect that the treasury had received the proper amount of fees
+        expect(afterTreasuryBalance).to.be.equal(beforeTreasuryBalance.add(expectedRewards.expectedFee));
         // Retrieve Hell vault balances after the deposit
         // const afterVaultBalance: BigNumber = await this.hellContract.balanceOf(this.hellVaultContract.address);
         // const afterTotalAmountDeposited: BigNumber = await this.hellVaultContract._totalAmountDeposited();
@@ -139,6 +144,8 @@ export class HellVaultTestingEnvironment {
         signer = signer ? signer : this.masterSigner;
         // Retrieve current user balance
         const beforeUserBalance: BigNumber = await this.hellContract.balanceOf(signer.address);
+        // Retrieve the Treasury Address balance
+        const beforeTreasuryBalance: BigNumber = await this.hellContract.balanceOf(this.treasurySigner.address);
         // Retrieve the HellVault userInfo state before withdraws
         const beforeUserInfo: HellVaultUserInfo = await this.hellVaultContract.getUserInfo(signer.address);
         // Calculate expected rewards on the next transaction by adding an offset of 1 block.
@@ -153,8 +160,12 @@ export class HellVaultTestingEnvironment {
             .add(amount).add(expectedRewards.expectedRewardsAfterFees));
         // Retrieve the HellVault userInfo state after withdraws
         const afterUserInfo: HellVaultUserInfo = await this.hellVaultContract.getUserInfo(signer.address);
+        // Retrieve the Treasury Address after the withdraw
+        const afterTreasuryBalance: BigNumber = await this.hellContract.balanceOf(this.treasurySigner.address);
         // Expect that the hell deposited for the user had be reduced by the amount
         expect(beforeUserInfo.hellDeposited.sub(amount)).to.be.equal(afterUserInfo.hellDeposited);
+        // Expect that the treasury had received the proper amount of fees
+        expect(afterTreasuryBalance).to.be.equal(beforeTreasuryBalance.add(expectedRewards.expectedFee));
     }
 
     }
