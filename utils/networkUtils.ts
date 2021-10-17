@@ -1,4 +1,4 @@
-import {network} from "hardhat";
+import {ethers, network} from "hardhat";
 
 export async function txConfirmation(message: string, callData: any, printLogs = true): Promise<boolean> {
     let confirmationBlocks = 3;
@@ -20,11 +20,14 @@ export async function txConfirmation(message: string, callData: any, printLogs =
     }
 }
 
+export async function getBlockNumber(): Promise<number> {
+    return await ethers.provider.getBlockNumber();
+}
+
 export class NetworkUtils {
     public static async mineBlocks(numberOfBlocks: Number) {
         for(let i = 0; i < numberOfBlocks; i++) {
             await network.provider.send("evm_mine");
         }
     }
-
 }
