@@ -1,6 +1,6 @@
 import {HellVaultTestingEnvironment} from "./@hellVaultTestingEnvironment";
 import {expect} from "chai";
-import {formatEther, parseEther, parseUnits} from "ethers/lib/utils";
+import {formatEther, parseEther} from "ethers/lib/utils";
 import {BigNumber} from "ethers";
 import {Random} from "../../utils/random";
 import {NetworkUtils} from "../../utils/networkUtils";
@@ -38,30 +38,30 @@ export function withdraw() {
         ).to.be.revertedWith("W1");
     });
 
-    it('(MasterSigner) Should a successful withdraw', async() => {
+    it('(MasterSigner) Should perform a successful withdraw', async() => {
         await NetworkUtils.mineBlocks(Random.randomIntegerNumber(1,200));
+        console.log(`\t[Before withdraw: ${formatEther(masterDeposit)} (${masterDeposit} wei)]`);
         await environment.logVaultAndUserInfo();
-        console.log('\t[Before withdraw]');
         await environment.expectWithdraw(masterDeposit, environment.masterSigner);
-        console.log('\t[After withdraw]');
+        console.log(`\t[After withdraw: ${formatEther(masterDeposit)} (${masterDeposit} wei)]]`);
         await environment.logVaultAndUserInfo();
     });
 
-    it('(Guest1) Should a successful withdraw', async() => {
+    it('(Guest1) Should perform a successful withdraw', async() => {
         await NetworkUtils.mineBlocks(Random.randomIntegerNumber(1,200));
+        console.log(`\t[Before withdraw: ${formatEther(guest1Deposit)} (${guest1Deposit} wei)]`);
         await environment.logVaultAndUserInfo(environment.guest1Signer);
-        console.log('\t[Before withdraw]');
         await environment.expectWithdraw(guest1Deposit, environment.guest1Signer);
-        console.log('\t[After withdraw]');
+        console.log(`\t[After withdraw: ${formatEther(guest1Deposit)} (${guest1Deposit} wei)]`);
         await environment.logVaultAndUserInfo(environment.guest1Signer);
     });
 
-    it('(Guest2) Should a successful withdraw', async() => {
+    it('(Guest2) Should perform a successful withdraw', async() => {
         await NetworkUtils.mineBlocks(Random.randomIntegerNumber(1,200));
+        console.log(`\t[Before withdraw: ${formatEther(guest2Deposit)} (${guest2Deposit} wei)]`);
         await environment.logVaultAndUserInfo(environment.guest2Signer);
-        console.log('\t[Before withdraw]');
         await environment.expectWithdraw(guest2Deposit, environment.guest2Signer);
-        console.log('\t[After withdraw]');
+        console.log(`\t[After withdraw: ${formatEther(guest2Deposit)} (${guest2Deposit} wei)]`);
         await environment.logVaultAndUserInfo(environment.guest2Signer);
     });
 
@@ -75,5 +75,10 @@ export function withdraw() {
         const totalAmountDeposited: BigNumber = await environment.hellVaultContract._totalAmountDeposited();
         console.log(`\tTotal amount Deposited: ${formatEther(totalAmountDeposited)} | ${totalAmountDeposited}`);
         expect(totalAmountDeposited).to.be.equal(BigNumber.from(0));
+    });
+
+    after(async() => {
+        const treasuryBalance: BigNumber = await environment.hellContract.balanceOf(environment.treasurySigner.address);
+        console.log(`\n\t\tTreasury Balance: ${formatEther(treasuryBalance)} | ${treasuryBalance} wei`);
     });
 }

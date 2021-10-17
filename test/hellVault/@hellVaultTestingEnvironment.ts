@@ -21,6 +21,7 @@ export class HellVaultTestingEnvironment {
     hellContract: Contract;
     hellGovernmentContract: Contract;
     hellVaultContract: Contract;
+
     // Initialize this testing environment
     async initialize() {
         // Set Signers
@@ -55,7 +56,8 @@ export class HellVaultTestingEnvironment {
         console.log(`\t\t\t_distributedDividends: ${await this.hellVaultContract.getDistributedDividends()}`);
         const totalAmountDeposited = await this.hellVaultContract._totalAmountDeposited();
         console.log(`\t\t\t_totalAmountDeposited: ${formatEther(totalAmountDeposited)} (${totalAmountDeposited} wei)`);
-        console.log(`\t\t\tbalance: ${await this.hellContract.balanceOf(this.hellVaultContract.address)}`);
+        const vaultBalance = await this.hellContract.balanceOf(this.hellVaultContract.address);
+        console.log(`\t\t\tBalance: ${formatEther(vaultBalance)} (${vaultBalance} wei)`);
     }
 
     async logUserData(signer: any | null = null) {
@@ -67,6 +69,8 @@ export class HellVaultTestingEnvironment {
         console.log(`\t\t\tDeposited: ${formatEther(userData.hellDeposited)} (${userData.hellDeposited} wei)`);
         console.log(`\t\t\tLastDividend: ${userData.lastDividendBlock}`);
         console.log(`\t\t\tDistributedDividends: ${userData.distributedDividendsSinceLastPayment}`);
+        const userBalance = await this.hellContract.balanceOf(signer.address);
+        console.log(`\t\t\tBalance: ${formatEther(userBalance)} (${userBalance} wei)`);
         console.log(`\t\t\t---------------------`);
         console.log(`\t\t\tRewards: ${formatEther(userData.hellRewarded)} (${userData.hellRewarded} wei)`);
         console.log(`\t\t\tWithdrawFee: ${formatEther(userData.hellRewardWithdrawFee)} (${userData.hellRewardWithdrawFee} wei)`);
@@ -168,4 +172,4 @@ export class HellVaultTestingEnvironment {
         expect(afterTreasuryBalance).to.be.equal(beforeTreasuryBalance.add(expectedRewards.expectedFee));
     }
 
-    }
+}
