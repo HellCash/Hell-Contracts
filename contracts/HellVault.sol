@@ -56,7 +56,7 @@ contract HellVault is Initializable, UUPSUpgradeable, OwnableUpgradeable, Reentr
         _updateVault();
         // Claim user pending rewards, avoiding the usage of an additional transaction.
         // Since the user is performing a deposit, we'll deposit his rewards back in the vault.
-        _claimRewards(ClaimMode.SendToVault);
+        _claimRewards(msg.sender, ClaimMode.SendToVault);
         // Transfer the user funds to the Hell Vault Contract
         // safeDepositAsset: Validates for enough: balance, allowance and if the HellVault Contract received the expected amount
         address(this).safeDepositAsset(address(_hellContract), amount);
@@ -73,7 +73,7 @@ contract HellVault is Initializable, UUPSUpgradeable, OwnableUpgradeable, Reentr
         _updateVault();
         // Claim user pending rewards, avoiding the usage of an additional transaction.
         // Since the user is performing a withdraw, we'll send his rewards to his wallet.
-        _claimRewards(ClaimMode.SendToWallet);
+        _claimRewards(msg.sender, ClaimMode.SendToWallet);
         // Update withdrawn amounts
         _userInfo[msg.sender].hellDeposited -= amount;
         _totalAmountDeposited -= amount;
@@ -87,9 +87,10 @@ contract HellVault is Initializable, UUPSUpgradeable, OwnableUpgradeable, Reentr
         SendToWallet
     }
 
-    function claimRewards(ClaimMode claimMode) external nonReentrant {
+    function claimRewards(address userAddress, ClaimMode claimMode) external nonReentrant {
+        // TODO: Verify if the user wishes to compound or send rewards to his wallet.
         if (getUserRewards(msg.sender, 0) > 0) {
-            _claimRewards(claimMode);
+            _claimRewards(userAddress, claimMode);
         } else {
             // CR1: No rewards available to claim
             revert("CR1");
@@ -202,53 +203,61 @@ contract HellVault is Initializable, UUPSUpgradeable, OwnableUpgradeable, Reentr
         if(periodIndexStatus == PeriodIndexStatus.UndefinedIndex) {
             revert("Undefined Period Index");
         }
-        // If there are no periods left we reached the maximum and no rewards will be given.
-        if(periodIndexStatus == PeriodIndexStatus.HigherThanLastToPeriod) {
-            return;
-        }
-        // If this period doesn't provide rewards
-        if (_dividendPeriods[periodIndex].rewardPerBlock == 0) {
-            return;
-        }
 
         // Calculate the number of elapsedBlocks since the last dividend
         uint elapsedBlocks = block.number - _lastDividendBlock;
-        // Calculate the stakeToReward.
-        uint stakeToReward = _totalAmountDeposited / 1e12;
         _lastDividendBlock = block.number;
-        _distributedDividends[periodIndex] += elapsedBlocks;
-        // Calculate the amount to be minted
-        uint amountToMint = (stakeToReward * elapsedBlocks) * _dividendPeriods[periodIndex].rewardPerBlock;
-        _hellContract.mintVaultRewards(amountToMint);
+
+        // If this period provides rewards
+        if (periodIndexStatus == PeriodIndexStatus.WithinRange && _dividendPeriods[periodIndex].rewardPerBlock > 0) {
+            _distributedDividends[periodIndex] += elapsedBlocks;
+        }
     }
 
-    function _claimRewards(ClaimMode claimMode) internal {
-        uint rewards = getUserRewards(msg.sender, 0);
+    function _claimRewards(address userAddress, ClaimMode claimMode) internal {
+        uint rewards = getUserRewards(userAddress, 0);
         // Reset Timestamps
-        _userInfo[msg.sender].lastDividendBlock = block.number;
+        _userInfo[userAddress].lastDividendBlock = block.number;
         // Copy the current dividends Data
-        _userInfo[msg.sender].distributedDividendsSinceLastPayment = _distributedDividends;
+        _userInfo[userAddress].distributedDividendsSinceLastPayment = _distributedDividends;
         if (rewards > 0) {
+            // Mint rewards
+            _hellContract.mintVaultRewards(rewards);
             // Calculate treasuryFee
             uint treasuryFee = rewards / uint(_hellGovernmentContract._hellVaultTreasuryFee());
+            uint compounderFee;
+            // If this transaction produces treasury fees
             if (treasuryFee > 0) {
                 rewards -= treasuryFee;
+                // Calculate compounder fee
+                compounderFee = treasuryFee / _hellGovernmentContract._hellVaultCompounderFee();
+                if (compounderFee > 0) {
+                    // Subtract compounderFee from the treasuryFee
+                    treasuryFee -= compounderFee;
+                    // If the userAddress is the msg.sender add compounding rewards back and avoid the extra transfer
+                    if(msg.sender == userAddress) {
+                        rewards += compounderFee;
+                    } else {
+                        // if the msg.sender and the userAddress are different pay compounderFee
+                        payable(msg.sender).safeTransferAsset(address(_hellContract), compounderFee);
+                    }
+                }
                 // Pay treasuryFee
                 (_hellGovernmentContract._hellTreasuryAddress()).safeTransferAsset(address(_hellContract), treasuryFee);
             }
             // If user wishes to compound his rewards, send them to the vault again
             if (claimMode == ClaimMode.SendToVault) {
                 // Update the amount the user has deposited
-                _userInfo[msg.sender].hellDeposited += rewards;
+                _userInfo[userAddress].hellDeposited += rewards;
                 // Update _totalAmountDeposited in the HellVault
                 _totalAmountDeposited += rewards;
             }
-            // If user wishes to have his rewards sent to his wallet
+            // If the user wishes to have his rewards sent to his wallet
             if (claimMode == ClaimMode.SendToWallet) {
-                payable(msg.sender).safeTransferAsset(address(_hellContract), rewards);
+                payable(userAddress).safeTransferAsset(address(_hellContract), rewards);
             }
 
-            emit ClaimRewards(msg.sender, claimMode, rewards, treasuryFee);
+            emit ClaimRewards(userAddress, claimMode, rewards, treasuryFee, compounderFee);
         }
     }
     ////////////////////////////////////////////////////////////////////
@@ -278,6 +287,6 @@ contract HellVault is Initializable, UUPSUpgradeable, OwnableUpgradeable, Reentr
     ////////////////////////////////////////////////////////////////////
     event Deposit(address indexed user, uint amount);
     event Withdraw(address indexed user, uint amount);
-    event ClaimRewards(address indexed user, ClaimMode claimMode, uint rewardedAmount, uint treasuryFee);
+    event ClaimRewards(address indexed user, ClaimMode claimMode, uint rewardedAmount, uint treasuryFee, uint compounderFee);
     event ReceivedTokens(address operator, address from, address to, uint amount, bytes userData, bytes operatorData);
 }
