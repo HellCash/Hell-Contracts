@@ -53,6 +53,7 @@ export class greedStarterTestingEnvironment {
             minimumProjectLength: minimumProjectLength,
             maximumProjectLength: maximumProjectLength,
             hellVaultTreasuryFee: 16, // 6.25%
+            hellVaultCompounderFee: 5 // 20% of the Treasury fees
         }, testingEnvironmentDeploymentOptions);
         this.greedStarterContract = await deployGreedStarter(this.hellGovernment.address, testingEnvironmentDeploymentOptions);
         this.greedStarterIndexerContract = await deployGreedStarterIndexer(this.hellGovernment.address, this.greedStarterContract.address, testingEnvironmentDeploymentOptions);

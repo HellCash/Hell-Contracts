@@ -42,6 +42,7 @@ export class HellVaultTestingEnvironment {
             minimumProjectLength: BigNumber.from(1000),
             maximumProjectLength: BigNumber.from(16000000),
             hellVaultTreasuryFee: 16, // 6.25%
+            hellVaultCompounderFee: 5 // 20% of the Treasury fees
         }, testingEnvironmentDeploymentOptions);
         this.hellVaultContract = await deployHellVault(this.hellContract.address, this.hellGovernmentContract.address, testingEnvironmentDeploymentOptions);
         await this.hellContract._setHellVaultAddress(this.hellVaultContract.address);

@@ -9,4 +9,5 @@ export abstract class HellGovernmentInitializer {
     minimumProjectLength: BigNumber;
     maximumProjectLength: BigNumber;
     hellVaultTreasuryFee: number | BigNumber;
+    hellVaultCompounderFee: number | BigNumber;
 }

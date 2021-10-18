@@ -14,7 +14,8 @@ export async function deployHellGovernment(hellGovernmentInitializer: HellGovern
             hellGovernmentInitializer.greedStarterFee,
             hellGovernmentInitializer.minimumProjectLength,
             hellGovernmentInitializer.maximumProjectLength,
-            hellGovernmentInitializer.hellVaultTreasuryFee
+            hellGovernmentInitializer.hellVaultTreasuryFee,
+            hellGovernmentInitializer.hellVaultCompounderFee
         ], {kind: 'uups'});
     if (deploymentOptions.printLogs) {
         Console.contractDeploymentInformation("HellGovernment", hellGovernmentContractProxy);

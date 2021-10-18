@@ -61,6 +61,7 @@ export function uupsProxiesImplementations() {
             minimumProjectLength: BigNumber.from(1000),
             maximumProjectLength: BigNumber.from(16000000),
             hellVaultTreasuryFee: 16, // 6.25%
+            hellVaultCompounderFee: 5 // 20% of the Treasury fees
         };
         hellGovernmentProxy = await deployHellGovernment(hellGovernmentInitializer, testingEnvironmentDeploymentOptions);
         hellGovernmentImpl = await ContractUtils.getProxyImplementationContract(hellGovernmentSol, hellGovernmentProxy);
