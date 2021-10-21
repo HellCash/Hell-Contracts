@@ -237,6 +237,7 @@ contract HellVault is Initializable, UUPSUpgradeable, OwnableUpgradeable, Reentr
                     // If the userAddress is the msg.sender add compounding rewards back and avoid the extra transfer
                     if(msg.sender == userAddress) {
                         rewards += compounderFee;
+                        compounderFee = 0;
                     } else {
                         // if the msg.sender and the userAddress are different pay compounderFee
                         payable(msg.sender).safeTransferAsset(address(_hellContract), compounderFee);
@@ -257,7 +258,7 @@ contract HellVault is Initializable, UUPSUpgradeable, OwnableUpgradeable, Reentr
                 payable(userAddress).safeTransferAsset(address(_hellContract), rewards);
             }
 
-            emit ClaimRewards(userAddress, claimMode, rewards, treasuryFee, compounderFee);
+            emit ClaimRewards(userAddress, msg.sender, claimMode, rewards, treasuryFee, compounderFee);
         }
     }
     ////////////////////////////////////////////////////////////////////
@@ -287,6 +288,6 @@ contract HellVault is Initializable, UUPSUpgradeable, OwnableUpgradeable, Reentr
     ////////////////////////////////////////////////////////////////////
     event Deposit(address indexed user, uint amount);
     event Withdraw(address indexed user, uint amount);
-    event ClaimRewards(address indexed user, ClaimMode claimMode, uint rewardedAmount, uint treasuryFee, uint compounderFee);
+    event ClaimRewards(address indexed userAddress, address indexed compounderAddress, ClaimMode claimMode, uint rewardedAmount, uint treasuryFee, uint compounderFee);
     event ReceivedTokens(address operator, address from, address to, uint amount, bytes userData, bytes operatorData);
 }

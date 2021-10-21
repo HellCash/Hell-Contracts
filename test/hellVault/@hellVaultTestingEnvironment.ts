@@ -91,12 +91,16 @@ export class HellVaultTestingEnvironment {
     async getExpectedRewards(offset: number | BigNumber = 1, signer: any | null = null): Promise<HellVaultExpectedRewards> {
         signer = signer ? signer : this.masterSigner;
         const expectedRewards: BigNumber = await this.hellVaultContract.getUserRewards(signer.address, offset);
-        const expectedFee: BigNumber = expectedRewards.div(await this.hellGovernmentContract._hellVaultTreasuryFee());
-        const expectedRewardsAfterFees = expectedRewards.sub(expectedFee);
+        let expectedTreasuryFee: BigNumber = expectedRewards.div(await this.hellGovernmentContract._hellVaultTreasuryFee());
+        const expectedCompounderFee: BigNumber = expectedTreasuryFee.div(await this.hellGovernmentContract._hellVaultCompounderFee());
+        // Subtract compounder fees from treasury fees
+        expectedTreasuryFee.sub(expectedCompounderFee);
+        const expectedRewardsAfterFees = expectedRewards.sub(expectedTreasuryFee);
         return {
             expectedRewards: expectedRewards,
-            expectedFee: expectedFee,
-            expectedRewardsAfterFees: expectedRewardsAfterFees
+            expectedTreasuryFee: expectedTreasuryFee,
+            expectedRewardsAfterFees: expectedRewardsAfterFees,
+            expectedCompounderFee: expectedCompounderFee,
         };
     }
 
@@ -129,11 +133,15 @@ export class HellVaultTestingEnvironment {
         const afterTreasuryBalance: BigNumber = await this.hellContract.balanceOf(this.treasurySigner.address);
         // Expect that the amount deposited had increased by the deposited amount and the pending RewardsAfterFees
         expect(afterUserInfo.hellDeposited).to.be
-            .equal(beforeUserInfo.hellDeposited.add(amount).add(expectedRewards.expectedRewardsAfterFees));
+            .equal(beforeUserInfo.hellDeposited.add(amount)
+                .add(expectedRewards.expectedRewardsAfterFees)
+                // Since the user will be the compounder by himself, he gets the compounder fee
+                .add(expectedRewards.expectedCompounderFee)
+            );
         // Expect that the user balance had decreased by the deposited amount
         expect(beforeUserBalance.sub(amount)).to.be.equal(afterUserBalance);
         // Expect that the treasury had received the proper amount of fees
-        expect(afterTreasuryBalance).to.be.equal(beforeTreasuryBalance.add(expectedRewards.expectedFee));
+        expect(afterTreasuryBalance).to.be.equal(beforeTreasuryBalance.add(expectedRewards.expectedTreasuryFee));
         // Retrieve Hell vault balances after the deposit
         // const afterVaultBalance: BigNumber = await this.hellContract.balanceOf(this.hellVaultContract.address);
         // const afterTotalAmountDeposited: BigNumber = await this.hellVaultContract._totalAmountDeposited();
@@ -161,8 +169,10 @@ export class HellVaultTestingEnvironment {
             .withArgs(signer.address, amount);
         // Retrieve user balance after withdraw
         const afterUserBalance: BigNumber = await this.hellContract.balanceOf(signer.address);
-        expect(afterUserBalance).to.be.equal(beforeUserBalance
-            .add(amount).add(expectedRewards.expectedRewardsAfterFees));
+        expect(afterUserBalance).to.be.equal(beforeUserBalance.add(amount)
+            .add(expectedRewards.expectedRewardsAfterFees)
+            // Since the user will be the compounder by himself, he gets the compounder fee
+            .add(expectedRewards.expectedCompounderFee));
         // Retrieve the HellVault userInfo state after withdraws
         const afterUserInfo: HellVaultUserInfo = await this.hellVaultContract.getUserInfo(signer.address);
         // Retrieve the Treasury Address after the withdraw
@@ -170,7 +180,10 @@ export class HellVaultTestingEnvironment {
         // Expect that the hell deposited for the user had be reduced by the amount
         expect(beforeUserInfo.hellDeposited.sub(amount)).to.be.equal(afterUserInfo.hellDeposited);
         // Expect that the treasury had received the proper amount of fees
-        expect(afterTreasuryBalance).to.be.equal(beforeTreasuryBalance.add(expectedRewards.expectedFee));
+        expect(afterTreasuryBalance).to.be.equal(beforeTreasuryBalance
+            .add(expectedRewards.expectedTreasuryFee)
+            .sub(expectedRewards.expectedCompounderFee)
+        );
     }
 
 }
