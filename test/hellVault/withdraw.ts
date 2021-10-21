@@ -4,6 +4,7 @@ import {formatEther, parseEther} from "ethers/lib/utils";
 import {BigNumber} from "ethers";
 import {Random} from "../../utils/random";
 import {NetworkUtils} from "../../utils/networkUtils";
+import {ClaimMode} from "../../enums/claimMode";
 
 export function withdraw() {
     let environment: HellVaultTestingEnvironment = new HellVaultTestingEnvironment();
@@ -34,7 +35,7 @@ export function withdraw() {
     it('Should fail if the user attempts to withdraw more funds than available', async() => {
         await expect(environment.hellVaultContract
             .connect(environment.guest3Signer)
-            .withdraw(parseEther("1")) // REVERT <-- guest3 doesn't have anything deposited
+            .withdraw(parseEther("1"), ClaimMode.SendToWallet) // REVERT <-- guest3 doesn't have anything deposited
         ).to.be.revertedWith("W1");
     });
 

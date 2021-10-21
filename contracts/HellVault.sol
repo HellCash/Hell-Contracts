@@ -9,7 +9,6 @@ import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 import "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol";
-import "@openzeppelin/contracts-upgradeable/token/ERC20/utils/SafeERC20Upgradeable.sol";
 import "./abstract/IHell.sol";
 import "./abstract/HellGoverned.sol";
 import "./libraries/HellishTransfers.sol";
@@ -49,11 +48,18 @@ contract HellVault is Initializable, UUPSUpgradeable, OwnableUpgradeable, Reentr
     ////////////////////////////////////////////////////////////////////
     // Public and external functions                                ////
     ////////////////////////////////////////////////////////////////////
-    function deposit(uint amount) external payable nonReentrant {
+    /*
+     Deposits the defined amount of HELL tokens on the Hell Vault and updates the user claimMode
+     @param amount: The amount the user wishes to deposit
+     @param claimMode: updates the user claimMode so external compounder may continue using it on behalf of the user
+    */
+    function deposit(uint amount, ClaimMode claimMode) external payable nonReentrant {
         // D1: Deposit must be >= 1e12 (0.000001) HELL
         require(amount >= 1e12, "D1");
         // Update the vault, Making all unrealized rewards realized.
         _updateVault();
+        // Update user claimMode
+        _userInfo[msg.sender].claimMode = claimMode;
         // Claim user pending rewards, avoiding the usage of an additional transaction.
         // Since the user is performing a deposit, we'll deposit his rewards back in the vault.
         _claimRewards(msg.sender, ClaimMode.SendToVault);
@@ -66,11 +72,18 @@ contract HellVault is Initializable, UUPSUpgradeable, OwnableUpgradeable, Reentr
         emit Deposit(msg.sender, amount);
     }
 
-    function withdraw(uint amount) public nonReentrant {
+    /*
+     Withdraws the defined amount of HELL tokens from the Hell Vault and updates the user claimMode
+     @param amount: The amount the user wishes to withdraw
+     @param claimMode: updates the user claimMode so external compounder may continue using it on behalf of the user
+    */
+    function withdraw(uint amount, ClaimMode claimMode) public nonReentrant {
         // W1: You're trying to withdraw more HELL than what you have available
         require(_userInfo[msg.sender].hellDeposited >= amount, "W1");
         // Update the vault, Making all unrealized rewards realized.
         _updateVault();
+        // Update user claimMode
+        _userInfo[msg.sender].claimMode = claimMode;
         // Claim user pending rewards, avoiding the usage of an additional transaction.
         // Since the user is performing a withdraw, we'll send his rewards to his wallet.
         _claimRewards(msg.sender, ClaimMode.SendToWallet);
@@ -87,10 +100,22 @@ contract HellVault is Initializable, UUPSUpgradeable, OwnableUpgradeable, Reentr
         SendToWallet
     }
 
+    /*
+     Claim pending rewards of the provided userAddress in return of a slice of the
+     treasury fees associated with the transaction which are defined on the HellGovernment Contract
+     as the _hellVaultCompounderFee.
+     @param userAddress: The user from whom the rewards will be claimed
+     @param claimMode: If the userAddress and the msg.sender are the same
+                       the user might update his claimMode so external compounder may continue using it.
+                       Otherwise this param can be set to zero.
+    */
     function claimRewards(address userAddress, ClaimMode claimMode) external nonReentrant {
-        // TODO: Verify if the user wishes to compound or send rewards to his wallet.
-        if (getUserRewards(msg.sender, 0) > 0) {
-            _claimRewards(userAddress, claimMode);
+        if (getUserRewards(userAddress, 0) > 0) {
+            // If msg.sender is the userAddress allow him to update his claimMode
+            if (userAddress == msg.sender) {
+                _userInfo[userAddress].claimMode = claimMode;
+            }
+            _claimRewards(userAddress, _userInfo[userAddress].claimMode);
         } else {
             // CR1: No rewards available to claim
             revert("CR1");
@@ -128,8 +153,11 @@ contract HellVault is Initializable, UUPSUpgradeable, OwnableUpgradeable, Reentr
     }
 
     /*
+     Returns the realized and unrealized rewards for the provided userAddress
+     measured in HELL
      @param userAddress: public wallet address of the user
      @param offset: Show users rewards in the future by adding additional blocks.
+     @return totalRewards: Amount the user will receive before fees
     */
     function getUserRewards(address userAddress, uint offset) public view returns(uint totalRewards) {
         UserInfo storage user = _userInfo[userAddress];
@@ -257,7 +285,6 @@ contract HellVault is Initializable, UUPSUpgradeable, OwnableUpgradeable, Reentr
             if (claimMode == ClaimMode.SendToWallet) {
                 payable(userAddress).safeTransferAsset(address(_hellContract), rewards);
             }
-
             emit ClaimRewards(userAddress, msg.sender, claimMode, rewards, treasuryFee, compounderFee);
         }
     }

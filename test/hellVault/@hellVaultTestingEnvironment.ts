@@ -8,6 +8,7 @@ import {formatEther} from "ethers/lib/utils";
 import {HellVaultUserInfo} from "../../models/hellVaultUserInfo";
 import {HellVaultExpectedRewards} from "../../models/hellVaultExpectedRewards";
 import {expect} from "chai";
+import {ClaimMode} from "../../enums/claimMode";
 
 export class HellVaultTestingEnvironment {
     // Account signers
@@ -104,7 +105,7 @@ export class HellVaultTestingEnvironment {
         };
     }
 
-    async expectDeposit(amount: BigNumber, signer: any | null = null) {
+    async expectDeposit(amount: BigNumber, signer: any | null = null, claimMode = ClaimMode.SendToVault) {
         signer = signer ? signer : this.masterSigner;
         // Retrieve current user balance
         const beforeUserBalance: BigNumber = await this.hellContract.balanceOf(signer.address);
@@ -123,7 +124,7 @@ export class HellVaultTestingEnvironment {
         const expectedRewards: HellVaultExpectedRewards = await this.getExpectedRewards(1, signer);
         // Perform a deposit and expect that the Deposit event triggers with his corresponding params
         await expect(this.hellVaultContract.connect(signer)
-            .deposit(amount)).to.emit(this.hellVaultContract, "Deposit")
+            .deposit(amount, claimMode)).to.emit(this.hellVaultContract, "Deposit")
             .withArgs(signer.address, amount);
         // Retrieve the HellVault userInfo after the deposit
         const afterUserInfo: HellVaultUserInfo = await this.hellVaultContract.getUserInfo(signer.address);
@@ -153,7 +154,7 @@ export class HellVaultTestingEnvironment {
         //     .equal(beforeTotalAmountDeposited.add(amount).add(expectedRewards.expectedRewardsAfterFees));
     }
 
-    async expectWithdraw(amount: BigNumber, signer: any | null = null) {
+    async expectWithdraw(amount: BigNumber, signer: any | null = null, claimMode = ClaimMode.SendToWallet) {
         signer = signer ? signer : this.masterSigner;
         // Retrieve current user balance
         const beforeUserBalance: BigNumber = await this.hellContract.balanceOf(signer.address);
@@ -165,7 +166,7 @@ export class HellVaultTestingEnvironment {
         const expectedRewards: HellVaultExpectedRewards = await this.getExpectedRewards(1, signer);
         // Perform a withdraw and expect that the Withdraw event triggers with his corresponding params
         await expect(this.hellVaultContract.connect(signer)
-            .withdraw(amount)).to.emit(this.hellVaultContract, "Withdraw")
+            .withdraw(amount, claimMode)).to.emit(this.hellVaultContract, "Withdraw")
             .withArgs(signer.address, amount);
         // Retrieve user balance after withdraw
         const afterUserBalance: BigNumber = await this.hellContract.balanceOf(signer.address);
