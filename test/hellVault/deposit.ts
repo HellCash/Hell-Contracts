@@ -2,6 +2,7 @@ import {HellVaultTestingEnvironment} from "./@hellVaultTestingEnvironment";
 import {expect} from "chai";
 import {parseEther, parseUnits} from "ethers/lib/utils";
 import {NetworkUtils} from "../../utils/networkUtils";
+import {ClaimMode} from "../../enums/claimMode";
 
 export function deposit() {
     let environment: HellVaultTestingEnvironment = new HellVaultTestingEnvironment();
@@ -13,32 +14,32 @@ export function deposit() {
 
     it('Should fail if deposit is less than 1e12', async() => {
         await expect(environment.hellVaultContract
-            .deposit(parseUnits("1", 11)) // REVERT <-- we are providing 1e11
+            .deposit(parseUnits("1", 11), ClaimMode.SendToVault) // REVERT <-- we are providing 1e11
         ).to.be.revertedWith("D1");
 
         await expect(environment.hellVaultContract
-            .deposit(parseUnits("1", 12).sub(1)) // REVERT <-- we are providing 1e12 - 1
+            .deposit(parseUnits("1", 12).sub(1), ClaimMode.SendToVault) // REVERT <-- we are providing 1e12 - 1
         ).to.be.revertedWith("D1");
     });
 
     it("Should fail if user doesn't have enough balance", async() => {
         await expect(environment.hellVaultContract
             .connect(environment.guest2Signer) // REVERT <-- guest2 has no balance
-            .deposit(parseEther("1"))).to.be.revertedWith("DA2");
+            .deposit(parseEther("1"), ClaimMode.SendToVault)).to.be.revertedWith("DA2");
 
         await expect(environment.hellVaultContract
             .connect(environment.masterSigner) // REVERT <-- masterSigner doesn't have enough balance
-            .deposit(parseEther("1000"))).to.be.revertedWith("DA2");
+            .deposit(parseEther("1000"), ClaimMode.SendToVault)).to.be.revertedWith("DA2");
     });
 
     it("Should fail if user doesn't have enough allowance", async() => {
         await expect(environment.hellVaultContract
-            .deposit(parseEther("1")) // REVERT <-- the masterSigner has no allowance.
+            .deposit(parseEther("1"), ClaimMode.SendToVault) // REVERT <-- the masterSigner has no allowance.
         ).to.be.revertedWith("DA3");
 
         await expect(environment.hellVaultContract
             .connect(environment.guest1Signer)
-            .deposit(parseEther("1")) // REVERT <-- the guest1 has no allowance.
+            .deposit(parseEther("1"), ClaimMode.SendToVault) // REVERT <-- the guest1 has no allowance.
         ).to.be.revertedWith("DA3");
     });
 
