@@ -40,6 +40,7 @@ contract HellVault is Initializable, UUPSUpgradeable, OwnableUpgradeable, Reentr
         uint hellDeposited; // The Amount of Hell that the user Staked inside the HellVault
         uint lastDividendBlock; // Last block since the user claimed his rewards
         uint[] distributedDividendsSinceLastPayment; // Dividends data since the last deposit
+        ClaimMode claimMode; // If the user wishes to compound or send his rewards to his wallet
         // Used on responses only
         uint hellRewarded;
         uint hellRewardWithdrawFee;
