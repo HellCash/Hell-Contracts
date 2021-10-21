@@ -110,8 +110,8 @@ export class HellVaultTestingEnvironment {
         // Retrieve current user balance
         const beforeUserBalance: BigNumber = await this.hellContract.balanceOf(signer.address);
         // Retrieve current vault balances
-        // const beforeVaultBalance: BigNumber = await this.hellContract.balanceOf(this.hellVaultContract.address);
-        // const beforeTotalAmountDeposited: BigNumber = await this.hellVaultContract._totalAmountDeposited();
+        const beforeVaultBalance: BigNumber = await this.hellContract.balanceOf(this.hellVaultContract.address);
+        const beforeTotalAmountDeposited: BigNumber = await this.hellVaultContract._totalAmountDeposited();
         // Check if the user enough balance
         if (beforeUserBalance.lt(amount)) {
             throw `User: ${signer.address} doesn't have enough balance`;
@@ -148,20 +148,30 @@ export class HellVaultTestingEnvironment {
             .sub(expectedRewards.expectedCompounderFee)
         );
         // Retrieve Hell vault balances after the deposit
-        // const afterVaultBalance: BigNumber = await this.hellContract.balanceOf(this.hellVaultContract.address);
-        // const afterTotalAmountDeposited: BigNumber = await this.hellVaultContract._totalAmountDeposited();
+        const afterVaultBalance: BigNumber = await this.hellContract.balanceOf(this.hellVaultContract.address);
+        const afterTotalAmountDeposited: BigNumber = await this.hellVaultContract._totalAmountDeposited();
         // Expect that the vault balance registered on the Hell Contract had Increased by the amount and any pending rewards
-        // expect(afterVaultBalance).to.be
-        //    .equal(beforeVaultBalance.add(amount).add(expectedRewards.expectedRewardsAfterFees));
+        expect(afterVaultBalance).to.be
+           .equal(beforeVaultBalance.add(amount)
+               .add(expectedRewards.expectedRewardsAfterFees)
+               // Since the user will be compounding the rewards by himself
+               .add(expectedRewards.expectedCompounderFee));
         // // Expect that the vault balance _totalAmountDeposited had increased by the amount and any pending rewards
-        // expect(afterTotalAmountDeposited).to.be
-        //     .equal(beforeTotalAmountDeposited.add(amount).add(expectedRewards.expectedRewardsAfterFees));
+        expect(afterTotalAmountDeposited).to.be
+            .equal(beforeTotalAmountDeposited.add(amount)
+                .add(expectedRewards.expectedRewardsAfterFees)
+                // Since the user will be compounding the rewards by himself
+                .add(expectedRewards.expectedCompounderFee)
+            );
     }
 
     async expectWithdraw(amount: BigNumber, signer: any | null = null, claimMode = ClaimMode.SendToWallet) {
         signer = signer ? signer : this.masterSigner;
         // Retrieve current user balance
         const beforeUserBalance: BigNumber = await this.hellContract.balanceOf(signer.address);
+        // Retrieve current vault balances
+        const beforeVaultBalance: BigNumber = await this.hellContract.balanceOf(this.hellVaultContract.address);
+        const beforeTotalAmountDeposited: BigNumber = await this.hellVaultContract._totalAmountDeposited();
         // Retrieve the Treasury Address balance
         const beforeTreasuryBalance: BigNumber = await this.hellContract.balanceOf(this.treasurySigner.address);
         // Retrieve the HellVault userInfo state before withdraws
@@ -189,6 +199,15 @@ export class HellVaultTestingEnvironment {
             .add(expectedRewards.expectedTreasuryFee)
             .sub(expectedRewards.expectedCompounderFee)
         );
+        // Retrieve Hell vault balances after the deposit
+        const afterVaultBalance: BigNumber = await this.hellContract.balanceOf(this.hellVaultContract.address);
+        const afterTotalAmountDeposited: BigNumber = await this.hellVaultContract._totalAmountDeposited();
+        // Expect that the vault balance registered on the Hell Contract had Decreased by the amount
+        expect(afterVaultBalance).to.be
+            .equal(beforeVaultBalance.sub(amount));
+        // // Expect that the vault balance _totalAmountDeposited had increased by the amount
+        expect(afterTotalAmountDeposited).to.be
+            .equal(beforeTotalAmountDeposited.sub(amount));
     }
 
 }
