@@ -76,15 +76,12 @@ contract HellVault is Initializable, UUPSUpgradeable, OwnableUpgradeable, Reentr
     /*
      Withdraws the defined amount of HELL tokens from the Hell Vault and updates the user claimMode
      @param amount: The amount the user wishes to withdraw
-     @param claimMode: updates the user claimMode so external compounder may continue using it on behalf of the user
     */
-    function withdraw(uint amount, ClaimMode claimMode) public nonReentrant {
+    function withdraw(uint amount) public nonReentrant {
         // W1: You're trying to withdraw more HELL than what you have available
         require(_userInfo[msg.sender].hellDeposited >= amount, "W1");
         // Update the vault, Making all unrealized rewards realized.
         _updateVault();
-        // Update user claimMode
-        _userInfo[msg.sender].claimMode = claimMode;
         // Claim user pending rewards, avoiding the usage of an additional transaction.
         // Since the user is performing a withdraw, we'll send his rewards to his wallet.
         _claimRewards(msg.sender, ClaimMode.SendToWallet);
@@ -107,20 +104,28 @@ contract HellVault is Initializable, UUPSUpgradeable, OwnableUpgradeable, Reentr
      as the _hellVaultCompounderFee.
      @param userAddress: The user from whom the rewards will be claimed
      @param claimMode: If the userAddress and the msg.sender are the same
-                       the user might update his claimMode so external compounder may continue using it.
-                       Otherwise this param can be set to zero.
+            the user might use a different claimMode for this operation,
+            otherwise this param can be set to zero.
     */
     function claimRewards(address userAddress, ClaimMode claimMode) external nonReentrant {
         if (getUserRewards(userAddress, 0) > 0) {
-            // If msg.sender is the userAddress allow him to update his claimMode
+            // Update the vault, Making all unrealized rewards realized.
+            _updateVault();
             if (userAddress == msg.sender) {
-                _userInfo[userAddress].claimMode = claimMode;
+                // Claim user realized rewards using the request claimMode
+                _claimRewards(userAddress, claimMode);
+            } else {
+                // Claim user realized rewards using his preferred claimMode
+                _claimRewards(userAddress, _userInfo[userAddress].claimMode);
             }
-            _claimRewards(userAddress, _userInfo[userAddress].claimMode);
         } else {
             // CR1: No rewards available to claim
             revert("CR1");
         }
+    }
+
+    function updateClaimMode(ClaimMode claimMode) external nonReentrant {
+        _userInfo[msg.sender].claimMode = claimMode;
     }
 
     ////////////////////////////////////////////////////////////////////
