@@ -228,8 +228,7 @@ contract HellVault is Initializable, UUPSUpgradeable, OwnableUpgradeable, Reentr
 
     function _updateVault() internal {
         // Make sure the block number is higher than the _lastDividendBlock
-        // And that the _totalAmountDeposited is higher than 0
-        if (block.number <= _lastDividendBlock || _totalAmountDeposited == 0) {
+        if (block.number <= _lastDividendBlock) {
             return;
         }
         // Obtain the current period Index
