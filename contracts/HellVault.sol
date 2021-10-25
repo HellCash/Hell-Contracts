@@ -236,11 +236,9 @@ contract HellVault is Initializable, UUPSUpgradeable, OwnableUpgradeable, Reentr
         if(periodIndexStatus == PeriodIndexStatus.UndefinedIndex) {
             revert("Undefined Period Index");
         }
-
         // Calculate the number of elapsedBlocks since the last dividend
         uint elapsedBlocks = block.number - _lastDividendBlock;
         _lastDividendBlock = block.number;
-
         // If this period provides rewards
         if (periodIndexStatus == PeriodIndexStatus.WithinRange && _dividendPeriods[periodIndex].rewardPerBlock > 0) {
             _distributedDividends[periodIndex] += elapsedBlocks;
@@ -309,7 +307,6 @@ contract HellVault is Initializable, UUPSUpgradeable, OwnableUpgradeable, Reentr
     function _authorizeUpgrade(address) internal override onlyOwner {}
 
     function _setDividendPeriods(DividendPeriod[] memory dividendPeriods) public onlyOwner {
-        require(dividendPeriods.length <= 12, 'Dividend periods are limited to 12');
         for(uint i = 0; i < dividendPeriods.length; i++) {
             _distributedDividends.push(uint(0));
             _dividendPeriods.push(dividendPeriods[i]);
