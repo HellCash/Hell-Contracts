@@ -67,6 +67,6 @@ export class auctionHouseTestingEnvironment {
         this.doublonContract = await deployDoublon(testingEnvironmentDeploymentOptions);
         this.fusdContract = await deployFUSD(testingEnvironmentDeploymentOptions);
         this.bDoublonContract = await deployBDoublon(testingEnvironmentDeploymentOptions);
-        this.randomContract = await deployRandom(randomTokenSupply, false);
+        this.randomContract = await deployRandom(randomTokenSupply, testingEnvironmentDeploymentOptions);
     };
 }

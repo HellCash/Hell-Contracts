@@ -9,6 +9,7 @@ import erc20Sol from "../../artifacts/@openzeppelin/contracts/token/ERC20/ERC20.
 import {Random} from "../../utils/random";
 import {NetworkUtils} from "../../utils/networkUtils";
 import {deployRandom} from "../../scripts/deployments/deployRandom";
+import {testingEnvironmentDeploymentOptions} from "../../models/deploymentOptions";
 
 /*
  Attempts to replicate the workflow of any Greed Starter project while making every respective assertion
@@ -35,7 +36,7 @@ export function workflow(
 
         before(async () => {
             await environment.initialize(BigNumber.from(300));
-            randomContract = await deployRandom(totalProjectTokens, false);
+            randomContract = await deployRandom(totalProjectTokens, testingEnvironmentDeploymentOptions);
             availableSigners = environment.accountSigners;
             // Remove the master signer and the treasury address from the list of available signers
             availableSigners.splice(0, 2);
