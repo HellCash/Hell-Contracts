@@ -93,7 +93,7 @@ contract HellVaultBonus is Initializable, UUPSUpgradeable, OwnableUpgradeable, R
             // If there is a Vault reward present on this index and it still has rewards available for sharing
             if(bonus.id != 0 && bonus.amountAvailable > 0) {
                 uint blocksEarned;
-                // If this is the first time the user gets this reward
+                // If this is the first time the user gets this bonus
                 if(_userBonusLastDividend[bonus.id][userAddress] == 0) {
                     // If the user had deposits before or on the reward.startingBlock
                     if (userLastVaultDividendBlock <= bonus.startingBlock) {
@@ -127,7 +127,7 @@ contract HellVaultBonus is Initializable, UUPSUpgradeable, OwnableUpgradeable, R
                     }
                     // Send the user his rewards
                     payable(userAddress).safeTransferAsset(bonus.tokenAddress, userRealizedRewards);
-                    emit BonusReceived(userAddress, bonus.tokenAddress, userRealizedRewards);
+                    emit BonusReceived(bonus.id, blocksEarned, userAddress, bonus.tokenAddress, userRealizedRewards);
                 }
             }
         }
@@ -149,7 +149,7 @@ contract HellVaultBonus is Initializable, UUPSUpgradeable, OwnableUpgradeable, R
     // Events                                                       ////
     ////////////////////////////////////////////////////////////////////
     event BonusesUpdated(uint[6] rewardIds);
-    event BonusReceived(address userAddress, address tokenAddress, uint amount);
+    event BonusReceived(uint bonusId, uint blocksEarned, address userAddress, address tokenAddress, uint amount);
     event BonusEnded(uint bonusId);
     event HellVaultAddressUpdated(address newHellVaultAddress);
 }
