@@ -11,14 +11,16 @@ import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol";
 import "./abstract/IHell.sol";
 import "./abstract/HellGoverned.sol";
-import "./interfaces/IHellVaultBonus.sol";
+import "./HellVaultBonus.sol";
+import "./HellVaultHistory.sol";
 import "./libraries/HellishTransfers.sol";
 
 contract HellVault is Initializable, UUPSUpgradeable, OwnableUpgradeable, ReentrancyGuardUpgradeable, HellGoverned {
     using HellishTransfers for address;
     using HellishTransfers for address payable;
     IHell private _hellContract;
-    IHellVaultBonus private _hellVaultBonus;
+    HellVaultBonus private _hellVaultBonus;
+    HellVaultHistory private _hellVaultHistory;
     ////////////////////////////////////////////////////////////////////
     // Dividends                                                    ////
     ////////////////////////////////////////////////////////////////////
@@ -295,6 +297,7 @@ contract HellVault is Initializable, UUPSUpgradeable, OwnableUpgradeable, Reentr
             if (claimMode == ClaimMode.SendToWallet) {
                 payable(userAddress).safeTransferAsset(address(_hellContract), rewards);
             }
+            _hellVaultHistory._registerUserReward(userAddress, address(_hellContract), rewards, claimMode);
             emit ClaimRewards(userAddress, msg.sender, claimMode, rewards, treasuryFee, compounderFee);
             // Distribute additional rewards
             _hellVaultBonus._distributeBonuses(userAddress, userLastDividendBlock, stakeToReward);
@@ -306,6 +309,7 @@ contract HellVault is Initializable, UUPSUpgradeable, OwnableUpgradeable, Reentr
     ////////////////////////////////////////////////////////////////////
     /// @custom:oz-upgrades-unsafe-allow constructor
     constructor() initializer {}
+
     function initialize(address hellContractAddress, address hellGovernmentAddress) initializer public {
         __Ownable_init();
         __UUPSUpgradeable_init();
@@ -322,9 +326,15 @@ contract HellVault is Initializable, UUPSUpgradeable, OwnableUpgradeable, Reentr
             _dividendPeriods.push(dividendPeriods[i]);
         }
     }
-    function _updateHellVaultBonusContract(address newHellVaultBonusContractAddress) external onlyOwner {
-        _hellVaultBonus = IHellVaultBonus(newHellVaultBonusContractAddress);
-        emit HellVaultBonusContractUpdated(newHellVaultBonusContractAddress);
+
+    function _updateHellVaultBonusContract(address newAddress) external onlyOwner {
+        _hellVaultBonus = HellVaultBonus(newAddress);
+        emit HellVaultBonusContractUpdated(newAddress);
+    }
+
+    function _updateHellVaultHistoryContract(address newAddress) external onlyOwner {
+        _hellVaultHistory = HellVaultHistory(newAddress);
+        emit HellVaultHistoryContractUpdated(newAddress);
     }
     ////////////////////////////////////////////////////////////////////
     // Events                                                       ////
@@ -334,4 +344,5 @@ contract HellVault is Initializable, UUPSUpgradeable, OwnableUpgradeable, Reentr
     event ClaimRewards(address indexed userAddress, address indexed compounderAddress, ClaimMode claimMode, uint rewardedAmount, uint treasuryFee, uint compounderFee);
     event ReceivedTokens(address operator, address from, address to, uint amount, bytes userData, bytes operatorData);
     event HellVaultBonusContractUpdated(address newAddress);
+    event HellVaultHistoryContractUpdated(address newAddress);
 }

@@ -12,10 +12,12 @@ import "@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.
 import "./libraries/HellishTransfers.sol";
 import "./abstract/HellVaultAdministered.sol";
 import "./HellVault.sol";
+import "./HellVaultHistory.sol";
 
 contract HellVaultBonus is Initializable, UUPSUpgradeable, OwnableUpgradeable, ReentrancyGuardUpgradeable, HellVaultAdministered {
     using HellishTransfers for address;
     using HellishTransfers for address payable;
+    HellVaultHistory private _hellVaultHistory;
     ////////////////////////////////////////////////////////////////////
     // Bonuses variables                                            ////
     ////////////////////////////////////////////////////////////////////
@@ -107,13 +109,16 @@ contract HellVaultBonus is Initializable, UUPSUpgradeable, OwnableUpgradeable, R
     ////////////////////////////////////////////////////////////////////
     /// @custom:oz-upgrades-unsafe-allow constructor
     constructor() initializer {}
+
     function initialize(address hellVaultAddress) initializer public {
         __Ownable_init();
         __UUPSUpgradeable_init();
         __ReentrancyGuard_init();
         _setHellVaultAddress(hellVaultAddress);
     }
+
     function _authorizeUpgrade(address) internal override onlyOwner {}
+
     function _addBonus(address tokenAddress, uint amount, uint rewardPerBlock, uint8 setOnIndex) external onlyOwner {
         // AB1: Must be able to provide at least 1000 dividends
         require(amount > rewardPerBlock && (amount / rewardPerBlock) > 1000, "AB1");
@@ -135,11 +140,17 @@ contract HellVaultBonus is Initializable, UUPSUpgradeable, OwnableUpgradeable, R
             _bonusInfo[bonusInfo.id].endedAtBlock = block.number;
         }
     }
+
     function _updateCurrentBonusId(uint8 index, uint rewardId) public onlyOwner {
         require(_bonusInfo[rewardId].id != 0, "The reward Id doesn't exists");
         _currentBonusIds[index] = rewardId;
         _bonusInfo[rewardId].startingBlock = block.number;
         _bonusInfo[rewardId].endedAtBlock = 0;
+    }
+
+    function _updateHellVaultHistoryContract(address newAddress) external onlyOwner {
+        _hellVaultHistory = HellVaultHistory(newAddress);
+        emit HellVaultHistoryContractUpdated(newAddress);
     }
     ////////////////////////////////////////////////////////////////////
     // Hell Vault Only                                              ////
@@ -176,6 +187,7 @@ contract HellVaultBonus is Initializable, UUPSUpgradeable, OwnableUpgradeable, R
                 }
                 // Send the user his rewards
                 payable(userAddress).safeTransferAsset(bonus.tokenAddress, unrealizedRewards);
+                _hellVaultHistory._registerUserReward(userAddress, bonus.tokenAddress, unrealizedRewards, HellVault.ClaimMode.SendToWallet);
                 emit BonusReceived(bonus.id, blocksEarned, userAddress, bonus.tokenAddress, unrealizedRewards);
             }
         }
@@ -185,4 +197,5 @@ contract HellVaultBonus is Initializable, UUPSUpgradeable, OwnableUpgradeable, R
     ////////////////////////////////////////////////////////////////////
     event BonusReceived(uint bonusId, uint blocksEarned, address userAddress, address tokenAddress, uint amount);
     event BonusEnded(uint bonusId);
+    event HellVaultHistoryContractUpdated(address newAddress);
 }
