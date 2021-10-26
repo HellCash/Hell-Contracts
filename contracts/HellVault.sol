@@ -57,8 +57,8 @@ contract HellVault is Initializable, UUPSUpgradeable, OwnableUpgradeable, Reentr
      @param claimMode: updates the user claimMode so external compounder may continue using it on behalf of the user
     */
     function deposit(uint amount, ClaimMode claimMode) external payable nonReentrant {
-        // D1: Deposit must be >= 1e12 (0.000001) HELL
-        require(amount >= 1e12, "D1");
+        // D1: Deposit must be >= _minimumDeposit()
+        require(amount >= _minimumDeposit(), "D1");
         // Update the vault, Making all unrealized rewards realized.
         _updateVault();
         // Update user claimMode
@@ -179,7 +179,7 @@ contract HellVault is Initializable, UUPSUpgradeable, OwnableUpgradeable, Reentr
             return 0;
         }
 
-        uint stakeToReward = user.hellDeposited / 1e12;
+        uint stakeToReward = user.hellDeposited / _minimumDeposit();
         // If user doesn't have enough staked funds
         if(stakeToReward == 0) {
             return 0;
@@ -219,6 +219,9 @@ contract HellVault is Initializable, UUPSUpgradeable, OwnableUpgradeable, Reentr
         return user;
     }
 
+    function _minimumDeposit() public pure returns(uint) {
+        return 1e12;
+    }
     ////////////////////////////////////////////////////////////////////
     // Internal Functions                                           ////
     ////////////////////////////////////////////////////////////////////
@@ -255,7 +258,7 @@ contract HellVault is Initializable, UUPSUpgradeable, OwnableUpgradeable, Reentr
         // Copy the current dividends Data
         _userInfo[userAddress].distributedDividendsSinceLastPayment = _distributedDividends;
         if (rewards > 0) {
-            uint stakeToReward = _userInfo[userAddress].hellDeposited / 1e12;
+            uint stakeToReward = _userInfo[userAddress].hellDeposited / _minimumDeposit();
             // Mint rewards
             _hellContract.mintVaultRewards(rewards);
             // Calculate treasuryFee
@@ -297,6 +300,7 @@ contract HellVault is Initializable, UUPSUpgradeable, OwnableUpgradeable, Reentr
             _hellVaultBonus._distributeBonuses(userAddress, userLastDividendBlock, stakeToReward);
         }
     }
+
     ////////////////////////////////////////////////////////////////////
     // Only Owner                                                   ////
     ////////////////////////////////////////////////////////////////////
