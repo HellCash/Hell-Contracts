@@ -10,12 +10,12 @@ import "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol";
 import "./libraries/HellishTransfers.sol";
+import "./abstract/HellVaultAdministered.sol";
 import "./HellVault.sol";
 
-contract HellVaultBonus is Initializable, UUPSUpgradeable, OwnableUpgradeable, ReentrancyGuardUpgradeable {
+contract HellVaultBonus is Initializable, UUPSUpgradeable, OwnableUpgradeable, ReentrancyGuardUpgradeable, HellVaultAdministered {
     using HellishTransfers for address;
     using HellishTransfers for address payable;
-    HellVault private _hellVault;
     ////////////////////////////////////////////////////////////////////
     // Bonuses variables                                            ////
     ////////////////////////////////////////////////////////////////////
@@ -111,7 +111,7 @@ contract HellVaultBonus is Initializable, UUPSUpgradeable, OwnableUpgradeable, R
         __Ownable_init();
         __UUPSUpgradeable_init();
         __ReentrancyGuard_init();
-        _hellVault = HellVault(hellVaultAddress);
+        _setHellVaultAddress(hellVaultAddress);
     }
     function _authorizeUpgrade(address) internal override onlyOwner {}
     function _addBonus(address tokenAddress, uint amount, uint rewardPerBlock, uint8 setOnIndex) external onlyOwner {
@@ -141,18 +141,9 @@ contract HellVaultBonus is Initializable, UUPSUpgradeable, OwnableUpgradeable, R
         _bonusInfo[rewardId].startingBlock = block.number;
         _bonusInfo[rewardId].endedAtBlock = 0;
     }
-    function _setHellVaultAddress(address newHellVaultAddress) external onlyOwner {
-        require(newHellVaultAddress != address (0), "The Hell Vault address cannot be the zero address");
-        _hellVault = HellVault(newHellVaultAddress);
-        emit HellVaultAddressUpdated(newHellVaultAddress);
-    }
     ////////////////////////////////////////////////////////////////////
     // Hell Vault Only                                              ////
     ////////////////////////////////////////////////////////////////////
-    modifier onlyHellVault {
-        require(msg.sender == address(_hellVault), "Only the Hell Vault might trigger this function");
-        _;
-    }
     /*
      Distributes the bonuses declared on the _currentBonusIds array for the given user
      @param userAddress: Address of the user that will receive the bonuses
@@ -194,5 +185,4 @@ contract HellVaultBonus is Initializable, UUPSUpgradeable, OwnableUpgradeable, R
     ////////////////////////////////////////////////////////////////////
     event BonusReceived(uint bonusId, uint blocksEarned, address userAddress, address tokenAddress, uint amount);
     event BonusEnded(uint bonusId);
-    event HellVaultAddressUpdated(address newHellVaultAddress);
 }
