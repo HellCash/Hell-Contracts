@@ -4,11 +4,10 @@
 //////////////////////////////////////////
 pragma solidity ^0.8.7;
 
-import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 import "../HellVault.sol";
 
-abstract contract HellVaultAdministered is Initializable, OwnableUpgradeable {
+abstract contract HellVaultAdministered is OwnableUpgradeable {
     HellVault internal _hellVault;
 
     function _setHellVaultAddress(address newHellVaultAddress) public onlyOwner {
