@@ -10,11 +10,12 @@ import "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol";
 import "./libraries/HellishTransfers.sol";
+import "./HellVault.sol";
 
 contract HellVaultBonus is Initializable, UUPSUpgradeable, OwnableUpgradeable, ReentrancyGuardUpgradeable {
     using HellishTransfers for address;
     using HellishTransfers for address payable;
-    address public _hellVaultAddress;
+    HellVault private _hellVault;
     uint _totalVaultRewards;
     // A maximum of 10 bonus rewards can be available at once.
     uint[10] _currentBonusIds;
@@ -41,7 +42,7 @@ contract HellVaultBonus is Initializable, UUPSUpgradeable, OwnableUpgradeable, R
         __Ownable_init();
         __UUPSUpgradeable_init();
         __ReentrancyGuard_init();
-        _hellVaultAddress = hellVaultAddress;
+        _hellVault = HellVault(hellVaultAddress);
     }
     function _authorizeUpgrade(address) internal override onlyOwner {}
 
@@ -72,7 +73,7 @@ contract HellVaultBonus is Initializable, UUPSUpgradeable, OwnableUpgradeable, R
 
     function _setHellVaultAddress(address newHellVaultAddress) external onlyOwner {
         require(newHellVaultAddress != address (0), "The Hell Vault address cannot be the zero address");
-        _hellVaultAddress = newHellVaultAddress;
+        _hellVault = HellVault(newHellVaultAddress);
         emit HellVaultAddressUpdated(newHellVaultAddress);
     }
 
@@ -80,7 +81,7 @@ contract HellVaultBonus is Initializable, UUPSUpgradeable, OwnableUpgradeable, R
     // Hell Vault Only                                              ////
     ////////////////////////////////////////////////////////////////////
     modifier onlyHellVault {
-        require(msg.sender == _hellVaultAddress, "Only the Hell Vault might trigger this function");
+        require(msg.sender == address(_hellVault), "Only the Hell Vault might trigger this function");
         _;
     }
     function _distributeBonuses(
