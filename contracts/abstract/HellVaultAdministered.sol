@@ -18,7 +18,7 @@ abstract contract HellVaultAdministered is Initializable, OwnableUpgradeable {
     }
 
     modifier onlyHellVault {
-        require(msg.sender == address(_hellVault), "Only the Hell Vault might trigger this function");
+        require(msg.sender == address(_hellVault), "Forbidden");
         _;
     }
 
