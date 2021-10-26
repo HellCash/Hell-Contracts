@@ -47,7 +47,7 @@ contract HellVault is Initializable, UUPSUpgradeable, OwnableUpgradeable, Reentr
         uint hellRewarded;
         uint hellRewardWithdrawFee;
     }
-    mapping(address => UserInfo) internal _userInfo;
+    mapping(address => UserInfo) public _userInfo;
     ////////////////////////////////////////////////////////////////////
     // Public and external functions                                ////
     ////////////////////////////////////////////////////////////////////
