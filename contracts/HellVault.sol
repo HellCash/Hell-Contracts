@@ -327,12 +327,12 @@ contract HellVault is Initializable, UUPSUpgradeable, OwnableUpgradeable, Reentr
         }
     }
 
-    function _updateHellVaultBonusContract(address newAddress) external onlyOwner {
+    function _setHellVaultBonusContract(address newAddress) external onlyOwner {
         _hellVaultBonus = HellVaultBonus(newAddress);
         emit HellVaultBonusContractUpdated(newAddress);
     }
 
-    function _updateHellVaultHistoryContract(address newAddress) external onlyOwner {
+    function _setHellVaultHistoryContract(address newAddress) external onlyOwner {
         _hellVaultHistory = HellVaultHistory(newAddress);
         emit HellVaultHistoryContractUpdated(newAddress);
     }
