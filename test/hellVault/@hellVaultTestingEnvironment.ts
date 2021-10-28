@@ -9,6 +9,8 @@ import {HellVaultUserInfo} from "../../models/hellVaultUserInfo";
 import {HellVaultExpectedRewards} from "../../models/hellVaultExpectedRewards";
 import {expect} from "chai";
 import {ClaimMode} from "../../enums/claimMode";
+import {deployHellVaultBonus} from "../../scripts/deployments/deployHellVaultBonus";
+import {deployHellVaultHistory} from "../../scripts/deployments/deployHellVaultHistory";
 
 export class HellVaultTestingEnvironment {
     // Account signers
@@ -22,6 +24,8 @@ export class HellVaultTestingEnvironment {
     hellContract: Contract;
     hellGovernmentContract: Contract;
     hellVaultContract: Contract;
+    hellVaultBonusContract: Contract;
+    hellVaultHistoryContract: Contract;
 
     // Initialize this testing environment
     async initialize() {
@@ -48,6 +52,10 @@ export class HellVaultTestingEnvironment {
         this.hellVaultContract = await deployHellVault(this.hellContract.address, this.hellGovernmentContract.address, testingEnvironmentDeploymentOptions);
         await this.hellContract._setHellVaultAddress(this.hellVaultContract.address);
         await this.hellContract._setExcludedFromBurnList(this.hellVaultContract.address, true);
+        this.hellVaultBonusContract = await deployHellVaultBonus(this.hellVaultContract.address, testingEnvironmentDeploymentOptions);
+        this.hellVaultHistoryContract = await deployHellVaultHistory(this.hellVaultContract.address, this.hellVaultBonusContract.address, testingEnvironmentDeploymentOptions);
+        await this.hellVaultContract._setHellVaultBonusContract(this.hellVaultBonusContract.address);
+        await this.hellVaultContract._setHellVaultHistoryContract(this.hellVaultHistoryContract.address);
     };
 
     async logVaultInfo() {

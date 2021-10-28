@@ -43,11 +43,12 @@ contract HellVaultHistory is Initializable, UUPSUpgradeable, OwnableUpgradeable,
     /// @custom:oz-upgrades-unsafe-allow constructor
     constructor() initializer {}
 
-    function initialize(address hellVaultAddress) initializer public {
+    function initialize(address hellVaultAddress, address hellVaultBonusAddress) initializer public {
         __Ownable_init();
         __UUPSUpgradeable_init();
         __ReentrancyGuard_init();
         _setHellVaultAddress(hellVaultAddress);
+        _setHellVaultBonusAddress(hellVaultBonusAddress);
     }
 
     function _authorizeUpgrade(address) internal override onlyOwner {}

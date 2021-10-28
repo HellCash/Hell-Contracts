@@ -2,19 +2,12 @@ import {HellVaultTestingEnvironment} from "../hellVault/@hellVaultTestingEnviron
 import {parseEther} from "ethers/lib/utils";
 import {deployRandom} from "../../scripts/deployments/deployRandom";
 import {testingEnvironmentDeploymentOptions} from "../../models/deploymentOptions";
-import {Contract} from "ethers";
-import {deployHellVaultBonus} from "../../scripts/deployments/deployHellVaultBonus";
 import {HellVaultBonusInfo} from "../../models/hellVaultBonusInfo";
 import {Random} from "../../utils/random";
 
 export class HellVaultBonusTestingEnvironment extends HellVaultTestingEnvironment {
-    // Proxy Contracts
-    hellVaultBonusContract: Contract;
-
     async initialize(): Promise<void> {
         await super.initialize();
-        this.hellVaultBonusContract = await deployHellVaultBonus(this.hellVaultContract.address, testingEnvironmentDeploymentOptions);
-        await this.hellVaultContract._updateHellVaultBonusContract(this.hellVaultBonusContract.address);
     }
 
     async createTestingBonuses(): Promise<HellVaultBonusInfo[]> {
