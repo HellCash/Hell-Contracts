@@ -5,6 +5,7 @@ import {auctionHouseIndexerTests} from "./auctionHouseIndexer/@auctionHouseIndex
 import {greedStarterIndexerTests} from "./greedStarterIndexer/@greedStarterIndexerTests";
 import {uupsProxiesImplementations} from "./_general/uupsProxiesImplementations";
 import {hellGovernmentTests} from "./hellGovernment/@hellGovernmentTests";
+import {hellVaultTests} from "./hellVault/@hellVaultTests";
 
 describe('[Hell]', hellTests);
 describe('[Hell Government]', hellGovernmentTests);
@@ -13,3 +14,4 @@ describe('[Auction House Indexer]', auctionHouseIndexerTests);
 describe('[Greed Starter]', greedStarterTests);
 describe('[Greed Starter Indexer]', greedStarterIndexerTests);
 describe('[UUPS Proxies Implementations]', uupsProxiesImplementations);
+describe('[Hell Vault]', hellVaultTests);
