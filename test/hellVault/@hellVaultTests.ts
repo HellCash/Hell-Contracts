@@ -8,6 +8,7 @@ import {_setHellGovernmentContract} from "./_setHellGovernmentContract";
 import {_setHellVaultBonusContract} from "./_setHellVaultBonusContract";
 import {_setHellVaultHistoryContract} from "./_setHellVaultHistoryContract";
 import {_minimumDeposit} from "./_minimumDeposit";
+import {updateClaimMode} from "./updateClaimMode";
 
 export function hellVaultTests() {
     describe('function initialize', initialize);
@@ -20,4 +21,5 @@ export function hellVaultTests() {
     describe('function deposit', deposit);
     describe('function withdraw', withdraw);
     describe('function withdraw (Single user)', withdrawSingleUser);
+    describe('function updateClaimMode', updateClaimMode);
 }
