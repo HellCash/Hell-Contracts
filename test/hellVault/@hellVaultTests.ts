@@ -10,6 +10,7 @@ import {_setHellVaultHistoryContract} from "./_setHellVaultHistoryContract";
 import {_minimumDeposit} from "./_minimumDeposit";
 import {_setDividendPeriods} from "./_setDividendPeriods";
 import {updateClaimMode} from "./updateClaimMode";
+import {workflow} from "./workflow";
 
 export function hellVaultTests() {
     describe('function initialize', initialize);
@@ -24,4 +25,5 @@ export function hellVaultTests() {
     describe('function withdraw', withdraw);
     describe('function withdraw (Single user)', withdrawSingleUser);
     describe('function updateClaimMode', updateClaimMode);
+    describe('function workflow', workflow);
 }
