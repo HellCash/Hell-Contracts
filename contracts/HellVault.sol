@@ -128,6 +128,10 @@ contract HellVault is Initializable, UUPSUpgradeable, OwnableUpgradeable, Reentr
         }
     }
 
+    /*
+     Updates the msg.sender claimMode, allowing bankers to use it on his behalf.
+     @param claimMode
+    */
     function updateClaimMode(ClaimMode claimMode) external nonReentrant {
         _userInfo[msg.sender].claimMode = claimMode;
     }
@@ -135,6 +139,9 @@ contract HellVault is Initializable, UUPSUpgradeable, OwnableUpgradeable, Reentr
     ////////////////////////////////////////////////////////////////////
     // Views                                                        ////
     ////////////////////////////////////////////////////////////////////
+    /*
+     Returns the dividend period status and index in which the Hell Vault currently is.
+    */
     function getDividendPeriodIndex() public view returns (PeriodIndexStatus, uint) {
         uint wholeNumberCurrentSupply = (_hellContract.totalSupply() / 1e18);
 
@@ -214,6 +221,11 @@ contract HellVault is Initializable, UUPSUpgradeable, OwnableUpgradeable, Reentr
         return totalRewards;
     }
 
+    /*
+     Returns the _userInfo from a specific userAddress along with his pending hell rewards and
+     withdrawal fees.
+     @param userAddress: address of the user
+    */
     function getUserInfo(address userAddress) public view returns (UserInfo memory) {
         UserInfo memory user = _userInfo[userAddress];
         user.hellRewarded = getUserRewards(userAddress, 0);
@@ -221,6 +233,9 @@ contract HellVault is Initializable, UUPSUpgradeable, OwnableUpgradeable, Reentr
         return user;
     }
 
+    /*
+     @return Minimum deposit amount that the Hell Vault can reward
+    */
     function _minimumDeposit() public pure returns(uint) {
         return 1e12;
     }
