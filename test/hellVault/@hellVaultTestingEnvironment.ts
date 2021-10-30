@@ -4,7 +4,7 @@ import {deployHellGovernment} from "../../scripts/deployments/deployHellGovernme
 import {testingEnvironmentDeploymentOptions} from "../../models/deploymentOptions";
 import {deployHellVault} from "../../scripts/deployments/deployHellVault";
 import {deployHell} from "../../scripts/deployments/deployHell";
-import {formatEther} from "ethers/lib/utils";
+import {formatEther, parseEther} from "ethers/lib/utils";
 import {HellVaultUserInfo} from "../../models/hellVaultUserInfo";
 import {HellVaultExpectedRewards} from "../../models/hellVaultExpectedRewards";
 import {expect} from "chai";
@@ -28,7 +28,7 @@ export class HellVaultTestingEnvironment {
     hellVaultHistoryContract: Contract;
 
     // Initialize this testing environment
-    async initialize() {
+    async initialize(hellInitialSupply: BigNumber = parseEther('566')) {
         // Set Signers
         this.accountSigners = await ethers.getSigners();
         this.masterSigner = this.accountSigners[0];
@@ -37,7 +37,7 @@ export class HellVaultTestingEnvironment {
         this.guest2Signer = this.accountSigners[3];
         this.guest3Signer = this.accountSigners[4];
         // Set Contracts
-        this.hellContract = await deployHell('Hell', 'HELL', testingEnvironmentDeploymentOptions);
+        this.hellContract = await deployHell('Hell', 'HELL', hellInitialSupply, testingEnvironmentDeploymentOptions);
         this.hellGovernmentContract = await deployHellGovernment({
             treasuryAddress: this.treasurySigner.address,
             auctionHouseFee: 800, // 0.125%

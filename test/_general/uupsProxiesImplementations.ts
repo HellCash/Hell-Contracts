@@ -19,6 +19,7 @@ import {SignerWithAddress} from "@nomiclabs/hardhat-ethers/dist/src/signers";
 import {deployHellGovernment} from "../../scripts/deployments/deployHellGovernment";
 import {testingEnvironmentDeploymentOptions} from "../../models/deploymentOptions";
 import {HellGovernmentInitializer} from "../../models/hellGovernmentInitializer";
+import {parseEther} from "ethers/lib/utils";
 
 /**
 
@@ -50,7 +51,7 @@ export function uupsProxiesImplementations() {
         const signers = await ethers.getSigners();
         const treasurySigner = signers[2];
         guestSigner = signers[10];
-        hellProxy = await deployHell('Hell', 'HELL', testingEnvironmentDeploymentOptions);
+        hellProxy = await deployHell('Hell', 'HELL', parseEther("566"), testingEnvironmentDeploymentOptions);
         hellImpl = await ContractUtils.getProxyImplementationContract(hellSol, hellProxy);
         hellGovernmentInitializer = {
             treasuryAddress: treasurySigner.address,

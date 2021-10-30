@@ -16,13 +16,13 @@ contract Hell is Initializable, ERC20Upgradeable, UUPSUpgradeable, OwnableUpgrad
     mapping(address => bool) public _excludedFromBurnFees;
     /// @custom:oz-upgrades-unsafe-allow constructor
     constructor() initializer {}
-    function initialize(string memory name, string memory symbol) initializer public {
+    function initialize(string memory name, string memory symbol, uint initialSupply) initializer public {
         __ERC20_init(name, symbol);
         __Ownable_init();
         __UUPSUpgradeable_init();
         _hellVaultAddress = msg.sender;
         _excludedFromBurnFees[msg.sender] = true;
-        _mint(msg.sender, 566 * 10 ** decimals());
+        _mint(msg.sender, initialSupply * 10 ** decimals());
         _burnFee = 5;
         _burntTokens = 0;
     }
