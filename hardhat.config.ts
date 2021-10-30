@@ -25,7 +25,7 @@ export default {
     artifacts: "./artifacts"
   },
   mocha: {
-    timeout: 300000
+    timeout: 30000000
   },
   contractSizer: {
     alphaSort: true,
