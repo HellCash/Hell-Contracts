@@ -1,6 +1,6 @@
 import {HellVaultTestingEnvironment} from "./@hellVaultTestingEnvironment";
 import {expect} from "chai";
-import {formatUnits, parseUnits} from "ethers/lib/utils";
+import {parseUnits} from "ethers/lib/utils";
 import {BigNumber} from "ethers";
 
 export function _minimumDeposit() {

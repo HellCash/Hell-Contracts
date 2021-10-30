@@ -4,7 +4,6 @@ import {formatEther, parseEther} from "ethers/lib/utils";
 import {BigNumber} from "ethers";
 import {Random} from "../../utils/random";
 import {NetworkUtils} from "../../utils/networkUtils";
-import {ClaimMode} from "../../enums/claimMode";
 
 export function withdraw() {
     let environment: HellVaultTestingEnvironment = new HellVaultTestingEnvironment();
