@@ -32,7 +32,7 @@ export function withdrawSingleUser() {
         await NetworkUtils.mineBlocks(Random.randomIntegerNumber(1,200));
         console.log(`\t[Before withdraw]`);
         const userData: HellVaultUserInfo = await environment.hellVaultContract.getUserInfo(environment.masterSigner.address);
-        const expectedRewards = await environment.getExpectedRewards(1);
+        const expectedRewards = await environment.getExpectedRewards(environment.masterSigner.address, 1);
         const amountToWithdraw = userData.hellDeposited.div(2);
         await environment.logVaultAndUserInfo();
         await environment.expectWithdraw(amountToWithdraw);
@@ -44,7 +44,7 @@ export function withdrawSingleUser() {
         await NetworkUtils.mineBlocks(Random.randomIntegerNumber(1,200));
         console.log(`\t[Before withdraw]`);
         const userData: HellVaultUserInfo = await environment.hellVaultContract.getUserInfo(environment.masterSigner.address);
-        const expectedRewards = await environment.getExpectedRewards(1);
+        const expectedRewards = await environment.getExpectedRewards(environment.masterSigner.address, 1);
         const amountToWithdraw = userData.hellDeposited;
         await environment.logVaultAndUserInfo();
         await environment.expectWithdraw(amountToWithdraw);

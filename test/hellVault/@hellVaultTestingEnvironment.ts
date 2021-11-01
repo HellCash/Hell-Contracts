@@ -4,14 +4,13 @@ import {deployHellGovernment} from "../../scripts/deployments/deployHellGovernme
 import {testingEnvironmentDeploymentOptions} from "../../models/deploymentOptions";
 import {deployHellVault} from "../../scripts/deployments/deployHellVault";
 import {deployHell} from "../../scripts/deployments/deployHell";
-import {formatEther, parseEther} from "ethers/lib/utils";
+import {formatEther} from "ethers/lib/utils";
 import {HellVaultUserInfo} from "../../models/hellVaultUserInfo";
 import {HellVaultExpectedRewards} from "../../models/hellVaultExpectedRewards";
 import {expect} from "chai";
 import {ClaimMode} from "../../enums/claimMode";
 import {deployHellVaultBonus} from "../../scripts/deployments/deployHellVaultBonus";
 import {deployHellVaultHistory} from "../../scripts/deployments/deployHellVaultHistory";
-import {claimRewards} from "./claimRewards";
 
 export class HellVaultTestingEnvironment {
     // Account signers
@@ -98,14 +97,13 @@ export class HellVaultTestingEnvironment {
     }
 
     // Returns the expected rewards, fees and rewards after fees for the next block
-    async getExpectedRewards(offset: number | BigNumber = 1, signer: any | null = null): Promise<HellVaultExpectedRewards> {
-        signer = signer ? signer : this.masterSigner;
-        const expectedRewards: BigNumber = await this.hellVaultContract.getUserRewards(signer.address, offset);
+    async getExpectedRewards(userAddress: string, offset: number | BigNumber = 1): Promise<HellVaultExpectedRewards> {
+        const expectedRewards: BigNumber = await this.hellVaultContract.getUserRewards(userAddress, offset);
         let expectedTreasuryFee: BigNumber = expectedRewards.div(await this.hellGovernmentContract._hellVaultTreasuryFee());
+        const expectedRewardsAfterFees = expectedRewards.sub(expectedTreasuryFee);
         const expectedCompounderFee: BigNumber = expectedTreasuryFee.div(await this.hellGovernmentContract._hellVaultCompounderFee());
         // Subtract compounder fees from treasury fees
-        expectedTreasuryFee.sub(expectedCompounderFee);
-        const expectedRewardsAfterFees = expectedRewards.sub(expectedTreasuryFee);
+        expectedTreasuryFee = expectedTreasuryFee.sub(expectedCompounderFee);
         return {
             expectedRewards: expectedRewards,
             expectedTreasuryFee: expectedTreasuryFee,
@@ -130,7 +128,7 @@ export class HellVaultTestingEnvironment {
         // Retrieve the HellVault userInfo state before deposits
         const beforeUserInfo: HellVaultUserInfo = await this.hellVaultContract.getUserInfo(signer.address);
         // Calculate expected rewards on the next transaction by adding an offset of 1 block.
-        const expectedRewards: HellVaultExpectedRewards = await this.getExpectedRewards(1, signer);
+        const expectedRewards: HellVaultExpectedRewards = await this.getExpectedRewards(signer.address, 1);
         // Perform a deposit and expect that the Deposit event triggers with his corresponding params
         await expect(this.hellVaultContract.connect(signer)
             .deposit(amount, claimMode)).to.emit(this.hellVaultContract, "Deposit")
@@ -186,7 +184,7 @@ export class HellVaultTestingEnvironment {
         // Retrieve the HellVault userInfo state before withdraws
         const beforeUserInfo: HellVaultUserInfo = await this.hellVaultContract.getUserInfo(signer.address);
         // Calculate expected rewards on the next transaction by adding an offset of 1 block.
-        const expectedRewards: HellVaultExpectedRewards = await this.getExpectedRewards(1, signer);
+        const expectedRewards: HellVaultExpectedRewards = await this.getExpectedRewards(signer.address, 1);
         // Perform a withdraw and expect that the Withdraw event triggers with his corresponding params
         await expect(this.hellVaultContract.connect(signer)
             .withdraw(amount)).to.emit(this.hellVaultContract, "Withdraw")
