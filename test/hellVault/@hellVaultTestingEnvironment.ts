@@ -197,10 +197,7 @@ export class HellVaultTestingEnvironment {
         // Expect that the hell deposited for the user had be reduced by the amount
         expect(beforeUserInfo.hellDeposited.sub(amount)).to.be.equal(afterUserInfo.hellDeposited);
         // Expect that the treasury had received the proper amount of fees
-        expect(afterTreasuryBalance).to.be.equal(beforeTreasuryBalance
-            .add(expectedRewards.expectedTreasuryFee)
-            .sub(expectedRewards.expectedCompounderFee)
-        );
+        expect(afterTreasuryBalance).to.be.equal(beforeTreasuryBalance.add(expectedRewards.expectedTreasuryFee));
         // Retrieve Hell vault balances after the deposit
         const afterVaultBalance: BigNumber = await this.hellContract.balanceOf(this.hellVaultContract.address);
         const afterTotalAmountDeposited: BigNumber = await this.hellVaultContract._totalAmountDeposited();
