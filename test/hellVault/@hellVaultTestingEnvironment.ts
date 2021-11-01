@@ -222,9 +222,11 @@ export class HellVaultTestingEnvironment {
         const beforeUserBalance: BigNumber = await this.hellContract.balanceOf(userAddress);
         // Retrieve the HellVault userInfo
         const beforeUserInfo: HellVaultUserInfo = await this.hellVaultContract.getUserInfo(userAddress);
-        // // Retrieve the Treasury Address balance
+        // Retrieve banker's balance
+        const beforeBankerBalance: BigNumber = await this.hellContract.balanceOf(bankerSigner.address);
+        // Retrieve the Treasury Address balance
         const beforeTreasuryBalance: BigNumber = await this.hellContract.balanceOf(this.treasurySigner.address);
-        // // Retrieve current vault balances
+        // Retrieve current vault balances
         const beforeVaultBalance: BigNumber = await this.hellContract.balanceOf(this.hellVaultContract.address);
         const beforeTotalAmountDeposited: BigNumber = await this.hellVaultContract._totalAmountDeposited();
         // Calculate expected rewards on the next transaction by adding an offset of 1 block.
@@ -238,7 +240,7 @@ export class HellVaultTestingEnvironment {
             // console.log('userAddress same as signer address');
             expectedRewardsAfterFees = expectedRewardsAfterFees.add(expectedRewardsInfo.expectedCompounderFee);
             compounderFee = BigNumber.from(0);
-        // If the user isn't the userAddress use his preferred claim mode
+            // If the user isn't the userAddress use his preferred claim mode
         } else {
             // console.log('userAddress different from signer, use user preferred claim mode');
             claimMode = beforeUserInfo.claimMode;
@@ -272,6 +274,12 @@ export class HellVaultTestingEnvironment {
         const afterTreasuryBalance: BigNumber = await this.hellContract.balanceOf(this.treasurySigner.address);
         // Expect Treasury fees received
         expect(beforeTreasuryBalance.add(treasuryFee)).to.be.equal(afterTreasuryBalance);
+
+        if (userAddress != bankerSigner.address) {
+            const afterBankerBalance = await this.hellContract.balanceOf(bankerSigner.address);
+            // Expect Banker fees received
+            expect(beforeBankerBalance.add(compounderFee)).to.be.equal(afterBankerBalance);
+        }
     }
 
 }
