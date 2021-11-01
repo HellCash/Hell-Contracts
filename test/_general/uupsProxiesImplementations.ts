@@ -14,12 +14,17 @@ import hellGovernmentSol from "../../artifacts/contracts/HellGovernment.sol/Hell
 import auctionHouseIndexerSol from "../../artifacts/contracts/AuctionHouseIndexer.sol/AuctionHouseIndexer.json";
 import greedStarterSol from "../../artifacts/contracts/GreedStarter.sol/GreedStarter.json";
 import greedStarterIndexerSol from "../../artifacts/contracts/GreedStarterIndexer.sol/GreedStarterIndexer.json";
+import hellVaultSol from "../../artifacts/contracts/HellVault.sol/HellVault.json";
+import hellVaultBonusSol from "../../artifacts/contracts/HellVaultBonus.sol/HellVaultBonus.json";
+import hellVaultHistorySol from "../../artifacts/contracts/HellVaultHistory.sol/HellVaultHistory.json";
 import {Provider} from "@ethersproject/providers";
 import {SignerWithAddress} from "@nomiclabs/hardhat-ethers/dist/src/signers";
 import {deployHellGovernment} from "../../scripts/deployments/deployHellGovernment";
 import {testingEnvironmentDeploymentOptions} from "../../models/deploymentOptions";
 import {HellGovernmentInitializer} from "../../models/hellGovernmentInitializer";
-import {parseEther} from "ethers/lib/utils";
+import {deployHellVault} from "../../scripts/deployments/deployHellVault";
+import {deployHellVaultBonus} from "../../scripts/deployments/deployHellVaultBonus";
+import {deployHellVaultHistory} from "../../scripts/deployments/deployHellVaultHistory";
 
 /**
 
@@ -45,6 +50,13 @@ export function uupsProxiesImplementations() {
     let greedStarterImpl: Contract;
     let greedStarterIndexerProxy: Contract;
     let greedStarterIndexerImpl: Contract;
+    let hellVaultProxy: Contract;
+    let hellVaultImpl: Contract;
+    let hellVaultBonusProxy: Contract;
+    let hellVaultBonusImpl: Contract;
+    let hellVaultHistoryProxy: Contract;
+    let hellVaultHistoryImpl: Contract;
+
     let guestSigner: string | Signer | Provider | SignerWithAddress;
 
     before(async() => {
@@ -74,6 +86,12 @@ export function uupsProxiesImplementations() {
         greedStarterImpl = await ContractUtils.getProxyImplementationContract(greedStarterSol, greedStarterProxy);
         greedStarterIndexerProxy = await deployGreedStarterIndexer(hellGovernmentProxy.address, EtherUtils.zeroAddress(), testingEnvironmentDeploymentOptions);
         greedStarterIndexerImpl = await ContractUtils.getProxyImplementationContract(greedStarterIndexerSol, greedStarterIndexerProxy);
+        hellVaultProxy = await deployHellVault(EtherUtils.zeroAddress(), EtherUtils.zeroAddress(), testingEnvironmentDeploymentOptions);
+        hellVaultImpl = await ContractUtils.getProxyImplementationContract(hellVaultSol, hellVaultProxy);
+        hellVaultBonusProxy = await deployHellVaultBonus(hellVaultProxy.address, testingEnvironmentDeploymentOptions);
+        hellVaultBonusImpl = await ContractUtils.getProxyImplementationContract(hellVaultBonusSol, hellVaultBonusProxy);
+        hellVaultHistoryProxy = await deployHellVaultHistory(hellVaultProxy.address, hellVaultBonusProxy.address, testingEnvironmentDeploymentOptions);
+        hellVaultHistoryImpl = await ContractUtils.getProxyImplementationContract(hellVaultHistorySol, hellVaultHistoryProxy);
     });
 
     it('[Hell Implementation Contract] Should be already initialized', async() => {
@@ -108,6 +126,21 @@ export function uupsProxiesImplementations() {
 
     it('[Greed Starter Indexer Implementation Contract] should be already initialized', async() => {
         await expect(greedStarterIndexerImpl.initialize(EtherUtils.zeroAddress(), EtherUtils.zeroAddress()))
+            .to.be.revertedWith("Initializable: contract is already initialized");
+    });
+
+    it('[Hell Vault Implementation Contract] should be already initialized', async() => {
+        await expect(hellVaultImpl.initialize(EtherUtils.zeroAddress(), EtherUtils.zeroAddress()))
+            .to.be.revertedWith("Initializable: contract is already initialized");
+    });
+
+    it('[Hell Vault Bonus Implementation Contract] should be already initialized', async() => {
+        await expect(hellVaultBonusImpl.initialize(EtherUtils.zeroAddress()))
+            .to.be.revertedWith("Initializable: contract is already initialized");
+    });
+
+    it('[Hell Vault History Implementation Contract] should be already initialized', async() => {
+        await expect(hellVaultHistoryImpl.initialize(EtherUtils.zeroAddress(), EtherUtils.zeroAddress()))
             .to.be.revertedWith("Initializable: contract is already initialized");
     });
 
@@ -168,6 +201,21 @@ export function uupsProxiesImplementations() {
 
     it('[Greed Starter Indexer Implementation Contract] upgradeToAndCall must be called through delegatecall', async() => {
         await expect(greedStarterIndexerImpl.upgradeToAndCall(EtherUtils.zeroAddress(), zeroBytes32))
+            .to.be.revertedWith("Function must be called through delegatecall");
+    });
+
+    it('[Hell Vault Implementation Contract] upgradeToAndCall must be called through delegatecall', async() => {
+        await expect(hellVaultImpl.upgradeToAndCall(EtherUtils.zeroAddress(), zeroBytes32))
+            .to.be.revertedWith("Function must be called through delegatecall");
+    });
+
+    it('[Hell Vault Bonus Implementation Contract] upgradeToAndCall must be called through delegatecall', async() => {
+        await expect(hellVaultBonusImpl.upgradeToAndCall(EtherUtils.zeroAddress(), zeroBytes32))
+            .to.be.revertedWith("Function must be called through delegatecall");
+    });
+
+    it('[Hell Vault History Implementation Contract] upgradeToAndCall must be called through delegatecall', async() => {
+        await expect(hellVaultHistoryImpl.upgradeToAndCall(EtherUtils.zeroAddress(), zeroBytes32))
             .to.be.revertedWith("Function must be called through delegatecall");
     });
 
