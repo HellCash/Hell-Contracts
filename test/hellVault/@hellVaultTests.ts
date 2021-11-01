@@ -12,6 +12,7 @@ import {_setDividendPeriods} from "./_setDividendPeriods";
 import {updateClaimMode} from "./updateClaimMode";
 import {workflow} from "./workflow";
 import {claimRewards} from "./claimRewards";
+import {getDividendPeriodIndex} from "./getDividendPeriodIndex";
 
 export function hellVaultTests() {
     describe('function initialize', initialize);
@@ -28,4 +29,5 @@ export function hellVaultTests() {
     describe('function updateClaimMode', updateClaimMode);
     describe('function workflow', workflow);
     describe('function claimRewards', claimRewards);
+    describe('function getDividendPeriodIndex', getDividendPeriodIndex);
 }
