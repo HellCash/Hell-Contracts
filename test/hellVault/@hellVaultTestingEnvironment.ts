@@ -217,4 +217,61 @@ export class HellVaultTestingEnvironment {
             .equal(beforeTotalAmountDeposited.sub(amount));
     }
 
+    async expectClaimRewards(userAddress: string, claimMode: ClaimMode, bankerSigner: any = this.masterSigner) {
+        // Retrieve current user balance
+        const beforeUserBalance: BigNumber = await this.hellContract.balanceOf(userAddress);
+        // Retrieve the HellVault userInfo
+        const beforeUserInfo: HellVaultUserInfo = await this.hellVaultContract.getUserInfo(userAddress);
+        // // Retrieve the Treasury Address balance
+        const beforeTreasuryBalance: BigNumber = await this.hellContract.balanceOf(this.treasurySigner.address);
+        // // Retrieve current vault balances
+        const beforeVaultBalance: BigNumber = await this.hellContract.balanceOf(this.hellVaultContract.address);
+        const beforeTotalAmountDeposited: BigNumber = await this.hellVaultContract._totalAmountDeposited();
+        // Calculate expected rewards on the next transaction by adding an offset of 1 block.
+        const expectedRewardsInfo: HellVaultExpectedRewards = await this.getExpectedRewards(userAddress, 1);
+        let expectedRewardsAfterFees = expectedRewardsInfo.expectedRewardsAfterFees;
+        let treasuryFee = expectedRewardsInfo.expectedTreasuryFee;
+        let compounderFee = expectedRewardsInfo.expectedCompounderFee;
+        // If the user address is the same as the signer address
+        // the user should receive the compounder fees
+        if (userAddress == bankerSigner.address) {
+            // console.log('userAddress same as signer address');
+            expectedRewardsAfterFees = expectedRewardsAfterFees.add(expectedRewardsInfo.expectedCompounderFee);
+            compounderFee = BigNumber.from(0);
+        // If the user isn't the userAddress use his preferred claim mode
+        } else {
+            // console.log('userAddress different from signer, use user preferred claim mode');
+            claimMode = beforeUserInfo.claimMode;
+        }
+
+        await expect(this.hellVaultContract.connect(bankerSigner)
+            .claimRewards(userAddress, claimMode))
+            .to.emit(this.hellVaultContract, "ClaimRewards")
+            .withArgs(userAddress, bankerSigner.address, claimMode, expectedRewardsAfterFees, treasuryFee, compounderFee);
+
+        if (claimMode == ClaimMode.SendToWallet) {
+            console.log('ClaimMode.SendToWallet');
+            const afterUserBalance: BigNumber = await this.hellContract.balanceOf(userAddress);
+            // Expect proper user balance updates
+            expect(beforeUserBalance.add(expectedRewardsAfterFees)).to.be.equal(afterUserBalance);
+        }
+
+        if (claimMode == ClaimMode.SendToVault) {
+            console.log('ClaimMode.SendToVault');
+            const afterUserInfo: HellVaultUserInfo = await this.hellVaultContract.getUserInfo(userAddress);
+            const afterVaultBalance: BigNumber = await this.hellContract.balanceOf(this.hellVaultContract.address);
+            const afterTotalAmountDeposited: BigNumber = await this.hellVaultContract._totalAmountDeposited();
+            // Expect user info Hell deposited update
+            expect(beforeUserInfo.hellDeposited.add(expectedRewardsAfterFees)).to.be.equal(afterUserInfo.hellDeposited);
+            // Expect Vault balance update
+            expect(beforeVaultBalance.add(expectedRewardsAfterFees)).to.be.equal(afterVaultBalance);
+            // Expect Vault amount deposited update
+            expect(beforeTotalAmountDeposited.add(expectedRewardsAfterFees)).to.be.equal(afterTotalAmountDeposited);
+        }
+
+        const afterTreasuryBalance: BigNumber = await this.hellContract.balanceOf(this.treasurySigner.address);
+        // Expect Treasury fees received
+        expect(beforeTreasuryBalance.add(treasuryFee)).to.be.equal(afterTreasuryBalance);
+    }
+
 }
