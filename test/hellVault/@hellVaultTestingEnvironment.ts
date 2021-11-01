@@ -112,8 +112,7 @@ export class HellVaultTestingEnvironment {
         };
     }
 
-    async expectDeposit(amount: BigNumber, signer: any | null = null, claimMode = ClaimMode.SendToVault) {
-        signer = signer ? signer : this.masterSigner;
+    async expectDeposit(amount: BigNumber, signer: any = this.masterSigner, claimMode = ClaimMode.SendToVault) {
         // Retrieve current user balance
         const beforeUserBalance: BigNumber = await this.hellContract.balanceOf(signer.address);
         // Retrieve current vault balances
@@ -149,11 +148,7 @@ export class HellVaultTestingEnvironment {
         // Expect that the user balance had decreased by the deposited amount
         expect(beforeUserBalance.sub(amount)).to.be.equal(afterUserBalance);
         // Expect that the treasury had received the proper amount of fees
-        expect(afterTreasuryBalance).to.be.equal(beforeTreasuryBalance
-            .add(expectedRewards.expectedTreasuryFee)
-            // Subtract compounder fee
-            .sub(expectedRewards.expectedCompounderFee)
-        );
+        expect(afterTreasuryBalance).to.be.equal(beforeTreasuryBalance.add(expectedRewards.expectedTreasuryFee));
         // Retrieve Hell vault balances after the deposit
         const afterVaultBalance: BigNumber = await this.hellContract.balanceOf(this.hellVaultContract.address);
         const afterTotalAmountDeposited: BigNumber = await this.hellVaultContract._totalAmountDeposited();
