@@ -7,6 +7,7 @@ import {uupsProxiesImplementations} from "./_general/uupsProxiesImplementations"
 import {hellGovernmentTests} from "./hellGovernment/@hellGovernmentTests";
 import {hellVaultTests} from "./hellVault/@hellVaultTests";
 import {hellVaultHistoryTests} from "./hellVaultHistory/@hellVaultHistoryTests";
+import {hellVaultBonusTests} from "./hellVaultBonus/@hellVaultBonusTests";
 
 describe('[UUPS Proxies Implementations]', uupsProxiesImplementations);
 describe('[Hell]', hellTests);
@@ -16,4 +17,5 @@ describe('[Auction House Indexer]', auctionHouseIndexerTests);
 describe('[Greed Starter]', greedStarterTests);
 describe('[Greed Starter Indexer]', greedStarterIndexerTests);
 describe('[Hell Vault]', hellVaultTests);
+describe('[Hell Vault Bonus]', hellVaultBonusTests);
 describe('[Hell Vault History]', hellVaultHistoryTests);
