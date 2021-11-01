@@ -18,6 +18,8 @@ export function initialize() {
                 1,
                 BigNumber.from(1),
                 BigNumber.from(1),
+                BigNumber.from(1),
+                BigNumber.from(1),
             ))
             .to.be.revertedWith("Initializable: contract is already initialized");
     });
