@@ -95,7 +95,7 @@ export function uupsProxiesImplementations() {
     });
 
     it('[Hell Implementation Contract] Should be already initialized', async() => {
-        await expect(hellImpl.initialize('Himp', 'HIMP')).to.be.revertedWith("Initializable: contract is already initialized");
+        await expect(hellImpl.initialize('Himp', 'HIMP', 566)).to.be.revertedWith("Initializable: contract is already initialized");
     });
 
     it('[Hell Government Implementation Contract] Should be already initialized', async() => {
@@ -107,6 +107,8 @@ export function uupsProxiesImplementations() {
             hellGovernmentInitializer.greedStarterFee,
             hellGovernmentInitializer.minimumProjectLength,
             hellGovernmentInitializer.maximumProjectLength,
+            hellGovernmentInitializer.hellVaultTreasuryFee,
+            hellGovernmentInitializer.hellVaultCompounderFee
         )).to.be.revertedWith("Initializable: contract is already initialized");
     });
 
