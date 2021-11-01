@@ -11,6 +11,7 @@ import {_minimumDeposit} from "./_minimumDeposit";
 import {_setDividendPeriods} from "./_setDividendPeriods";
 import {updateClaimMode} from "./updateClaimMode";
 import {workflow} from "./workflow";
+import {claimRewards} from "./claimRewards";
 
 export function hellVaultTests() {
     describe('function initialize', initialize);
@@ -26,4 +27,5 @@ export function hellVaultTests() {
     describe('function withdraw (Single user)', withdrawSingleUser);
     describe('function updateClaimMode', updateClaimMode);
     describe('function workflow', workflow);
+    describe('function claimRewards', claimRewards);
 }
