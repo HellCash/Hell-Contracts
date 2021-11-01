@@ -11,6 +11,7 @@ import {expect} from "chai";
 import {ClaimMode} from "../../enums/claimMode";
 import {deployHellVaultBonus} from "../../scripts/deployments/deployHellVaultBonus";
 import {deployHellVaultHistory} from "../../scripts/deployments/deployHellVaultHistory";
+import {claimRewards} from "./claimRewards";
 
 export class HellVaultTestingEnvironment {
     // Account signers
@@ -28,7 +29,7 @@ export class HellVaultTestingEnvironment {
     hellVaultHistoryContract: Contract;
 
     // Initialize this testing environment
-    async initialize(hellInitialSupply: BigNumber = parseEther('566')) {
+    async initialize(hellInitialSupply: BigNumber = BigNumber.from(566)) {
         // Set Signers
         this.accountSigners = await ethers.getSigners();
         this.masterSigner = this.accountSigners[0];
@@ -80,7 +81,7 @@ export class HellVaultTestingEnvironment {
         console.log(`\t\t\tLastDividend: ${userData.lastDividendBlock}`);
         console.log(`\t\t\tDistributedDividends: ${userData.distributedDividendsSinceLastPayment}`);
         const userBalance = await this.hellContract.balanceOf(signer.address);
-        console.log(`\t\t\tBalance: ${formatEther(userBalance)} (${userBalance} wei)`);
+        console.log(`\t\t\tWalletBalance: ${formatEther(userBalance)} (${userBalance} wei)`);
         console.log(`\t\t\t---------------------`);
         console.log(`\t\t\tRewards: ${formatEther(userData.hellRewarded)} (${userData.hellRewarded} wei)`);
         console.log(`\t\t\tWithdrawFee: ${formatEther(userData.hellRewardWithdrawFee)} (${userData.hellRewardWithdrawFee} wei)`);

@@ -1,4 +1,4 @@
-import {Contract} from "ethers";
+import {BigNumber, Contract} from "ethers";
 import {ethers} from "hardhat";
 import {deployHell} from "../../scripts/deployments/deployHell";
 import {testingEnvironmentDeploymentOptions} from "../../models/deploymentOptions";
@@ -24,6 +24,6 @@ export class hellTestingEnvironment {
         this.guest2Signer = this.accountSigners[3];
         this.guest3Signer = this.accountSigners[4];
         // Set Contracts
-        this.hellContract = await deployHell('Hell', 'HELL', parseEther("566"), testingEnvironmentDeploymentOptions);
+        this.hellContract = await deployHell('Hell', 'HELL', BigNumber.from("566"), testingEnvironmentDeploymentOptions);
     };
 }

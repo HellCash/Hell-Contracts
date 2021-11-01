@@ -51,7 +51,7 @@ export function uupsProxiesImplementations() {
         const signers = await ethers.getSigners();
         const treasurySigner = signers[2];
         guestSigner = signers[10];
-        hellProxy = await deployHell('Hell', 'HELL', parseEther("566"), testingEnvironmentDeploymentOptions);
+        hellProxy = await deployHell('Hell', 'HELL', BigNumber.from("566"), testingEnvironmentDeploymentOptions);
         hellImpl = await ContractUtils.getProxyImplementationContract(hellSol, hellProxy);
         hellGovernmentInitializer = {
             treasuryAddress: treasurySigner.address,
