@@ -75,9 +75,11 @@ contract HellVaultHistory is Initializable, UUPSUpgradeable, OwnableUpgradeable,
         reward.claimMode = claimMode;
         reward.blockNumber = block.number;
         _userRewards[userAddress][reward.id] = reward;
+        emit RewardRegistered(reward.id, userAddress, reward.tokenAddress, reward.amount);
     }
     ////////////////////////////////////////////////////////////////////
     // Events                                                       ////
     ////////////////////////////////////////////////////////////////////
     event HellVaultBonusAddressUpdated(address newHellVaultAddress);
+    event RewardRegistered(uint indexed id, address indexed userAddress, address indexed tokenAddress, uint amount);
 }
