@@ -252,14 +252,12 @@ export class HellVaultTestingEnvironment {
             .withArgs(userAddress, bankerSigner.address, claimMode, expectedRewardsAfterFees, treasuryFee, compounderFee);
 
         if (claimMode == ClaimMode.SendToWallet) {
-            console.log('ClaimMode.SendToWallet');
             const afterUserBalance: BigNumber = await this.hellContract.balanceOf(userAddress);
             // Expect proper user balance updates
             expect(beforeUserBalance.add(expectedRewardsAfterFees)).to.be.equal(afterUserBalance);
         }
 
         if (claimMode == ClaimMode.SendToVault) {
-            console.log('ClaimMode.SendToVault');
             const afterUserInfo: HellVaultUserInfo = await this.hellVaultContract.getUserInfo(userAddress);
             const afterVaultBalance: BigNumber = await this.hellContract.balanceOf(this.hellVaultContract.address);
             const afterTotalAmountDeposited: BigNumber = await this.hellVaultContract._totalAmountDeposited();
