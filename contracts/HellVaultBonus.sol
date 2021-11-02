@@ -158,7 +158,7 @@ contract HellVaultBonus is Initializable, UUPSUpgradeable, OwnableUpgradeable, R
         emit BonusStarted(bonusId, index);
     }
 
-    function _updateHellVaultHistoryContract(address newAddress) external onlyOwner {
+    function _setHellVaultHistoryContract(address newAddress) external onlyOwner {
         _hellVaultHistory = HellVaultHistory(newAddress);
         emit HellVaultHistoryContractUpdated(newAddress);
     }
