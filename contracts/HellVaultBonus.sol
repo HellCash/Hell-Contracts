@@ -128,7 +128,7 @@ contract HellVaultBonus is Initializable, UUPSUpgradeable, OwnableUpgradeable, R
 
     function _authorizeUpgrade(address) internal override onlyOwner {}
 
-    function _createBonus(address tokenAddress, uint amount, uint rewardPerBlock, uint8 setOnIndex) external onlyOwner {
+    function _createBonus(address tokenAddress, uint amount, uint rewardPerBlock) external onlyOwner {
         // CB1: The amount and rewardPerBlock cannot be zero
         require(amount > 0 && rewardPerBlock > 0, "CB1");
         // CB2: Must be able to provide the _minimumDividendsPerReward
@@ -142,14 +142,10 @@ contract HellVaultBonus is Initializable, UUPSUpgradeable, OwnableUpgradeable, R
         bonusInfo.totalAmount = amount;
         bonusInfo.amountAvailable = amount;
         bonusInfo.rewardPerBlock = rewardPerBlock;
+        // Set the bonus as ended until manually started.
+        bonusInfo.endedAtBlock = block.number;
         // Save Bonus information
         _bonusInfo[bonusInfo.id] = bonusInfo;
-        if (setOnIndex != 0) {
-            _startBonus(setOnIndex, bonusInfo.id);
-        } else {
-            // If we didn't set any index for this bonus mark it as ended.
-            _bonusInfo[bonusInfo.id].endedAtBlock = block.number;
-        }
         emit BonusCreated(bonusInfo.id, bonusInfo.tokenAddress, bonusInfo.amountAvailable, bonusInfo.rewardPerBlock);
     }
 
