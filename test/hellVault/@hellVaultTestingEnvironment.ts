@@ -13,6 +13,7 @@ import {deployHellVaultBonus} from "../../scripts/deployments/deployHellVaultBon
 import {deployHellVaultHistory} from "../../scripts/deployments/deployHellVaultHistory";
 
 export class HellVaultTestingEnvironment {
+    minimumDepositAmount: BigNumber;
     // Account signers
     accountSigners: any[];
     masterSigner: any;
@@ -56,6 +57,7 @@ export class HellVaultTestingEnvironment {
         this.hellVaultHistoryContract = await deployHellVaultHistory(this.hellVaultContract.address, this.hellVaultBonusContract.address, testingEnvironmentDeploymentOptions);
         await this.hellVaultContract._setHellVaultBonusContract(this.hellVaultBonusContract.address);
         await this.hellVaultContract._setHellVaultHistoryContract(this.hellVaultHistoryContract.address);
+        this.minimumDepositAmount = await this.hellVaultContract._minimumDeposit();
     };
 
     async logVaultInfo() {
