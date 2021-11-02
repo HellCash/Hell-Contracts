@@ -21,7 +21,7 @@ contract HellVaultBonus is Initializable, UUPSUpgradeable, OwnableUpgradeable, R
     ////////////////////////////////////////////////////////////////////
     // Bonuses variables                                            ////
     ////////////////////////////////////////////////////////////////////
-    uint private _totalBonuses;
+    uint public _totalBonuses;
     struct BonusInfo {
         uint id;
         address tokenAddress;
