@@ -16,7 +16,7 @@ export function _setHellVaultAddress() {
             .to.be.revertedWith("Ownable: caller is not the owner");
     });
 
-    it('Should update the Hell Vault Bonus Contract', async() => {
+    it('Should update the Hell Vault Address', async() => {
         await expect(environment.hellVaultHistoryContract
             ._setHellVaultAddress(environment.masterSigner.address))
             .to.emit(environment.hellVaultHistoryContract, 'HellVaultAddressUpdated')
