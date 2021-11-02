@@ -4,6 +4,7 @@ import {deployRandom} from "../../scripts/deployments/deployRandom";
 import {testingEnvironmentDeploymentOptions} from "../../models/deploymentOptions";
 import {HellVaultBonusInfo} from "../../models/hellVaultBonusInfo";
 import {Random} from "../../utils/random";
+import {BigNumber} from "ethers";
 
 export class HellVaultBonusTestingEnvironment extends HellVaultTestingEnvironment {
     async initialize(): Promise<void> {
@@ -11,20 +12,24 @@ export class HellVaultBonusTestingEnvironment extends HellVaultTestingEnvironmen
     }
 
     async createTestingBonuses(): Promise<HellVaultBonusInfo[]> {
-        const currentBonuses: HellVaultBonusInfo[] = await this.hellVaultBonusContract.getCurrentBonuses();
+        const _maximumBonuses: BigNumber = await this.hellVaultBonusContract._maximumBonuses();
         // Create testing bonuses filling the whole current bonuses array
-        for (let i = 0; i < currentBonuses.length; i++) {
+        for (let i = 0; i < _maximumBonuses.toNumber(); i++) {
             const totalAmount = parseEther(Random.randomIntegerNumber(100,25000).toString());
             const randomToken = await deployRandom(totalAmount, testingEnvironmentDeploymentOptions);
-            const rewardPerBlock = totalAmount.div(Random.randomIntegerNumber(25000, 1000000));
+            const rewardPerBlock = totalAmount.div(Random.randomIntegerNumber(25000, 10000000));
             // Increase allowances
             await randomToken.approve(this.hellVaultBonusContract.address, totalAmount);
             // Create the new bonus
-            await this.hellVaultBonusContract._addBonus(
+            await this.hellVaultBonusContract._createBonus(
                 randomToken.address,
                 totalAmount,
                 rewardPerBlock,
-                i
+            );
+            // Start the bonus, So that users can start receiving them
+            await this.hellVaultBonusContract._startBonus(
+                i, // Index
+                await this.hellVaultBonusContract._totalBonuses() // bonusId
             );
         }
         // Return HellVaultBonuses after their addition
