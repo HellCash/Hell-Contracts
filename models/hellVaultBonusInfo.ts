@@ -7,4 +7,6 @@ export class HellVaultBonusInfo {
     rewardPerBlock: BigNumber;
     startingBlock: BigNumber;
     amountAvailable: BigNumber;
+    endedAtBlock: BigNumber;
+    userUnrealizedRewards: BigNumber;
 }
