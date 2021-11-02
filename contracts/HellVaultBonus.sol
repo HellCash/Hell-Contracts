@@ -21,9 +21,7 @@ contract HellVaultBonus is Initializable, UUPSUpgradeable, OwnableUpgradeable, R
     ////////////////////////////////////////////////////////////////////
     // Bonuses variables                                            ////
     ////////////////////////////////////////////////////////////////////
-    uint private _totalVaultBonuses;
-    // A maximum of 10 bonus rewards can be available at once.
-    uint[10] private _currentBonusIds;
+    uint private _totalBonuses;
     struct BonusInfo {
         uint id;
         address tokenAddress;
@@ -36,9 +34,12 @@ contract HellVaultBonus is Initializable, UUPSUpgradeable, OwnableUpgradeable, R
         // Added on responses only
         uint userUnrealizedRewards;
     }
+    // bonusId => BonusInfo
     mapping (uint => BonusInfo) public _bonusInfo;
     // rewardId => userAddress => lastDividend
     mapping (uint => mapping(address => uint)) public _userBonusLastDividend;
+    // index => bonusId
+    mapping (uint => uint) private _currentBonusIds;
     ////////////////////////////////////////////////////////////////////
     // Public Functions                                             ////
     ////////////////////////////////////////////////////////////////////
@@ -54,8 +55,8 @@ contract HellVaultBonus is Initializable, UUPSUpgradeable, OwnableUpgradeable, R
     }
 
     function getCurrentBonuses() public view returns (BonusInfo[] memory) {
-        BonusInfo[] memory bonuses = new BonusInfo[](_currentBonusIds.length);
-        for(uint8 i = 0; i < _currentBonusIds.length; i++) {
+        BonusInfo[] memory bonuses = new BonusInfo[](_maximumBonuses());
+        for(uint8 i = 0; i < _maximumBonuses(); i++) {
             bonuses[i] = _bonusInfo[_currentBonusIds[i]];
             bonuses[i].userUnrealizedRewards = getUserCurrentBonusUnrealizedReward(msg.sender, i);
         }
@@ -104,6 +105,10 @@ contract HellVaultBonus is Initializable, UUPSUpgradeable, OwnableUpgradeable, R
         }
         return (unrealizedRewards, blocksEarned);
     }
+
+    function _maximumBonuses() internal pure returns(uint) {
+        return 10;
+    }
     ////////////////////////////////////////////////////////////////////
     // Only Owner                                                   ////
     ////////////////////////////////////////////////////////////////////
@@ -119,14 +124,14 @@ contract HellVaultBonus is Initializable, UUPSUpgradeable, OwnableUpgradeable, R
 
     function _authorizeUpgrade(address) internal override onlyOwner {}
 
-    function _addBonus(address tokenAddress, uint amount, uint rewardPerBlock, uint8 setOnIndex) external onlyOwner {
+    function _createBonus(address tokenAddress, uint amount, uint rewardPerBlock, uint8 setOnIndex) external onlyOwner {
         // AB1: Must be able to provide at least 1000 dividends
         require(amount > rewardPerBlock && (amount / rewardPerBlock) > 1000, "AB1");
         // safeDepositAsset: Validates for enough: balance, allowance and if the HellVaultRewards Contract received the expected amount
         address(this).safeDepositAsset(address(tokenAddress), amount);
         BonusInfo memory bonusInfo;
-        _totalVaultBonuses += 1;
-        bonusInfo.id = _totalVaultBonuses;
+        _totalBonuses += 1;
+        bonusInfo.id = _totalBonuses;
         bonusInfo.tokenAddress = tokenAddress;
         bonusInfo.totalAmount = amount;
         bonusInfo.amountAvailable = amount;
@@ -134,18 +139,23 @@ contract HellVaultBonus is Initializable, UUPSUpgradeable, OwnableUpgradeable, R
         // Save Bonus information
         _bonusInfo[bonusInfo.id] = bonusInfo;
         if (setOnIndex != 0) {
-            _updateCurrentBonusId(setOnIndex, bonusInfo.id);
+            _startBonus(setOnIndex, bonusInfo.id);
         } else {
             // If we didn't set any index for this bonus mark it as ended.
             _bonusInfo[bonusInfo.id].endedAtBlock = block.number;
         }
+        emit BonusCreated(bonusInfo.id, bonusInfo.tokenAddress, bonusInfo.amountAvailable, bonusInfo.rewardPerBlock);
     }
 
-    function _updateCurrentBonusId(uint8 index, uint rewardId) public onlyOwner {
-        require(_bonusInfo[rewardId].id != 0, "The reward Id doesn't exists");
-        _currentBonusIds[index] = rewardId;
-        _bonusInfo[rewardId].startingBlock = block.number;
-        _bonusInfo[rewardId].endedAtBlock = 0;
+    function _startBonus(uint8 index, uint bonusId) public onlyOwner {
+        // UC1: "The reward Id doesn't exists"
+        require(_bonusInfo[bonusId].id != 0, "UC1");
+        // UC2: "No rewards available"
+        require(_bonusInfo[bonusId].amountAvailable > 0, "UC2");
+        _currentBonusIds[index] = bonusId;
+        _bonusInfo[bonusId].startingBlock = block.number;
+        _bonusInfo[bonusId].endedAtBlock = 0;
+        emit BonusStarted(bonusId, index);
     }
 
     function _updateHellVaultHistoryContract(address newAddress) external onlyOwner {
@@ -168,7 +178,7 @@ contract HellVaultBonus is Initializable, UUPSUpgradeable, OwnableUpgradeable, R
         uint userLastVaultDividendBlock,
         uint stakeToReward
     ) external onlyHellVault {
-        for(uint i = 0; i < _currentBonusIds.length; i++) {
+        for(uint i = 0; i < _maximumBonuses(); i++) {
             // Get the current bonus by his Id
             BonusInfo storage bonus = _bonusInfo[_currentBonusIds[i]];
             // Calculate the user unrealizedRewards
@@ -195,7 +205,9 @@ contract HellVaultBonus is Initializable, UUPSUpgradeable, OwnableUpgradeable, R
     ////////////////////////////////////////////////////////////////////
     // Events                                                       ////
     ////////////////////////////////////////////////////////////////////
-    event BonusReceived(uint bonusId, uint blocksEarned, address userAddress, address tokenAddress, uint amount);
+    event BonusCreated(uint indexed bonusId, address indexed tokenAddress, uint amountAvailable, uint rewardPerBlock);
+    event BonusStarted(uint indexed bonusId, uint indexed index);
+    event BonusReceived(uint indexed bonusId, uint blocksEarned, address indexed userAddress, address indexed tokenAddress, uint amount);
     event BonusEnded(uint bonusId);
     event HellVaultHistoryContractUpdated(address newAddress);
 }
