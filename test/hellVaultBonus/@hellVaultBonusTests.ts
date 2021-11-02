@@ -3,6 +3,7 @@ import {initialize} from "./initialize";
 import {upgradeTo} from "./upgradeTo";
 import {upgradeToAndCall} from "./upgradeToAndCall";
 import {_setHellVaultAddress} from "./_setHellVaultAddress";
+import {_setHellVaultHistoryContract} from "./_setHellVaultHistoryContract";
 
 export function hellVaultBonusTests() {
     describe('function initialize', initialize);
@@ -10,4 +11,5 @@ export function hellVaultBonusTests() {
     describe('function upgradeToAndCall', upgradeToAndCall);
     describe('function _distributeBonuses', _distributeBonuses);
     describe('function _setHellVaultAddress', _setHellVaultAddress);
+    describe('function _setHellVaultHistoryContract', _setHellVaultHistoryContract);
 }
