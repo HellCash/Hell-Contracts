@@ -62,6 +62,10 @@ contract HellVaultBonus is Initializable, UUPSUpgradeable, OwnableUpgradeable, R
         }
         return bonuses;
     }
+
+    function _minimumDividendsPerReward() public pure returns(uint) {
+        return 1000;
+    }
     ////////////////////////////////////////////////////////////////////
     // Internal Functions                                           ////
     ////////////////////////////////////////////////////////////////////
@@ -125,8 +129,10 @@ contract HellVaultBonus is Initializable, UUPSUpgradeable, OwnableUpgradeable, R
     function _authorizeUpgrade(address) internal override onlyOwner {}
 
     function _createBonus(address tokenAddress, uint amount, uint rewardPerBlock, uint8 setOnIndex) external onlyOwner {
-        // AB1: Must be able to provide at least 1000 dividends
-        require(amount > rewardPerBlock && (amount / rewardPerBlock) > 1000, "AB1");
+        // CB1: The amount and rewardPerBlock cannot be zero
+        require(amount > 0 && rewardPerBlock > 0, "CB1");
+        // CB2: Must be able to provide the _minimumDividendsPerReward
+        require(amount > rewardPerBlock && (amount / rewardPerBlock) > _minimumDividendsPerReward(), "CB2");
         // safeDepositAsset: Validates for enough: balance, allowance and if the HellVaultRewards Contract received the expected amount
         address(this).safeDepositAsset(address(tokenAddress), amount);
         BonusInfo memory bonusInfo;
