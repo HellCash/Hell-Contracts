@@ -57,6 +57,7 @@ export class HellVaultTestingEnvironment {
         this.hellVaultHistoryContract = await deployHellVaultHistory(this.hellVaultContract.address, this.hellVaultBonusContract.address, testingEnvironmentDeploymentOptions);
         await this.hellVaultContract._setHellVaultBonusContract(this.hellVaultBonusContract.address);
         await this.hellVaultContract._setHellVaultHistoryContract(this.hellVaultHistoryContract.address);
+        await this.hellVaultBonusContract._setHellVaultHistoryContract(this.hellVaultHistoryContract.address);
         this.minimumDepositAmount = await this.hellVaultContract._minimumDeposit();
     };
 
