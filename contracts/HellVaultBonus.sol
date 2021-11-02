@@ -150,10 +150,12 @@ contract HellVaultBonus is Initializable, UUPSUpgradeable, OwnableUpgradeable, R
     }
 
     function _startBonus(uint8 index, uint bonusId) public onlyOwner {
-        // UC1: "The reward Id doesn't exists"
-        require(_bonusInfo[bonusId].id != 0, "UC1");
-        // UC2: "No rewards available"
-        require(_bonusInfo[bonusId].amountAvailable > 0, "UC2");
+        // SB1: "The reward Id doesn't exists"
+        require(_bonusInfo[bonusId].id != 0, "SB1");
+        // SB2: "No rewards available"
+        require(_bonusInfo[bonusId].amountAvailable > 0, "SB2");
+        // SB3: "Index outside scope"
+        require(index < _maximumBonuses(), "SB3");
         _currentBonusIds[index] = bonusId;
         _bonusInfo[bonusId].startingBlock = block.number;
         _bonusInfo[bonusId].endedAtBlock = 0;
