@@ -66,6 +66,9 @@ contract HellVaultBonus is Initializable, UUPSUpgradeable, OwnableUpgradeable, R
     function _minimumDividendsPerReward() public pure returns(uint) {
         return 1000;
     }
+    function _maximumBonuses() public pure returns(uint) {
+        return 10;
+    }
     ////////////////////////////////////////////////////////////////////
     // Internal Functions                                           ////
     ////////////////////////////////////////////////////////////////////
@@ -108,10 +111,6 @@ contract HellVaultBonus is Initializable, UUPSUpgradeable, OwnableUpgradeable, R
             }
         }
         return (unrealizedRewards, blocksEarned);
-    }
-
-    function _maximumBonuses() internal pure returns(uint) {
-        return 10;
     }
     ////////////////////////////////////////////////////////////////////
     // Only Owner                                                   ////
