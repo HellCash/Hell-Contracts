@@ -33,32 +33,36 @@ contract HellVaultBonus is Initializable, UUPSUpgradeable, OwnableUpgradeable, R
         uint endedAtBlock;
         // Added on responses only
         uint userUnrealizedRewards;
+        uint blocksEarned;
+        // TODO: Remove, used for debugging purposes,
+        uint stakeToReward;
     }
     // bonusId => BonusInfo
     mapping (uint => BonusInfo) public _bonusInfo;
     // rewardId => userAddress => lastDividend
     mapping (uint => mapping(address => uint)) public _userBonusLastDividend;
     // index => bonusId
-    mapping (uint => uint) private _currentBonusIds;
+    mapping (uint => uint) public _currentBonusIds;
     ////////////////////////////////////////////////////////////////////
     // Public Functions                                             ////
     ////////////////////////////////////////////////////////////////////
-    function getUserCurrentBonusUnrealizedReward(address userAddress, uint8 currentBonusIndex) public view returns (uint) {
-        uint unrealizedRewards;
-        if (userAddress != address(0)) {
-            // Request the hellDeposited and the lastDividendBlock from the userAddress on the HellVault
-            (uint hellDeposited, uint lastDividendBlock,,,) = _hellVault._userInfo(msg.sender);
-            // Calculate the userAddress unrealizedRewards
-            (unrealizedRewards, ) = _calculateBonusUnrealizedRewards(_bonusInfo[_currentBonusIds[currentBonusIndex]].id, userAddress, lastDividendBlock, (hellDeposited / _hellVault._minimumDeposit()));
+    function getCurrentBonusUnrealizedReward(address userAddress, uint currentBonusIndex) public view returns (uint unrealizedRewards, uint blocksEarned, uint stakeToReward) {
+        // Request the hellDeposited and the lastDividendBlock from the userAddress on the HellVault
+        (uint hellDeposited, uint lastDividendBlock,,,) = _hellVault._userInfo(userAddress);
+        // Calculate the userAddress unrealizedRewards
+        if(hellDeposited >= _hellVault._minimumDeposit()) {
+            (unrealizedRewards, blocksEarned, stakeToReward) = _calculateBonusUnrealizedRewards(_bonusInfo[_currentBonusIds[currentBonusIndex]].id, userAddress, lastDividendBlock, (hellDeposited / _hellVault._minimumDeposit()));
         }
-        return unrealizedRewards;
+        return (unrealizedRewards, blocksEarned, stakeToReward);
     }
 
-    function getCurrentBonuses() public view returns (BonusInfo[] memory) {
+    function getCurrentBonuses(address userAddress) public view returns (BonusInfo[] memory) {
         BonusInfo[] memory bonuses = new BonusInfo[](_maximumBonuses());
-        for(uint8 i = 0; i < _maximumBonuses(); i++) {
+        for(uint i = 0; i < _maximumBonuses(); i++) {
             bonuses[i] = _bonusInfo[_currentBonusIds[i]];
-            bonuses[i].userUnrealizedRewards = getUserCurrentBonusUnrealizedReward(msg.sender, i);
+            if (userAddress != (address(0))) {
+                (bonuses[i].userUnrealizedRewards, bonuses[i].blocksEarned, bonuses[i].stakeToReward) = getCurrentBonusUnrealizedReward(userAddress, i);
+            }
         }
         return bonuses;
     }
@@ -77,7 +81,7 @@ contract HellVaultBonus is Initializable, UUPSUpgradeable, OwnableUpgradeable, R
         address userAddress,
         uint userLastVaultDividendBlock,
         uint stakeToReward
-    ) internal view returns (uint unrealizedRewards, uint blocksEarned) {
+    ) internal view returns (uint unrealizedRewards, uint blocksEarned, uint) {
         BonusInfo memory bonus = _bonusInfo[bonusId];
         if(stakeToReward > 0) {
             // If there is a Vault reward present on this index, it still has rewards available for sharing
@@ -110,7 +114,7 @@ contract HellVaultBonus is Initializable, UUPSUpgradeable, OwnableUpgradeable, R
                 }
             }
         }
-        return (unrealizedRewards, blocksEarned);
+        return (unrealizedRewards, blocksEarned, stakeToReward);
     }
     ////////////////////////////////////////////////////////////////////
     // Only Owner                                                   ////
@@ -134,8 +138,10 @@ contract HellVaultBonus is Initializable, UUPSUpgradeable, OwnableUpgradeable, R
         require(amount > rewardPerBlock && (amount / rewardPerBlock) > _minimumDividendsPerReward(), "CB2");
         // safeDepositAsset: Validates for enough: balance, allowance and if the HellVaultRewards Contract received the expected amount
         address(this).safeDepositAsset(address(tokenAddress), amount);
-        BonusInfo memory bonusInfo;
+        // Increase the _totalBonuses
         _totalBonuses += 1;
+        // Create and Store the Bonus
+        BonusInfo memory bonusInfo;
         bonusInfo.id = _totalBonuses;
         bonusInfo.tokenAddress = tokenAddress;
         bonusInfo.totalAmount = amount;
@@ -148,17 +154,17 @@ contract HellVaultBonus is Initializable, UUPSUpgradeable, OwnableUpgradeable, R
         emit BonusCreated(bonusInfo.id, bonusInfo.tokenAddress, bonusInfo.amountAvailable, bonusInfo.rewardPerBlock);
     }
 
-    function _startBonus(uint8 index, uint bonusId) public onlyOwner {
+    function _startBonus(uint currentBonusIndex, uint bonusId) public onlyOwner {
         // SB1: "The reward Id doesn't exists"
         require(_bonusInfo[bonusId].id != 0, "SB1");
         // SB2: "No rewards available"
         require(_bonusInfo[bonusId].amountAvailable > 0, "SB2");
         // SB3: "Index outside scope"
-        require(index < _maximumBonuses(), "SB3");
-        _currentBonusIds[index] = bonusId;
+        require(currentBonusIndex < _maximumBonuses(), "SB3");
+        _currentBonusIds[currentBonusIndex] = bonusId;
         _bonusInfo[bonusId].startingBlock = block.number;
         _bonusInfo[bonusId].endedAtBlock = 0;
-        emit BonusStarted(bonusId, index);
+        emit BonusStarted(bonusId, currentBonusIndex);
     }
 
     function _setHellVaultHistoryContract(address newAddress) external onlyOwner {
@@ -185,7 +191,7 @@ contract HellVaultBonus is Initializable, UUPSUpgradeable, OwnableUpgradeable, R
             // Get the current bonus by his Id
             BonusInfo storage bonus = _bonusInfo[_currentBonusIds[i]];
             // Calculate the user unrealizedRewards
-            (uint unrealizedRewards, uint blocksEarned) = _calculateBonusUnrealizedRewards(bonus.id, userAddress, userLastVaultDividendBlock, stakeToReward);
+            (uint unrealizedRewards, uint blocksEarned,) = _calculateBonusUnrealizedRewards(bonus.id, userAddress, userLastVaultDividendBlock, stakeToReward);
             // Update the user lastDividendBlock for this bonus with the latest one
             _userBonusLastDividend[bonus.id][userAddress] = block.number;
             // If there are rewards available
