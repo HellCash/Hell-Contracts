@@ -3,7 +3,7 @@ import {Console} from "../../utils/console";
 import {BigNumber, Contract} from "ethers";
 import {defaultDeploymentOptions} from "../../models/deploymentOptions";
 
-export async function deployHell(name: string, symbol: string, initialSupply: BigNumber, deploymentOptions = defaultDeploymentOptions): Promise<Contract> {
+export async function deployHell(name: string, symbol: string, initialSupply: BigNumber | number, deploymentOptions = defaultDeploymentOptions): Promise<Contract> {
     const hellContractProxy = await upgrades.deployProxy(
         await ethers.getContractFactory("Hell"), [
             name,
