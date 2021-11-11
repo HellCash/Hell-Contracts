@@ -17,16 +17,29 @@ contract HellVaultHistory is Initializable, UUPSUpgradeable, OwnableUpgradeable,
     ////////////////////////////////////////////////////////////////////
     address _hellVaultBonusAddress;
     struct RewardInfo {
+        // Unique identifier for this operation
         uint id;
+        // Cryptocurrency asset given
         address tokenAddress;
+        // Amount given to the user
         uint amount;
+        // Claim mode used during this transaction
         HellVault.ClaimMode claimMode;
+        // Block number on which this bonus was given
         uint blockNumber;
+        // Address of the user that claimed the reward on behalf of the user.
+        address claimedBy;
+        // Total accumulated amount of the rewarded token for the userAddress by when the reward was given
+        uint cumulativeRewards;
     }
+    // Total rewards indexing
     // userAddress => totalRewards
     mapping(address => uint) public _userTotalRewards;
     // userAddress => rewardIndex => RewardInfo
+    // Cumulative rewards indexing
     mapping(address => mapping(uint => RewardInfo)) public _userRewards;
+    // userAddress => tokenAddress => userCumulativeReward;
+    mapping(address => mapping(address => uint)) public _userCumulativeRewards;
     ////////////////////////////////////////////////////////////////////
     // Public Views                                                 ////
     ////////////////////////////////////////////////////////////////////
@@ -74,6 +87,9 @@ contract HellVaultHistory is Initializable, UUPSUpgradeable, OwnableUpgradeable,
         reward.amount = amount;
         reward.claimMode = claimMode;
         reward.blockNumber = block.number;
+        reward.claimedBy = tx.origin;
+        _userCumulativeRewards[userAddress][tokenAddress] += amount;
+        reward.cumulativeRewards = _userCumulativeRewards[userAddress][tokenAddress];
         _userRewards[userAddress][reward.id] = reward;
         emit RewardRegistered(reward.id, userAddress, reward.tokenAddress, reward.amount);
     }
